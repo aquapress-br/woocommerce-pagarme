@@ -1,0 +1,80 @@
+.pagarme-form-content {
+	padding: 25px 15px;
+}
+
+.pagarme-form-content-header {
+	text-align: left;
+}
+
+.pagarme-form-content-header .pagarme-form-title {
+	margin-bottom: 15px;
+}
+
+.pagarme-form-content-header .pagarme-form-subtitle {
+	margin-bottom: 25px !important;
+}
+
+.pagarme-form-card-section {
+	border: 1px solid #D4D4D4;
+	border-bottom: none;
+	background: #FFFFFF;
+	padding: 15px;
+	box-sizing: border-box;
+	min-height: 85px;
+	display: grid;
+	grid-template-columns: 10fr;
+	text-align: left;
+}
+
+.pagarme-form-card-section:nth-child(n + 2) {
+	border-bottom: 1px solid #D4D4D4 !important;
+}
+
+.pagarme-form-card-section-title {
+	font-size: 16px;
+	line-height: 1.7;
+	font-weight: 600;
+	text-shadow: none;
+}
+
+.pagarme-form-card-section-text {
+	font-size: 14px;
+	margin-top: 5px;
+}
+
+.pagarme-form-section-status {
+	position: absolute;
+	justify-self: end;
+}
+
+.pagarme-form-card-section.section-close .intro-open,
+.pagarme-form-card-section.section-open .intro-close,
+.pagarme-form-card-section.section-pending .status-completed,
+.pagarme-form-card-section.section-completed .status-pending,
+.pagarme-form-card-section.section-open .pagarme-form-section-status,
+.pagarme-form-card-section.section-close .pagarme-form-section-content,
+.pagarme-form-section-content .hidden {
+	display: none;
+}
+
+.pagarme-form-section-content {
+	padding: 15px 0 0;
+}
+
+.pagarme-form-group {
+	margin-bottom: 15px;
+}
+
+.pagarme-form-group-row-first {
+	float: left;
+}
+
+.pagarme-form-group-row-last {
+	float: right;
+}
+
+.pagarme-form-group-row-first,
+.pagarme-form-group-row-last {
+	overflow: visible;
+	width: 48%;
+}

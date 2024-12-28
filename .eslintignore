@@ -1,0 +1,7 @@
+# Files and folders related to build/test tools
+/build
+/dist
+/node_modules
+/tests
+/app/vendor
+/tools
