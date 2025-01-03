@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Aquapress\Pagarme\Tasks;
 
@@ -31,12 +31,12 @@ class Update_Recipients extends Aquapress\Pagarme\Abstracts\Task {
 	 * @var string
 	 */
 	public $recurrence = 'hourly';
-	
+
 	/**
 	 * Execute the task. Register action hook to perform recipient update on 'pagarme_recipient_update'.
-	 * 
+	 *
 	 * Subclasses should implement this method to perform tasks or any required operations.
-	 * 
+	 *
 	 * @return void
 	 */
 	public function process() {
@@ -73,5 +73,4 @@ class Update_Recipients extends Aquapress\Pagarme\Abstracts\Task {
 			$this->debug( 'Failed to process scheduled task' );
 		}
 	}
-	
 }

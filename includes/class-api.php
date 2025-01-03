@@ -46,7 +46,7 @@ class API {
 	 * @var Aquapress\Pagarme\Logger
 	 */
 	public \Aquapress\Pagarme\Logger $logger;
-	
+
 	/**
 	 * Constructor.
 	 *
@@ -81,7 +81,7 @@ class API {
 		}
 		return static::API_URL;
 	}
-	
+
 	/**
 	 * Do save customer in Pagar.me API.
 	 *
@@ -90,7 +90,7 @@ class API {
 	 */
 	public function do_save_customer( $payload = array() ) {
 
-		wc_pagarme()->logger->add( 'Save customer data: ' . var_export( $payload, true ) );
+		$this->debug( 'Save customer data: ' . var_export( $payload, true ) );
 
 		// Perform the request.
 		$response = $this->do_request( '/customers', 'POST', $payload );
@@ -100,7 +100,7 @@ class API {
 
 			$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-			wc_pagarme()->logger->add( 'Save customer data successfully! The response is: ' . var_export( $data, true ) );
+			$this->debug( 'Save customer data successfully! The response is: ' . var_export( $data, true ) );
 
 			do_action( 'wc_pagarme_saved_customer_data', $data );
 
@@ -121,7 +121,7 @@ class API {
 	 */
 	public function do_transaction( $payload = array(), $token = '' ) {
 
-		wc_pagarme()->logger->add( 'Doing a transaction for order ' . var_export( $payload, true ) );
+		$this->debug( 'Doing a transaction for order ' . var_export( $payload, true ) );
 
 		// Check the capture token to endpoint.
 		$endpoint = ! empty( $token ) ? '/charges/' . $token . '/capture' : '/orders';
@@ -134,7 +134,7 @@ class API {
 
 			$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-			wc_pagarme()->logger->add( 'Transaction completed successfully! The transaction response is: ' . var_export( $data, true ) );
+			$this->debug( 'Transaction completed successfully! The transaction response is: ' . var_export( $data, true ) );
 
 			do_action( 'wc_pagarme_processed_transaction_data', $data );
 
@@ -153,7 +153,7 @@ class API {
 	 */
 	public function get_recipients( $payload = array() ) {
 
-		wc_pagarme()->logger->add( 'Get recipients ' . var_export( $payload, true ) );
+		$this->debug( 'Get recipients ' . var_export( $payload, true ) );
 
 		$response = $this->do_request( '/recipients', 'GET', $payload );
 
@@ -162,7 +162,7 @@ class API {
 
 			$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-			wc_pagarme()->logger->add( 'Failed in doing save data: ' . var_export( $response, true ) );
+			$this->debug( 'Failed in doing save data: ' . var_export( $response, true ) );
 
 			do_action( 'wc_pagarme_processed_recipients_data', $data );
 
@@ -191,14 +191,14 @@ class API {
 			$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 			$this->debug( 'Saved recipient data: ' . var_export( $data, true ) );
-			
+
 			do_action( 'wc_pagarme_saved_recipient_data', $data );
 
 			return $data;
 
 		} else {
 			throw new \Exception( $response->get_error_message() );
-		}	
+		}
 	}
 
 	/**
@@ -227,7 +227,7 @@ class API {
 
 		} else {
 			throw new \Exception( $response->get_error_message() );
-		}	
+		}
 	}
 
 	/**
@@ -269,7 +269,7 @@ class API {
 		$this->debug( 'Get recipient balance: ' . var_export( $recipient_id, true ) );
 
 		$response = $this->do_request( '/recipients/' . $recipient_id . '/balance', 'GET' );
-		
+
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
@@ -294,9 +294,9 @@ class API {
 	public function get_recipient_operations( $payload = array() ) {
 
 		$this->debug( 'Get recipient operations: ' . var_export( $payload, true ) );
-	
+
 		$response = $this->do_request( '/balance/operations', 'GET', $payload );
-		
+
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
@@ -346,19 +346,18 @@ class API {
 
 		// Perform the request.
 		$response = wp_remote_post( $url, $args );
-		
+
 		if ( wp_remote_retrieve_response_code( $response ) != 200 ) {
 			// Log errors.
 			$this->debug( 'API request fail: ' . var_export( $args, true ) );
 			$this->debug( 'API response fail: ' . var_export( $response, true ) );
 			// Check response erros.
-			$body = json_decode( wp_remote_retrieve_body( $response ), true );		
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
 			if ( isset( $body['message'] ) ) {
 				return new \WP_Error( '', $body['message'] );
 			}
-			
 		}
-		
+
 		return $response;
 	}
 
@@ -379,14 +378,14 @@ class API {
 				$headers,
 				array(
 					'Content-Type'  => 'application/json',
-					'User-Agent'    => sprintf( 'AquapressGateway/%1$s/wordpress', WC_PAGARME_VERSION),
+					'User-Agent'    => sprintf( 'AquapressGateway/%1$s/wordpress', WC_PAGARME_VERSION ),
 					'Authorization' => 'Basic ' . base64_encode( sprintf( '%s:', $this->config->get_secret_key() ) ),
 				)
 			),
 			'timeout' => $timeout,
 		);
 	}
-	
+
 	/**
 	 * Debug logger.
 	 *
@@ -401,10 +400,8 @@ class API {
 			if ( ! $this->logger ) {
 				$this->logger = new \Aquapress\Pagarme\Logger();
 			}
-		
+
 			$this->logger->add( $message, $start_time, $end_time );
 		}
 	}
-	
-	
 }

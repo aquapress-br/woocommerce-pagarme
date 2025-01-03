@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Aquapress\Pagarme\Abstracts;
 
@@ -12,22 +12,14 @@ namespace Aquapress\Pagarme\Abstracts;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Aquapress\Pagarme\Abstracts\Gateway class.
+ * \Aquapress\Pagarme\Abstracts\Gateway class.
  *
  * @since 1.0.0
  */
 abstract class Gateway extends \WC_Payment_Gateway {
-	
-	use \Aquapress\Pagarme\Traits\Base_Gateway_General;
-	//use \Aquapress\Pagarme\Traits\Base_Gateway_CredtCard;
 
-	/**
-	 * The plugin ID. Used for option names.
-	 *
-	 * @var string
-	 */
-	public $plugin_id = 'wc_pagarme_';
-	
+	use \Aquapress\Pagarme\Traits\Base_Gateway_General;
+
 	/**
 	 * API handler instance.
 	 *
@@ -39,14 +31,14 @@ abstract class Gateway extends \WC_Payment_Gateway {
 	 * @var Aquapress\Pagarme\API
 	 */
 	public \Aquapress\Pagarme\API $api;
-	
+
 	/**
 	 * Run child class hooks.
 	 *
 	 * @return void
 	 */
 	abstract public function init_hooks();
-	
+
 	/**
 	 * Initializes the Pagar.me payment gateway.
 	 *
@@ -88,9 +80,9 @@ abstract class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function init_api() {
 		if ( empty( $this->api ) ) {
-			$this->api = \Aquapress\Pagarme\Helpers\Factory::Load_API( 
-				$this->id, 
-				$this->testmode === 'yes' // Check API credentials for sandbox.
+			$this->api = \Aquapress\Pagarme\Helpers\Factory::Load_API(
+				$this->id,
+				$this->debug // Check API credentials for sandbox.
 			);
 		}
 	}
@@ -99,20 +91,20 @@ abstract class Gateway extends \WC_Payment_Gateway {
 	 * Initialize and register connector action hooks.
 	 *
 	 * This method registers the necessary action hooks for the Pagar.me connector
-	 * within the WordPress environment. It ensures that critical tasks, such as 
+	 * within the WordPress environment. It ensures that critical tasks, such as
 	 * scheduling recipient updates and triggering actions for recipient management,
 	 * are properly executed at the right points during the request lifecycle.
 	 *
-	 * Additionally, this method calls `init_hooks()` to initialize any other custom hooks 
+	 * Additionally, this method calls `init_hooks()` to initialize any other custom hooks
 	 * for the connector in the child class.
 	 *
 	 * @return void
 	 */
-	public function init_actions() {		
+	public function init_actions() {
 		// Initialize any additional hooks needed by the connector in the child class.
 		$this->init_hooks();
 	}
-	
+
 	/**
 	 * Checks if the Pagar.me payment method is available.
 	 *

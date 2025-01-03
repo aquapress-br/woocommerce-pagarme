@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Aquapress\Pagarme\Marketplaces;
 
@@ -24,17 +24,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @var string
 	 */
 	public $id = 'dokan';
-	
-	/**
-	 * Start dokan connector.
-	 *
-	 * @return   void
-	 */
-	public function __construct() {
-		// Init actions for the connector.
-		parent::init_connector();
-	}
-	
+
 	/**
 	 * Running the connector actions.
 	 *
@@ -43,7 +33,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	public function init_hooks() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 20 );
 		add_action( 'wp_ajax_update_recipient_data', array( $this, 'update_recipient_data' ) );
-		
+
 		add_action( 'dokan_settings_sections', array( $this, 'admin_settings' ) );
 		add_action( 'dokan_settings_fields', array( $this, 'admin_settings_fieldsr' ) );
 		add_action( 'dokan_dashboard_content_inside_before', array( $this, 'show_verification_alert' ) );
@@ -67,14 +57,14 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 */
 	public function admin_settings( $sections ) {
 		$sections[] = array(
-			'id'  => 'wc_pagarme_marketplace_settings',
-			'title' => __( 'Pagar.me', 'wc-pagarme' ),
-			'description' => __( 'Opções do Marketplace', 'wc-pagarme' ),
-			'icon_url'  => WC_PAGARME_URI . 'assets/img/pagarme-icon.png',
+			'id'                   => 'wc_pagarme_marketplace_settings',
+			'title'                => __( 'Pagar.me', 'wc-pagarme' ),
+			'description'          => __( 'Opções do Marketplace', 'wc-pagarme' ),
+			'icon_url'             => WC_PAGARME_URI . 'assets/img/pagarme-icon.png',
 			'settings_title'       => __( 'Configurações da Integração', 'wc-pagarme' ),
-            'settings_description' => __( 'Personalize e gerencie as preferências de configuração para a integração com a Pagar.me.', 'wc-pagarme' ),
+			'settings_description' => __( 'Personalize e gerencie as preferências de configuração para a integração com a Pagar.me.', 'wc-pagarme' ),
 		);
-		
+
 		return $sections;
 	}
 
@@ -84,33 +74,32 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @param array $settings_fields All registered fields.
 	 * @return array
 	 */
-	function admin_settings_fieldsr( $settings_fields ) 
-	{		
-		$options = array( '' => __( '--- Nenhum Usuário Selecionado ---', 'wc-pagarme' ) );
+	function admin_settings_fieldsr( $settings_fields ) {
+		$options  = array( '' => __( '--- Nenhum Usuário Selecionado ---', 'wc-pagarme' ) );
 		$profiles = $blogusers = get_users( array( 'role__in' => array( 'administrator' ) ) );
-		
-		foreach( $profiles as $profile ) {
+
+		foreach ( $profiles as $profile ) {
 			$options[ $profile->ID ] = $profile->display_name;
 		}
-		
+
 		$settings_fields['wc_pagarme_marketplace_settings'] = array(
-			'secret_key'  => array(
-				'name'    => 'secret_key',
-				'label'   => __( 'Pagar.me API Key', 'wc-pagarme' ),
-				'desc'    => sprintf( __( 'Por favor, insira sua chave de API Pagar.me. Ela é necessária para a homologação dos vendedores, relatórios de recebimentos e as notificações de URL. É possível obter sua chave de API em %s.', 'wc-pagarme' ), '<a href="https://dashboard.pagar.me/">' . __( 'Pagar.me Dashboard > Página Minha Conta', 'wc-pagarme' ) . '</a>' ),
-            ),
-			'debug' => array(
+			'secret_key' => array(
+				'name'  => 'secret_key',
+				'label' => __( 'Pagar.me API Key', 'wc-pagarme' ),
+				'desc'  => sprintf( __( 'Por favor, insira sua chave de API Pagar.me. Ela é necessária para a homologação dos vendedores, relatórios de recebimentos e as notificações de URL. É possível obter sua chave de API em %s.', 'wc-pagarme' ), '<a href="https://dashboard.pagar.me/">' . __( 'Pagar.me Dashboard > Página Minha Conta', 'wc-pagarme' ) . '</a>' ),
+			),
+			'debug'      => array(
 				'name'    => 'debug',
 				'label'   => __( 'Habilitar Logs', 'wc-pagarme' ),
 				'desc'    => sprintf( __( 'Registre eventos da Pagar.me como solicitações de API. Você pode verificar o log em %s', 'wc-pagarme' ), '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . esc_attr( 'wc_pagarme_dokan' ) . '-' . sanitize_file_name( wp_hash( 'wc_pagarme_dokan' ) ) . '.log' ) ) . '">' . __( 'Status do sistema &gt; Logs', 'wc-pagarme' ) . '</a>' ),
 				'type'    => 'switcher',
 				'default' => 'yes',
-			)
+			),
 		);
 
 		return $settings_fields;
 	}
-	
+
 	/**
 	 * Enqueue Dokan Dashboard Scripts
 	 *
@@ -139,7 +128,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 
 		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipiente_id', true ); // TODO: change to "pagarme_recipient_id" in future
 		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
-		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );		
+		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
 		?>
 		<?php if ( in_array( $recipient_status, array( 'affiliation' ) ) ) : ?>
 			<div class="dokan-alert dokan-alert-warning">
@@ -164,7 +153,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	public function add_nav_links( $nav_links ) {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
-		
+
 		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipiente_id', true ); // TODO: change to "pagarme_recipient_id" in future
 		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
 		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
@@ -180,7 +169,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		}
 
 		// Set recipient form in payments settings submenu.
-		if ( !isset( $nav_links['settings']['submenu']['payment'] ) ) {
+		if ( ! isset( $nav_links['settings']['submenu']['payment'] ) ) {
 			$nav_links['settings']['submenu']['payments'] = array(
 				'title' => __( 'Pagamento', 'wc-pagarme' ),
 				'icon'  => '<i class="fa fa-usd"></i>',
@@ -188,42 +177,42 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 				'pos'   => 2,
 			);
 		}
-		
+
 		//Set dashboard menu for transactions and calendar.
 		$nav_links['finances'] = array(
-			'title' => sprintf('%s <i class="fa fa-angle-right pull-right"></i>', __( 'Minhas Finanças', 'wc-pagarme' ) ),
+			'title' => sprintf( '%s <i class="fa fa-angle-right pull-right"></i>', __( 'Minhas Finanças', 'wc-pagarme' ) ),
 			'icon'  => '<i class="fa fa-dollar"></i>',
 			'url'   => dokan_get_navigation_url( 'finances/transactions' ),
 			'pos'   => 51,
 			'sub'   => array(
-				'back' => array(
+				'back'                  => array(
 					'title' => __( 'Voltar para o Painel', 'wc-pagarme' ),
 					'icon'  => '<i class="fa fa-long-arrow-left"></i>',
 					'url'   => dokan_get_navigation_url(),
-					'pos'   => 10
+					'pos'   => 10,
 				),
 				'finances/transactions' => array(
 					'title' => __( 'Movimentações', 'wc-pagarme' ),
 					'icon'  => '<i class="fa fa-dollar"></i>',
 					'url'   => dokan_get_navigation_url( 'finances/transactions' ),
-					'pos'   => 10
+					'pos'   => 10,
 				),
-				'finances/calendar' => array(
+				'finances/calendar'     => array(
 					'title'      => __( 'Recebimentos', 'wc-pagarme' ),
 					'icon'       => '<i class="fa fa-calendar"></i>',
 					'url'        => dokan_get_navigation_url( 'finances/calendar' ),
 					'pos'        => 30,
-					'permission' => 'dokan_view_store_settings_menu'
-				)
-			)
+					'permission' => 'dokan_view_store_settings_menu',
+				),
+			),
 		);
 
 		// Active selected custom menus.
 		global $wp;
-		$request = $wp->request;
-		$active = explode('/', $request);
-		$active_finances = (in_array('transactions', $active) && in_array('finances', $active)) || (in_array('calendar', $active) && in_array('finances', $active));
-		
+		$request         = $wp->request;
+		$active          = explode( '/', $request );
+		$active_finances = ( in_array( 'transactions', $active ) && in_array( 'finances', $active ) ) || ( in_array( 'calendar', $active ) && in_array( 'finances', $active ) );
+
 		if ( true === $active_finances ) {
 			return $nav_links['finances']['sub'];
 		}
@@ -238,9 +227,9 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	public function load_custom_page_templates( $dokan_menus ) {
 		if ( isset( $dokan_menus['verification_kyc'] ) ) {
 			$this->show_recipient_verification_template();
-		} else if ( isset( $dokan_menus['finances'] ) && $dokan_menus['finances'] == 'transactions' ) {
+		} elseif ( isset( $dokan_menus['finances'] ) && $dokan_menus['finances'] == 'transactions' ) {
 			$this->show_recipient_transactions_template();
-		}  else if ( isset( $dokan_menus['finances'] ) && $dokan_menus['finances'] == 'calendar' ) {
+		} elseif ( isset( $dokan_menus['finances'] ) && $dokan_menus['finances'] == 'calendar' ) {
 			//parent::output_recipient_verification_template();
 		}
 	}
@@ -251,7 +240,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @return void
 	 */
 	public function set_custom_query_vars( $dokan_menus ) {
-		$dokan_menus['finances'] = 'finances';
+		$dokan_menus['finances']         = 'finances';
 		$dokan_menus['verification_kyc'] = 'verification_kyc';
 
 		return $dokan_menus;
@@ -352,7 +341,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 */
 	public function replace_payment_method_template_part( $template, $slug, $name ) {
 		global $wp_query;
-		
+
 		if ( 'settings/payment' == $slug && 'manage' === $name ) {
 			if ( isset( $wp_query->query['settings'] ) && in_array( $wp_query->query['settings'], array( 'payment-manage-pagarme-edit', 'payment-manage-pagarme' ) ) ) {
 				return WC_PAGARME_PATH . 'templates/dokan/settings/payment-manage.php';
@@ -368,7 +357,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @return void
 	 */
 	public function show_recipient_transactions_template() {
-	?>
+		?>
 		<div class="dokan-dashboard-wrap">
 
 			<?php do_action( 'dokan_dashboard_content_before' ); ?>
@@ -390,7 +379,6 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 
 		</div>
 		<?php
-		
 	}
 
 	/**
@@ -399,7 +387,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @return void
 	 */
 	public function show_recipient_verification_template() {
-	?>
+		?>
 		<div class="dokan-dashboard-wrap">
 
 			<?php do_action( 'dokan_dashboard_content_before' ); ?>
@@ -418,28 +406,34 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 
 		</div>
 		<?php
-		
 	}
 
-    /**
-     * Build split rules for payment data.
-     *
-     * @param Aquapress\Pagarme\Models\Model_Split   $data      Split data object.
-     * @param int                                    $order_id  Woocommerce order ID.
-     * @param WC_Asaas\Gateway\Gateway               $gateway   The assas gateway object.
+	/**
+	 * Build split rules for payment data.
 	 *
-     * @return Aquapress\Pagarme\Models\Model_Split
-     */
-    public function split_data( $data, $order_id, $gateway ) {
+	 * @param mixed                                  $the_order           Woocommerce Order ID or Object WC_Order.
+	 * @param \Aquapress\Pagarme\Abstracts\Gateway   $context             The Pagarme gateway object.
+	 *
+	 * @return \Aquapress\Pagarme\Models\Split_Data Split data object.
+	 */
+	public function split_data( $the_order, $context ) {
+		// Get empty split data object.
+		$data = new \Aquapress\Pagarme\Models\Split_Data();
+		// Get order data.
+		$order = wc_get_order( $the_order );
 		
+		// Build a split payment logic...
+		
+		return $data;
 	}
-	
+
 	/**
 	 * Check the requirements.
 	 *
 	 * @return boolean
 	 */
 	public function is_available() {
+		return false;
 		if ( class_exists( 'WeDevs_Dokan' ) ) {
 			return true;
 		}

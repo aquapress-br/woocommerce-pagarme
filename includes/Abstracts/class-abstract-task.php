@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Aquapress\Pagarme\Abstracts;
 
@@ -52,13 +52,13 @@ abstract class Task {
 
 	/**
 	 * Execute the task.
-	 * 
+	 *
 	 * Subclasses should implement this method to perform tasks or any required operations.
-	 * 
+	 *
 	 * @return void
 	 */
 	abstract public function process();
-	
+
 	/**
 	 * Check the requirements for running the task process.
 	 *
@@ -79,10 +79,9 @@ abstract class Task {
 	 */
 	public function debug( $message, $start_time = null, $end_time = null ) {
 		if ( ! $this->logger ) {
-			$this->logger = new Aquapress\Pagarme\Logger(  );
+			$this->logger = new Aquapress\Pagarme\Logger();
 		}
-		
-		
+
 		$this->logger->add( $message, $start_time, $end_time );
 	}
 }

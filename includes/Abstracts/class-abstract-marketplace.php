@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Aquapress\Pagarme\Abstracts;
 
@@ -29,14 +29,14 @@ abstract class Marketplace {
 	 * @var array
 	 */
 	public $settings = array();
-	
-    /**
-     * Split rules stored as an associative array.
-     *
-     * @var array
-     */
-    private $split_data = array();
-	
+
+	/**
+	 * Split rules stored as an associative array.
+	 *
+	 * @var array
+	 */
+	private $split_data = array();
+
 	/**
 	 * API handler instance.
 	 *
@@ -48,7 +48,7 @@ abstract class Marketplace {
 	 * @var Aquapress\Pagarme\API
 	 */
 	public \Aquapress\Pagarme\API $api;
-	
+
 	/**
 	 * Check the requirements for running the split actions.
 	 *
@@ -62,45 +62,43 @@ abstract class Marketplace {
 	 * @return void
 	 */
 	abstract public function init_hooks();
-	
-    /**
-     * Build split rules for payment data.
-     *
-     * @param Aquapress\Pagarme\Models\Model_Split   $data      Split data object.
-     * @param int                                    $order_id  Woocommerce order ID.
-     * @param WC_Asaas\Gateway\Gateway               $gateway   The assas gateway object.
-	 *
-     * @return Aquapress\Pagarme\Models\Model_Split
-     */
-    abstract public function split_data( $data, $order_id, $gateway );
-	
-    /**
-     * Merge split rules with regular payment data.
-     *
-     * @param array                                $transaction_data   Regular payment data.
-     * @param int                                  $order_id             Woocommerce order ID.
-     * @param Aquapress\Pagarme\Abstracts\Gateway  $gateway              The pagarme gateway object.
-     *
-     * @return array
-     */
-    final public function build_split_data( $transaction_data, $order_id, $gateway ) 
-	{		
-		$data = new \Aquapress\Pagarme\Models\Split_Data();
-		$split_data = $this->split_data( $data, $order_id, $gateway );
 
-		if ( $split_data->get_data() && 'single' == $transaction_data[0]['type'] ) {
-			if ( isset( $transaction_data[0]['payment_data']['split'] ) ) {
-				$transaction_data[0]['payment_data']['split'] = array_merge( 
-					$transaction_data[0]['payment_data']['split'], 
-					$split_data->get_data() 
-				);
-			} else {
-				$transaction_data[0]['payment_data']['split'] = $split_data->get_data();
+	/**
+	 * Build split rules for payment data.
+	 *
+	 * @param mixed                                  $the_order           Woocommerce Order ID or Object WC_Order.
+	 * @param \Aquapress\Pagarme\Abstracts\Gateway   $context             The Pagarme gateway object.
+	 *
+	 * @return \Aquapress\Pagarme\Models\Split_Data Split data object.
+	 */
+	abstract public function split_data( $the_order, $context );
+
+	/**
+	 * Merge split rules with regular payment data.
+	 *
+	 * @param array                                $payload             Regular payment data.
+	 * @param mixed                                $the_order           Woocommerce Order ID or Object WC_Order.
+	 * @param Aquapress\Pagarme\Abstracts\Gateway  $context             The pagarme gateway object.
+	 *
+	 * @return array
+	 */
+	final public function build_split_data( $payload, $the_order, $context ) {
+		$split_data = $this->split_data( $the_order, $context );
+		if ( is_a( $split_data, '\Aquapress\Pagarme\Models\Split_Data' ) ) {
+			if ( $split_data->get_data() && 'single' == $payload[0]['type'] ) {
+				if ( isset( $payload[0]['payment_data']['split'] ) ) {
+					$payload[0]['payment_data']['split'] = array_merge(
+						$payload[0]['payment_data']['split'],
+						$split_data->get_data()
+					);
+				} else {
+					$payload[0]['payment_data']['split'] = $split_data->get_data();
+				}
 			}
 		}
-		
-		return $transaction_data;
-    }
+
+		return $payload;
+	}
 
 	/**
 	 * Initializes the Pagar.me marketplace connector.
@@ -124,14 +122,14 @@ abstract class Marketplace {
 	 * Initialize and register connector action hooks.
 	 *
 	 * This method registers the necessary action hooks for the Pagar.me connector
-	 * within the WordPress environment. It ensures that critical tasks, such as 
+	 * within the WordPress environment. It ensures that critical tasks, such as
 	 * scheduling recipient updates and triggering actions for recipient management,
 	 * are properly executed at the right points during the request lifecycle.
 	 *
 	 * - `wp`: Schedules the recipient update process.
 	 * - `pagarme_recipient_update`: Triggers the actual recipient update process.
-	 * 
-	 * Additionally, this method calls `init_hooks()` to initialize any other custom hooks 
+	 *
+	 * Additionally, this method calls `init_hooks()` to initialize any other custom hooks
 	 * for the connector in the child class.
 	 *
 	 * @return void
@@ -139,11 +137,11 @@ abstract class Marketplace {
 	public function init_actions() {
 		// Initialize any additional hooks needed by the connector in the child class.
 		$this->init_hooks();
-		
+
 		// Build split data in process payment.
-		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_split_data' ), 10, 2 );
+		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_split_data' ), 10, 3 );
 	}
-	
+
 	/**
 	 * Initialise Settings.
 	 *
@@ -155,13 +153,14 @@ abstract class Marketplace {
 	 * @uses get_option()
 	 */
 	public function init_settings() {
-		$this->settings = get_option( 'wc_pagarme_marketplace_settings', 
+		$this->settings = get_option(
+			'wc_pagarme_marketplace_settings',
 			array(
-				'recipiente_id' => apply_filters( 'wc_pagarme_marketplace_default_recipiente_id', '' ) // Seller recipiente id.
-			) 
+				'recipiente_id' => apply_filters( 'wc_pagarme_marketplace_default_recipiente_id', '' ), // Seller recipiente id.
+			)
 		);
 	}
-	
+
 	/**
 	 * Initializes the Pagar.me API instance.
 	 *
@@ -175,7 +174,7 @@ abstract class Marketplace {
 	public function init_api() {
 		$this->api = \Aquapress\Pagarme\Helpers\Factory::Load_API( 'marketplace' );
 	}
-	
+
 	/*
 	 * Update Recipient Data
 	 *
@@ -236,7 +235,7 @@ abstract class Marketplace {
 				$request = $this->api->do_update_recipient( $recipient_id, \Aquapress\Pagarme\Helpers\Payload::Build_Recipient_Payload( $data ) );
 			}
 			if ( isset( $request['id'], $request['status'] ) ) {
-				// Update form values in WP user meta. 
+				// Update form values in WP user meta.
 				foreach ( $postdata as $item => $value ) {
 					if ( strpos( $item, 'pagarme_recipient_' ) === 0 ) {
 						$field  = substr( $item, strlen( 'pagarme_recipient_' ) );
@@ -249,7 +248,7 @@ abstract class Marketplace {
 				// Save base info.
 				update_user_meta( $current_user_id, 'pagarme_recipient_id', $request['id'] );
 				update_user_meta( $current_user_id, 'pagarme_recipient_status', $request['status'] );
-				
+
 				// Save bank account id for create request.
 				if ( isset( $request['bank_account']['id'] ) ) {
 					update_user_meta( $current_user_id, 'pagarme_recipiente_bank_account_id', $request['bank_account']['id'] );
@@ -372,7 +371,7 @@ abstract class Marketplace {
 
 	public static function form_schema() {
 		$schema = array(
-			'account_type'       => array(
+			'account_type'          => array(
 				'required'          => true,
 				'label'             => __( 'Tipo da Conta', 'wc-pagarme' ),
 				'max'               => false,
@@ -383,7 +382,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira valores válidos para o campo "Tipo da Conta": Pessoa Física ou Pessoa Jurídica.', 'wc-pagarme' ),
 			),
-			'document'           => array(
+			'document'              => array(
 				'required'          => true,
 				'label'             => __( 'Documento', 'wc-pagarme' ),
 				'max'               => false,
@@ -394,7 +393,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_only_numbers',
 				'error_msg'         => __( 'Insira um valor válido para o campo “Documento”: CPF ou CNPJ.', 'wc-pagarme' ),
 			),
-			'full_name'          => array(
+			'full_name'             => array(
 				'required'          => true,
 				'label'             => __( 'Nome Completo', 'wc-pagarme' ),
 				'max'               => 36,
@@ -405,7 +404,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira um valor válido para o campo “Nome da pessoa”. O comprimento do campo é de 2 a 36 caracteres.', 'wc-pagarme' ),
 			),
-			'birthdate'          => array(
+			'birthdate'             => array(
 				'required'          => true,
 				'label'             => __( 'Data de Aniversário', 'wc-pagarme' ),
 				'max'               => false,
@@ -416,7 +415,7 @@ abstract class Marketplace {
 				'equal'             => array( '/^(19|20)\d\d\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/' ),
 				'error_msg'         => __( 'Insira uma data de aniversário valida.', 'wc-pagarme' ),
 			),
-			'occupation'         => array(
+			'occupation'            => array(
 				'required'          => true,
 				'label'             => __( 'Ocupação Profissional', 'wc-pagarme' ),
 				'max'               => 36,
@@ -427,7 +426,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira uma “Ocupação Profissional” valida.', 'wc-pagarme' ),
 			),
-			'company_name'       => array(
+			'company_name'          => array(
 				'required'          => true,
 				'label'             => __( 'Nome Fantasia da Empresa', 'wc-pagarme' ),
 				'max'               => 30,
@@ -438,7 +437,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira um valor válido para o campo “Nome Fantasia da Empresa”.', 'wc-pagarme' ),
 			),
-			'company_legal_name' => array(
+			'company_legal_name'    => array(
 				'required'          => true,
 				'label'             => __( 'Razão Social da Empresa', 'wc-pagarme' ),
 				'max'               => 36,
@@ -449,29 +448,29 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira um valor válido para o campo “Razão Social da Empresa”.', 'wc-pagarme' ),
 			),
-			'annual_revenue'     => array(
-				'required'  => true,
-				'label'     => __( 'Receita Anual da Empresa', 'wc-pagarme' ),
-				'max'       => 36,
-				'min'       => 1,
-				'size'      => false,
-				'type'      => 'string',
-				'equal'     => false,
+			'annual_revenue'        => array(
+				'required'          => true,
+				'label'             => __( 'Receita Anual da Empresa', 'wc-pagarme' ),
+				'max'               => 36,
+				'min'               => 1,
+				'size'              => false,
+				'type'              => 'string',
+				'equal'             => false,
 				'sanitize_callback' => 'wc_pagarme_only_numbers',
-				'error_msg' => __( 'Insira um valor válido para o campo “Receita Anual da Empresa”.', 'wc-pagarme' ),
+				'error_msg'         => __( 'Insira um valor válido para o campo “Receita Anual da Empresa”.', 'wc-pagarme' ),
 			),
-			'monthly_income'     => array(
-				'required'  => true,
-				'label'     => __( 'Renda Mensal', 'wc-pagarme' ),
-				'max'       => 36,
-				'min'       => 1,
-				'size'      => false,
-				'type'      => 'string',
-				'equal'     => false,
+			'monthly_income'        => array(
+				'required'          => true,
+				'label'             => __( 'Renda Mensal', 'wc-pagarme' ),
+				'max'               => 36,
+				'min'               => 1,
+				'size'              => false,
+				'type'              => 'string',
+				'equal'             => false,
 				'sanitize_callback' => 'wc_pagarme_only_numbers',
-				'error_msg' => __( 'Insira um valor válido para o campo “Renda Mensal”.', 'wc-pagarme' ),
+				'error_msg'         => __( 'Insira um valor válido para o campo “Renda Mensal”.', 'wc-pagarme' ),
 			),
-			'address_zipcode'  => array(
+			'address_zipcode'       => array(
 				'required'          => true,
 				'label'             => __( 'CEP', 'wc-pagarme' ),
 				'max'               => false,
@@ -482,7 +481,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_only_numbers',
 				'error_msg'         => __( 'Insira um código postal válido no campo "CEP". Ex: 06550-000.', 'wc-pagarme' ),
 			),
-			'address_street'              => array(
+			'address_street'        => array(
 				'required'          => true,
 				'label'             => __( 'Logradouro', 'wc-pagarme' ),
 				'max'               => 150,
@@ -493,7 +492,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira um endereço válido no campo "Logradouro". Ex: Rua General Justo.', 'wc-pagarme' ),
 			),
-			'address_street_number'  => array(
+			'address_street_number' => array(
 				'required'          => true,
 				'label'             => __( 'Número', 'wc-pagarme' ),
 				'max'               => 99999999,
@@ -504,7 +503,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_only_numbers',
 				'error_msg'         => __( 'Insira um endereço válido no campo "Logradouro". Ex: Rua General Justo.', 'wc-pagarme' ),
 			),
-			'address_neighborhood'              => array(
+			'address_neighborhood'  => array(
 				'required'          => true,
 				'label'             => __( 'Bairro', 'wc-pagarme' ),
 				'max'               => 100,
@@ -515,7 +514,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira um nome válido no campo "Bairro". Ex: Vila Olímpia.', 'wc-pagarme' ),
 			),
-			'address_city'  => array(
+			'address_city'          => array(
 				'required'          => true,
 				'label'             => __( 'Cidade', 'wc-pagarme' ),
 				'max'               => 50,
@@ -526,7 +525,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira um nome válido no campo "Cidade". Ex: São Paulo.', 'wc-pagarme' ),
 			),
-			'address_state'  => array(
+			'address_state'         => array(
 				'required'          => true,
 				'label'             => __( 'Estado', 'wc-pagarme' ),
 				'max'               => false,
@@ -537,7 +536,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Selecione um valor válido no campo "Estado". Ex: SP.', 'wc-pagarme' ),
 			),
-			'email'              => array(
+			'email'                 => array(
 				'required'          => true,
 				'label'             => __( 'E-mail', 'wc-pagarme' ),
 				'max'               => 46,
@@ -548,7 +547,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira um endereço válido no campo "E-mail". Ex: seumome@gmail.com.', 'wc-pagarme' ),
 			),
-			'phone'              => array(
+			'phone'                 => array(
 				'required'          => true,
 				'label'             => __( 'Celular', 'wc-pagarme' ),
 				'max'               => false,
@@ -559,7 +558,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_only_numbers',
 				'error_msg'         => __( 'Insira um número válido no campo "Telefone". Ex: (11) 91234-5678.', 'wc-pagarme' ),
 			),
-			'operation_type'     => array(
+			'operation_type'        => array(
 				'required'          => true,
 				'label'             => __( 'Tipo da Conta', 'wc-pagarme' ),
 				'max'               => false,
@@ -570,7 +569,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_sanitize_string',
 				'error_msg'         => __( 'Insira valores válidos para o campo "Tipo da Conta": Conta Corrente ou Conta Poupança.', 'wc-pagarme' ),
 			),
-			'bank_number'        => array(
+			'bank_number'           => array(
 				'required'          => true,
 				'label'             => __( 'Bank number', 'wc-pagarme' ),
 				'max'               => 3,
@@ -581,7 +580,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_only_numbers',
 				'error_msg'         => __( 'Insira valores válidos para o campo "Nome do Banco".', 'wc-pagarme' ),
 			),
-			'branch_number'      => array(
+			'branch_number'         => array(
 				'required'          => true,
 				'label'             => __( 'Número da Agência', 'wc-pagarme' ),
 				'max'               => false,
@@ -592,7 +591,7 @@ abstract class Marketplace {
 				'sanitize_callback' => 'wc_pagarme_split_digit',
 				'error_msg'         => __( 'Insira valores válidos para o campo "Número da Agência".', 'wc-pagarme' ),
 			),
-			'account_number'     => array(
+			'account_number'        => array(
 				'required'          => true,
 				'label'             => __( 'Número da Conta', 'wc-pagarme' ),
 				'max'               => false,
@@ -646,30 +645,39 @@ abstract class Marketplace {
 	 * @return void
 	 */
 	public function output_recipient_transactions_template() {
-		$balance = array();
-		$current_user_id   = get_current_user_id();
-		$recipient_id      = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
+		$balance         = array();
+		$current_user_id = get_current_user_id();
+		$recipient_id    = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
 		try {
 			// Check recipient exists.
 			if ( $recipient_id ) {
 				// Process recipient balance request.
 				$balance = $this->api->get_recipient_balance( $recipient_id );
 				// Process recipient operations request.
-				$operations = $this->api->get_recipient_operations( array(
-					'recipient_id' => $recipient_id,
-					'page' => ( $_GET['operations-page'] ?: 1 ),
-					'size' => '10',
-				) );
+				$operations = $this->api->get_recipient_operations(
+					array(
+						'recipient_id' => $recipient_id,
+						'page'         => ( $_GET['operations-page'] ?: 1 ),
+						'size'         => '10',
+					)
+				);
 			}
 		} catch ( \Exception $e ) {
-			$balance = array( 'available' => 0, 'waiting_funds' => 0, 'transferred' => 0 );
-			$operations = array( 'data' => array(), 'paging' => array() );
+			$balance    = array(
+				'available'     => 0,
+				'waiting_funds' => 0,
+				'transferred'   => 0,
+			);
+			$operations = array(
+				'data'   => array(),
+				'paging' => array(),
+			);
 		}
 
 		wc_pagarme_get_template(
 			'recipient-transactions.php',
 			array(
-				'balance' => $balance,
+				'balance'    => $balance,
 				'operations' => $operations,
 			)
 		);
@@ -687,13 +695,13 @@ abstract class Marketplace {
 		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ); // TODO: change to "pagarme_recipient_id" in future
 		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
 		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
-		
+
 		wc_pagarme_get_template(
 			'recipient-verification.php',
 			array(
 				'user_id'              => $current_user_id,
 				'user_info'            => $current_user_info,
-	
+
 				//Saved data
 				'recipient_id'         => $recipient_id,
 				'recipient_status'     => $recipient_status,
@@ -710,11 +718,11 @@ abstract class Marketplace {
 	 */
 	public function get_verification_link() {
 		$request = $this->api->get_kyc_link( '' );
-		
+
 		if ( isset( $request['url'] ) ) {
 			return $request['url'];
 		}
-		
+
 		return '#';
 	}
 }

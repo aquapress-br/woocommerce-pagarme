@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Aquapress\Pagarme\Gateways;
 
@@ -18,17 +18,14 @@ defined( 'ABSPATH' ) || exit;
  */
 class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 
-	const CARD_ID                  = 'pagarme_card';
-	const CARD_NUMBER              = 'pagarme_card_number';
-	const CARD_NAME                = 'pagarme_card_holder_name';
-	const CARD_EXPIRY              = 'pagarme_card_expiry';
-	const CARD_CVC                 = 'pagarme_card_cvc';
-	const CARD_INSTALLMENTS        = 'pagarme_card_installments';
-	const CARD_SAVE_OPTION         = 'pagarme_card_save_option';
-	const CARD_TOKEN               = 'pagarmetoken';
-	const FILTER_CARD_INSTALLMENTS = 'wc_pagarme_card_installments';
-	const FILTER_MAX_INSTALLMENTS  = 'wc_pagarme_max_installments';
-	const FILTER_CARD_DATA         = 'wc_pagarme_card_data';
+	const CARD_ID           = 'pagarme_card';
+	const CARD_NUMBER       = 'pagarme_card_number';
+	const CARD_NAME         = 'pagarme_card_holder_name';
+	const CARD_EXPIRY       = 'pagarme_card_expiry';
+	const CARD_CVC          = 'pagarme_card_cvc';
+	const CARD_INSTALLMENTS = 'pagarme_card_installments';
+	const CARD_SAVE_OPTION  = 'pagarme_card_save_option';
+	const CARD_TOKEN        = 'pagarmetoken';
 
 	/**
 	 * Start payment method.
@@ -79,7 +76,8 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		// Initialize the form fields and gateway settings.
 		$this->init_form_fields();
 		$this->init_settings();
-		
+
+		// Initializes the Pagar.me payment gateway.
 		parent::init_gateway();
 	}
 
@@ -95,8 +93,9 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 */
 	public function init_hooks() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'public_enqueue' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'checkout_enqueue' ) );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+		add_filter( 'wc_pagarme_transaction_data', array( $this, 'add_payment_data_to_payload' ), 5, 2 );
 	}
 
 	/**
@@ -163,27 +162,27 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				'desc_tip'    => true,
 				'default'     => 'no',
 			),
-			//'public_key'           => array(
-				//'title'       => __( 'Chave Pública', 'wc-pagarme' ),
-				//'type'        => 'text',
-				//'description' => __( 'Chave Pública da Pagar.me', 'wc-pagarme' ),
-				//'desc_tip'    => true,
-			//),
+			'public_key'           => array(
+				'title'       => __( 'Chave Pública', 'wc-pagarme' ),
+				'type'        => 'text',
+				'description' => __( 'Chave Pública da Pagar.me', 'wc-pagarme' ),
+				'desc_tip'    => true,
+			),
 			'secret_key'           => array(
 				'title'       => __( 'Chave Secreta', 'wc-pagarme' ),
 				'type'        => 'text',
 				'description' => __( 'Chave Secreta da Pagar.me', 'wc-pagarme' ),
 				'desc_tip'    => true,
 			),
-			//'public_key_sandbox'   => array(
-				//'title'       => __( 'Chave Pública do Sandbox', 'wc-pagarme' ),
-				//'type'        => 'text',
-				//'description' => __(
-					//'Chave Pública da Pagar.me para Sandbox',
-					//'wc-pagarme'
-				//),
-				//'desc_tip'    => true,
-			//),
+			'public_key_sandbox'   => array(
+				'title'       => __( 'Chave Pública do Sandbox', 'wc-pagarme' ),
+				'type'        => 'text',
+				'description' => __(
+					'Chave Pública da Pagar.me para Sandbox',
+					'wc-pagarme'
+				),
+				'desc_tip'    => true,
+			),
 			'secret_key_sandbox'   => array(
 				'title'       => __( 'Chave Secreta de Testes', 'wc-pagarme' ),
 				'type'        => 'text',
@@ -348,7 +347,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 					'pre_auth'         => __( 'Pré-autorização', 'wc-pagarme' ),
 				),
 			),
-			'tokenize_card' => array(
+			'tokenize_card'        => array(
 				'title'       => __( 'Coletar Dados do Cartão', 'wc-pagarme' ),
 				'type'        => 'select',
 				'description' => __(
@@ -370,6 +369,13 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 					'never_save'          => __( 'Nunca Salvar', 'wc-pagarme' ),
 				),
 			),
+			'debug'                => array(
+				'title'       => __( 'Log de Depuração', 'wc-pagarme' ),
+				'type'        => 'checkbox',
+				'label'       => __( 'Habilitar Registro de Erros', 'wc-pagarme' ),
+				'default'     => 'no',
+				'description' => sprintf( __( 'Registre eventos da Pagar.me, como solicitações de API. Você pode verificar o log em %s', 'wc-pagarme' ), '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.log' ) ) . '">' . __( 'Status do sistema &gt; Logs', 'wc-pagarme' ) . '</a>' ),
+			),
 		);
 
 		$this->form_fields = $fields;
@@ -390,22 +396,28 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 *               payment status, redirect URLs, or error messages.
 	 */
 	public function process_payment( $order_id ) {
+		// Get order data.
+		$order = wc_get_order( $order_id );
+		// Process payment API.
 		try {
 			// Process transaction request.
 			$transaction = $this->api->do_transaction(
 				apply_filters(
 					'wc_pagarme_transaction_data',
-					Aquapress\Pagarme\Helpers\Build_Transaction_Payload( $order_id ),
-					$order_id,
+					\Aquapress\Pagarme\Helpers\Payload::Build_Transaction_Payload( $order_id ),
+					$order,
 					$this
 				)
 			);
 			// Process order status and save response info.
 			$this->save_order_meta_fields( $order_id, $transaction );
-			$this->process_order_status( $order_id, $transaction );
+			$this->process_order_status( $order_id, $transaction['status'] );
 			// Go to order received page.
-			return array( 'result' => 'success' );
-		} catch ( Exception $e ) {
+			return array(
+				'result' => 'success', 
+				'redirect' => $this->get_return_url( $order ) 
+			);
+		} catch ( \Exception $e ) {
 			// Output checkout error message.
 			wc_pagarme_add_checkout_notice(
 				__( 'Não conseguimos processar o pagamento com o cartão fornecido. Verifique as informações fornecidas e tente novamente. Se o problema persistir, entre em contato com o banco emissor para obter mais informações.', 'wc-pagarme' ),
@@ -413,7 +425,66 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 			);
 		}
 		// Go to checkout.
-		return array( 'result' => 'fail' );
+		return array( 'result' => 'failure' );
+	}
+
+	/**
+	 * Merge payment method data with transaction data.
+	 *
+	 * @param array  $payload    Regular transaction data.
+	 * @param mixed  $the_order  Woocommerce Order ID or Object WC_Order.
+	 *
+	 * @return array
+	 */
+	public function add_payment_data_to_payload( $payload, $the_order ) {
+		// Get order data.
+		$order = wc_get_order( $the_order );
+		// Get card request data.
+		$card_data = $this->get_creditcard_data( $order->get_id() );
+		// Merge credit card settings.
+		$payload['payments'][0]['payment_method']                      = 'credit_card';
+		$payload['payments'][0]['credit_card']['installments']         = $card_data['card_installments'];
+		$payload['payments'][0]['credit_card']['statement_descriptor'] = $this->statement_descriptor;
+		$payload['payments'][0]['credit_card']['operation_type']       = $this->operation_type;
+		// Merge card data request.
+		if ( $card_data['card_id'] != '' ) {
+			$payload['payments'][0]['credit_card']['card_id'] = $card_data['card_id'];
+		} elseif ( $card_data['card_token'] != '' ) {
+			$payload['payments'][0]['credit_card']['card_token'] = $card_data['card_token'];
+		} else {
+			$payload['payments'][0]['credit_card']['card'] = array(
+				'number'          => $card_data['card_number'],
+				'brand'           => $card_data['card_brand'],
+				'holder_name'     => $card_data['card_holder'],
+				'cvv'             => $card_data['card_cvv'],
+				'exp_month'       => substr( $card_data['card_expiration'], 0, 2 ),
+				'exp_year'        => substr( $card_data['card_expiration'], -2 ),
+				'billing_address' => array(
+					'city'          => $order->get_billing_city(),
+					'neighborhood'  => $order->get_meta( '_billing_neighborhood' ), // Custom meta field for neighborhood.
+					'street'        => $order->get_billing_address_1(),
+					'street_number' => $order->get_meta( '_billing_number' ), // Custom meta field for street number.
+					'zip_code'      => $order->get_billing_postcode(),
+					'line_1'        => $order->get_billing_address_1() . ' N ' . $order->get_meta( '_billing_number' ) . ' - ' . $order->get_meta( '_billing_neighborhood' ),
+					'line_2'        => $order->get_billing_address_2(),
+					'country'       => strtolower( $order->get_billing_country() ),
+					'state'         => strtolower( $order->get_billing_state() ),
+				),
+			);
+		}
+		// Set woocommerce order total as single item.
+		$payload['items'][0]['quantity']    = 1;
+		$payload['items'][0]['code']        = $order->get_id();
+		$payload['items'][0]['amount']      = $card_data['card_order_total'] * 100;
+		$payload['items'][0]['description'] = sprintf(
+			__( 'WooCommerce ordem #%1$s. %2$sx com juros de %3$s%% a.m. Total: %4$s', 'wc-pagarme' ),
+			$order->get_id(),
+			$card_data['card_installments'],
+			$card_data['card_interest_rate'],
+			$card_data['card_order_total']
+		);
+
+		return $payload;
 	}
 
 	/**
@@ -440,10 +511,10 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				'card_save_option' => static::CARD_SAVE_OPTION,
 
 				'tokenize_card'    => $this->tokenize_card,
-				
+
 				'installments'     => $this->get_installments_html( $order_total ),
 				'saved_cards'      => $this->get_saved_payment_tokens(),
-				
+
 				'is_checkout'      => is_checkout(),
 			),
 			'woocommerce/pagarme/',
@@ -457,9 +528,11 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 * @return array
 	 */
 	public function get_saved_payment_tokens() {
-		$saved_cards =  \WC_Payment_Tokens::get_customer_tokens( 
-			get_current_user_id(), $this->id );
-			
+		$saved_cards = \WC_Payment_Tokens::get_customer_tokens(
+			get_current_user_id(),
+			$this->id
+		);
+
 		return $saved_cards;
 	}
 
@@ -472,7 +545,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	public function get_installments_html( $order_total = 0 ) {
 		$html         = '';
 		$installments = apply_filters(
-			static::FILTER_MAX_INSTALLMENTS,
+			'wc_pagarme_max_installments',
 			$this->installments,
 			$order_total
 		);
@@ -548,63 +621,49 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	/**
 	 * Validate installments.
 	 *
-	 * @param  array $posted
+	 * @param  array $_POST
 	 * @param  float $order_total
 	 * @return bool
 	 */
-	protected function validate_installments( $posted, $order_total ) {
+	public function validate_installments() {
+		global $woocommerce;
+
+		$order_total = $woocommerce->cart->total;
+
 		// Stop if don't have installments.
-		if ( ! isset( $posted[ static::CARD_INSTALLMENTS ] ) ) {
+		if ( ! isset( $_POST[ static::CARD_INSTALLMENTS ] ) ) {
 			return true;
 		}
 
-		try {
-			// Validate the installments field.
-			if (
-				! isset( $posted[ static::CARD_INSTALLMENTS ] ) ||
-				'' === $posted[ static::CARD_INSTALLMENTS ]
-			) {
-				throw new Exception(
-					__( 'Selecione um número de parcelas.', 'wc-pagarme' )
-				);
-			}
+		$installments      = absint( $_POST[ static::CARD_INSTALLMENTS ] );
+		$installment_total = $order_total / $installments;
+		$_installments     = apply_filters(
+			'wc_pagarme_max_installments',
+			$this->installments,
+			$order_total
+		);
+		$interest_rate     = static::normalize_interest_rate_value( $this->interest_rate ) / 100;
 
-			$installments      = absint( $posted[ static::CARD_INSTALLMENTS ] );
-			$installment_total = $order_total / $installments;
-			$_installments     = apply_filters(
-				static::FILTER_MAX_INSTALLMENTS,
-				$this->installments,
-				$order_total
-			);
-			$interest_rate     = static::normalize_interest_rate_value( $this->interest_rate ) / 100;
+		if (
+			'client' == $this->installment_type &&
+			$installments >= $this->interest &&
+			0 < $interest_rate
+		) {
+			$interest_total    =
+				$order_total *
+				( $interest_rate /
+					( 1 - 1 / pow( 1 + $interest_rate, $installments ) ) );
+			$installment_total =
+				$installment_total < $interest_total
+					? $interest_total
+					: $installment_total;
+		}
+		$smallest_value = $this->smallest_installment;
 
-			if (
-				'client' == $this->installment_type &&
-				$installments >= $this->interest &&
-				0 < $interest_rate
-			) {
-				$interest_total    =
-					$order_total *
-					( $interest_rate /
-						( 1 - 1 / pow( 1 + $interest_rate, $installments ) ) );
-				$installment_total =
-					$installment_total < $interest_total
-						? $interest_total
-						: $installment_total;
-			}
-			$smallest_value = $this->smallest_installment;
-
-			if (
-				$installments > $_installments ||
-				( 1 != $installments && $installment_total < $smallest_value )
-			) {
-				throw new Exception(
-					__( 'Número inválido de parcelas!', 'wc-pagarme' )
-				);
-			}
-		} catch ( Exception $e ) {
-			$this->add_error( $e->getMessage() );
-
+		if (
+			$installments > $_installments ||
+			( 1 != $installments && $installment_total < $smallest_value )
+		) {
 			return false;
 		}
 
@@ -636,43 +695,50 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 *
 	 * @return array
 	 */
-	public function get_creditcard_data( $posted, $order = false ) {
-		$card_id    = isset( $posted[ static::CARD_ID ] )
-			? sanitize_text_field( $posted[ static::CARD_ID ] )
+	public function get_creditcard_data() {
+
+		global $woocommerce;
+
+		$order_total = $woocommerce->cart->total;
+
+		$card_id    = isset( $_POST[ static::CARD_ID ] )
+			? sanitize_text_field( $_POST[ static::CARD_ID ] )
 			: '';
-		$card_token = isset( $posted[ static::CARD_TOKEN ] )
-			? sanitize_text_field( $posted[ static::CARD_TOKEN ] )
+		$card_token = isset( $_POST[ static::CARD_TOKEN ] )
+			? sanitize_text_field( $_POST[ static::CARD_TOKEN ] )
 			: '';
 
-		$card_holder = isset( $posted[ static::CARD_NAME ] )
-			? sanitize_text_field( $posted[ static::CARD_NAME ] )
+		$card_holder = isset( $_POST[ static::CARD_NAME ] )
+			? sanitize_text_field( $_POST[ static::CARD_NAME ] )
 			: '';
-		$card_cvv    = isset( $posted[ static::CARD_CVC ] )
-			? sanitize_text_field( $posted[ static::CARD_CVC ] )
+		$card_cvv    = isset( $_POST[ static::CARD_CVC ] )
+			? sanitize_text_field( $_POST[ static::CARD_CVC ] )
 			: '';
 
-		$card_number = isset( $posted[ static::CARD_NUMBER ] )
-			? WC_Pagarme_Helper::only_numbers( $posted[ static::CARD_NUMBER ] )
+		$card_number = isset( $_POST[ static::CARD_NUMBER ] )
+			? wc_pagarme_only_numbers( $_POST[ static::CARD_NUMBER ] )
 			: '';
 		$card_brand  = $this->get_card_brand( $card_number );
 
-		$card_save_option = isset( $posted[ static::CARD_SAVE_OPTION ] );
-		$card_expiration = preg_replace(
-			'/\s/',
-			'',
-			$posted[ static::CARD_EXPIRY ]
-		);
+		$card_save_option = isset( $_POST[ static::CARD_SAVE_OPTION ] );
+		
+		$card_expiration  = isset( $_POST[ static::CARD_EXPIRY ] ) 
+			? preg_replace(
+				'/\s/',
+				'',
+				$_POST[ static::CARD_EXPIRY ]
+			) : '';
 
 		$installments = apply_filters(
-			static::FILTER_CARD_INSTALLMENTS,
-			absint( $posted[ static::CARD_INSTALLMENTS ] ?? 1 )
+			'wc_pagarme_card_installments',
+			absint( $_POST[ static::CARD_INSTALLMENTS ] ?? 1 )
 		);
 
 		list(
 			$interest_order_total,
 			$interest_value,
 			$interest_rate,
-		) = $this->get_credit_interest_data( $installments, $order->order_total );
+		) = $this->get_credit_interest_data( $installments, $order_total );
 
 		$data = array(
 			'type'                => 'credit-card',
@@ -693,34 +759,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 			'card_order_total'    => round( $interest_order_total, 2 ),
 		);
 
-		if ( $order ) {
-			if ( ! $this->validate_installments( $posted, $order->order_total ) ) {
-				throw new Exception(
-					__(
-						'Número ou valor das parcelas inválido',
-						'wc-pagarme'
-					)
-				);
-			}
-
-			update_post_meta(
-				$order->id,
-				'_wc_pagarme_payment_data',
-				array_merge(
-					$data,
-					array(
-						'card_number' => preg_replace(
-							'/\d(?=\d{4})/',
-							'*',
-							$data['card_number']
-						),
-						'card_cvv'    => '***',
-					)
-				)
-			);
-		}
-
-		return apply_filters( static::FILTER_CARD_DATA, $data );
+		return apply_filters( 'wc_pagarme_card_data', $data );
 	}
 
 	/**
@@ -802,9 +841,9 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				empty( $_POST[ static::CARD_NUMBER ] ) ||
 				! isset( $_POST[ static::CARD_NUMBER ] )
 			) {
-				throw new Exception(
+				throw new \Exception(
 					__(
-						'Erro de validação de dados. Insira o número do cartão.',
+						'Insira o número do cartão.',
 						'wc-pagarme'
 					)
 				);
@@ -814,9 +853,9 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				empty( $_POST[ static::CARD_NAME ] ) ||
 				! isset( $_POST[ static::CARD_NAME ] )
 			) {
-				throw new Exception(
+				throw new \Exception(
 					__(
-						'Erro de validação de dados. Insira o nome do cartão.',
+						'Insira o nome do cartão.',
 						'wc-pagarme'
 					)
 				);
@@ -826,18 +865,18 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				empty( $_POST[ static::CARD_EXPIRY ] ) ||
 				! isset( $_POST[ static::CARD_EXPIRY ] )
 			) {
-				throw new Exception(
+				throw new \Exception(
 					__(
-						'Erro de validação de dados. Insira a data de validade do cartão.',
+						'Insira a data de validade do cartão.',
 						'wc-pagarme'
 					)
 				);
 			}
 
 			if ( strlen( $_POST[ static::CARD_EXPIRY ] ) < 5 ) {
-				throw new Exception(
+				throw new \Exception(
 					__(
-						'Erro de validação de dados. A validade do cartão deve corresponder ao formato MM-AAAA. Ex: 12-2034.',
+						'A validade do cartão deve corresponder ao formato MM-AAAA. Ex: 12-2034.',
 						'wc-pagarme'
 					)
 				);
@@ -847,16 +886,26 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				empty( $_POST[ static::CARD_CVC ] ) ||
 				! isset( $_POST[ static::CARD_EXPIRY ] )
 			) {
-				throw new Exception(
+				throw new \Exception(
 					__(
-						'Erro de validação de dados. Insira o CVC do cartão.',
+						'Insira o CVC do cartão.',
+						'wc-pagarme'
+					)
+				);
+			}
+
+			if ( ! $this->validate_installments()
+			) {
+				throw new \Exception(
+					__(
+						'Número ou valor das parcelas inválido',
 						'wc-pagarme'
 					)
 				);
 			}
 		}
 	}
-	
+
 	/**
 	 * Normalize interest rate value.
 	 * Ensures the value is properly formatted.
@@ -864,14 +913,13 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 * @param  string|int|float $value
 	 * @return int|float
 	 */
-	public static function normalize_interest_rate_value( $value ) 
-	{
+	public static function normalize_interest_rate_value( $value ) {
 		$value = str_replace( '%', '', $value );
 		$value = str_replace( ',', '.', $value );
 
 		return $value;
 	}
-	
+
 	/**
 	 * Get card brand name.
 	 *
@@ -893,7 +941,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 
 		return isset( $names[ $brand ] ) ? $names[ $brand ] : $brand;
 	}
-	
+
 	/**
 	 * Register admin_enqueue styles and scripts for payment method
 	 *
@@ -916,33 +964,29 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 * @since    1.0.0
 	 * @return   array    void
 	 */
-	public function public_enqueue() {
-		wp_enqueue_script( 'wc-credit-card-form' );
-		wp_enqueue_script(
-			'wc-pagarme-card-fields',
-			WC_PAGARME_URI . 'assets/js/checkout/card-fields.js',
-			array( 'jquery', 'jquery-blockui' ),
-			WC_PAGARME_VERSION,
-			true
-		);
-		wp_enqueue_script(
-			'wc-pagarme-card-form',
-			WC_PAGARME_URI . 'assets/js/checkout/card-form.js',
-			array( 'jquery', 'jquery-blockui' ),
-			WC_PAGARME_VERSION,
-			true
-		);
-		wp_enqueue_script(
-			'jquery-mask',
-			WC_PAGARME_URI . 'assets/js/jquery.mask.js',
-			array( 'jquery' ),
-			'1.14.10',
-			true
-		);
-		wp_enqueue_style(
-			'wc-pagarme-card-form',
-			WC_PAGARME_URI . 'assets/public/css/card-form.css'
-		);
+	public function checkout_enqueue() {
+		if ( is_checkout() ) {
+			wp_enqueue_script( 'wc-credit-card-form' );
+			wp_enqueue_script( 'jquery-mask' );
+			wp_enqueue_script(
+				'wc-pagarme-card-fields',
+				WC_PAGARME_URI . 'assets/js/checkout/card-fields.js',
+				array( 'jquery', 'jquery-blockui' ),
+				WC_PAGARME_VERSION,
+				true
+			);
+			wp_enqueue_script(
+				'wc-pagarme-card-form',
+				WC_PAGARME_URI . 'assets/js/checkout/card-form.js',
+				array( 'jquery', 'jquery-blockui' ),
+				WC_PAGARME_VERSION,
+				true
+			);
+			wp_enqueue_style(
+				'wc-pagarme-card-form',
+				WC_PAGARME_URI . 'assets/css/checkout/card-form.css'
+			);
+		}
 	}
 
 	/**
@@ -955,10 +999,10 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	public function validate_fields() {
 		try {
 			$this->validate_card_fields();
-			} catch ( Exception $e ) {
-			wc_pagarme_add_checkout_notice( 
-				$e->getMessage(), 
-				'error' 
+		} catch ( Exception $e ) {
+			wc_pagarme_add_checkout_notice(
+				$e->getMessage(),
+				'error'
 			);
 		}
 	}

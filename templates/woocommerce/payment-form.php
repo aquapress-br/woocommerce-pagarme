@@ -42,7 +42,7 @@ defined( 'ABSPATH' ) || exit;
 			<div class="clear"></div>
 			<p class="form-row form-row-first">
 				<label for="pagarme-card-expiry"><?php _e( 'Data de Validade (MM-YYYY)', 'wc-pagarme' ); ?> <span class="required">*</span></label>
-				<input value="" id="pagarme-card-expiry" name="<?php echo $card_expiry; ?>" class="input-text" type="tel" autocomplete="off" placeholder="<?php _e( 'MM - YYYY', 'wc-pagarme' ); ?>" required pattern="(0[1-9]|1[0-2])-(20\d{2}|2[1-9]\d{2})" title="<?php _e( 'Insira uma data válida no formato MM-AAAA', 'wc-pagarme' ); ?>" style="font-size: 1.5em; padding: 8px;max-height: 41px;" />
+				<input value="" id="pagarme-card-expiry" name="<?php echo $card_expiry; ?>" class="input-text" type="tel" autocomplete="off" placeholder="<?php _e( 'MM - YYYY', 'wc-pagarme' ); ?>" required pattern="(0[1-9]|1[0-2])-(\d{2}|20\d{2}|2[1-9]\d{2})" title="<?php _e( 'Insira uma data válida no formato MM-AAAA', 'wc-pagarme' ); ?>" style="font-size: 1.5em; padding: 8px;max-height: 41px;" />
 			</p>
 			<p class="form-row form-row-last">
 				<label for="pagarme-card-cvc"><?php _e( 'Código de Segurança', 'wc-pagarme' ); ?> <span class="required">*</span></label>

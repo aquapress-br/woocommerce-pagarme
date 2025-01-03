@@ -1,7 +1,7 @@
 jQuery(function( $ ) {
 	'use strict';
 	
-	const ID_PREFIX = '#wc_pagarme_';
+	const ID_PREFIX = '#woocommerce_';
 
 	/**
 	 * Checkbox ID.

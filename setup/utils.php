@@ -137,3 +137,17 @@ if ( ! function_exists( 'wc_pagarme_get_phone_information' ) ) {
 		}
 	}
 }
+
+if ( ! function_exists( 'wc_pagarme_add_checkout_notice' ) ) {
+		/**
+		 * Add checkout notice.
+		 *
+		 * @param string $notice The text of notice.
+		 * @param string $type   The notice type.
+		 */
+	function wc_pagarme_add_checkout_notice( $notice, $type = 'error' ) {
+		if ( is_checkout() ) {
+			wc_add_notice( $notice, $type );
+		}
+	}
+}

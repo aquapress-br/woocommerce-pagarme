@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Aquapress\Pagarme\Helpers;
 
@@ -24,9 +24,9 @@ class Payload {
 	 * @param int $order_id The WooCommerce order ID.
 	 * @return array The customer data structure.
 	 */
-	public static function Build_Transaction_Payload( $order_id ) {
+	public static function Build_Transaction_Payload( $order_id, $user_id = false ) {
 		// Check WP user has customer ID pagarme.
-		$customer_id = get_user_meta( $user_id, '_wc_pagarme_customer_id', true );
+		$customer_id = get_user_meta( $user_id ?: get_current_user_id(), '_wc_pagarme_customer_id', true );
 		if ( ! empty( $customer_id ) ) {
 			return array(
 				'customer_id' => $customer_id,
@@ -37,7 +37,7 @@ class Payload {
 			if ( ! $order ) {
 				return array(); // Return an empty array if the order is invalid.
 			}
-			
+
 			// Get additional information about the customer.
 			$data = array(
 				'customer' => array(
@@ -72,100 +72,67 @@ class Payload {
 				$data['customer']['document_type'] = 'CPF';
 				$data['customer']['document']      = wc_pagarme_only_numbers( $order->get_meta( '_billing_cpf' ) );
 			}
-			
-			// Get billing information.
-			$data = array_merge( 
-				$data,
-				array(
-					'billing_address' => array(
-						'country'       => strtolower( $order->get_billing_country() ),
-						'state'         => strtolower( $order->get_billing_state() ),
-						'city'          => $order->get_billing_city(),
-						'neighborhood'  => $order->get_meta( '_billing_neighborhood' ), // Custom meta field for neighborhood.
-						'street'        => $order->get_billing_address_1(),
-						'street_number' => $order->get_meta( '_billing_number' ), // Custom meta field for street number.
-						'zipcode'       => $order->get_billing_postcode(),
-						// Fix API request
-						'line_1'        => $order->get_billing_address_1() . ' N ' . $order->get_meta( '_billing_number' ) . ' - ' . $order->get_meta( '_billing_neighborhood' ),
-						'line_2'        => $order->get_billing_address_2(),
-					)
-				)
-			);
-			// Get order amount for credit card payment
-			if ( $order->get_payment_method() == 'wc_pagarme_creditcard' ) {
-				$amount = $order->get_total() * 100;
-			} else {
-				$amount = $order->get_total() * 100;
-			}
-			// Get shipping information.
-			$data = array_merge( 
-				$data,
-				array(
-					'items' => array(
-						array(
-							'code'        => $order_id,
-							'amount'      => $amount,
-							'description' => sprintf( __( 'WooCommerce order #%1$s', 'wc-pagarme' ), $order_id ),
-							'quantity'    => 1,
-						),
-					),
-				)
-			);
-			
+
 			return $data;
 		}
-		
+
 		return array();
 	}
-	
+
 	public static function Build_Recipient_Payload( $request, $user_id = false ) {
 		// Check recipient exists.
 		$recipient_id = get_user_meta( $user_id ?: get_current_user_id(), 'pagarme_recipient_id', true ) ?: false;
 		if ( ! empty( $recipient_id ) ) {
 			$data = array(
 				'register_information' => array(
-					'email'           => $request['email'],
-					'document' => $request['document'],
+					'email'         => $request['email'],
+					'document'      => $request['document'],
 					'phone_numbers' => array(
 						array(
 							'ddd'    => wc_pagarme_get_phone_information( $request['phone'], 'area_code' ),
 							'number' => wc_pagarme_get_phone_information( $request['phone'], 'number' ),
 							'type'   => 'mobile',
-						)
+						),
 					),
-					'address' => array(
-						'street' => $request['address_street'],
-						'complementary' => 'N/D',
-						'street_number' => $request['address_street_number'],
-						'neighborhood' => $request['address_neighborhood'],
-						'city' => $request['address_city'],
-						'state' => $request['address_state'],
-						'zip_code' => $request['address_zipcode'],
+					'address'       => array(
+						'street'          => $request['address_street'],
+						'complementary'   => 'N/D',
+						'street_number'   => $request['address_street_number'],
+						'neighborhood'    => $request['address_neighborhood'],
+						'city'            => $request['address_city'],
+						'state'           => $request['address_state'],
+						'zip_code'        => $request['address_zipcode'],
 						'reference_point' => 'N/D',
-					)
-				)
+					),
+				),
 			);
 			if ( $request['account_type'] == 'corporation' ) {
-					$data = array_merge( $data, array(
+					$data = array_merge(
+						$data,
+						array(
+							'register_information' => array_merge(
+								$data['register_information'],
+								array(
+									'type'           => 'corporation',
+									'company_name'   => $request['company_legal_name'],
+									'trading_name'   => $request['company_name'],
+									'annual_revenue' => $request['annual_revenue'],
+								)
+							),
+						)
+					);
+			} else {
+				$data = array_merge(
+					$data,
+					array(
 						'register_information' => array_merge(
 							$data['register_information'],
 							array(
-								'type'           => 'corporation',
-								'company_name'   => $request['company_legal_name'],
-								'trading_name'   => $request['company_name'],
-								'annual_revenue' => $request['annual_revenue'],
-							)
-						)
-					)
-				);
-			} else {
-				$data = array_merge( $data, array(
-					'register_information' => array_merge( $data['register_information'], array(
-						'type'      => 'individual',
-						'name'      => $request['full_name'],
-						'birthdate' => $request['birthdate'],
-						'monthly_income'        => $request['monthly_income'],
-						'professional_occupation' => $request['occupation'],
+								'type'                    => 'individual',
+								'name'                    => $request['full_name'],
+								'birthdate'               => $request['birthdate'],
+								'monthly_income'          => $request['monthly_income'],
+								'professional_occupation' => $request['occupation'],
 							)
 						),
 					)
@@ -174,31 +141,31 @@ class Payload {
 			return $data;
 		} else {
 			$data = array(
-				'transfer_settings' => array(
+				'transfer_settings'    => array(
 					'transfer_interval' => 'monthly',
 					'transfer_day'      => '5',
 					'transfer_enabled'  => true,
 				),
 				'register_information' => array(
-					'email'           => $request['email'],
-					'document' => $request['document'],
+					'email'         => $request['email'],
+					'document'      => $request['document'],
 					'phone_numbers' => array(
 						array(
 							'ddd'    => wc_pagarme_get_phone_information( $request['phone'], 'area_code' ),
 							'number' => wc_pagarme_get_phone_information( $request['phone'], 'number' ),
 							'type'   => 'mobile',
-						)
+						),
 					),
-					'address' => array(
-						'street' => $request['address_street'],
-						'complementary' => 'N/D',
-						'street_number' => $request['address_street_number'],
-						'neighborhood' => $request['address_neighborhood'],
-						'city' => $request['address_city'],
-						'state' => $request['address_state'],
-						'zip_code' => $request['address_zipcode'],
+					'address'       => array(
+						'street'          => $request['address_street'],
+						'complementary'   => 'N/D',
+						'street_number'   => $request['address_street_number'],
+						'neighborhood'    => $request['address_neighborhood'],
+						'city'            => $request['address_city'],
+						'state'           => $request['address_state'],
+						'zip_code'        => $request['address_zipcode'],
 						'reference_point' => 'N/D',
-					)
+					),
 				),
 				'default_bank_account' => array(
 					'type'                => $request['operation_type'],
@@ -223,16 +190,16 @@ class Payload {
 									'annual_revenue' => $request['annual_revenue'],
 								)
 							),
-							'default_bank_account'         => array_merge(
+							'default_bank_account' => array_merge(
 								$data['default_bank_account'],
 								array(
-									'holder_name' => substr( $request['company_legal_name'], 0, 30 ),
-									'holder_type' => 'company',
+									'holder_name'     => substr( $request['company_legal_name'], 0, 30 ),
+									'holder_type'     => 'company',
 									'holder_document' => $request['document'],
 								)
 							),
 						)
-				);
+					);
 			} else {
 					$data = array_merge(
 						$data,
@@ -240,18 +207,18 @@ class Payload {
 							'register_information' => array_merge(
 								$data['register_information'],
 								array(
-									'type'      => 'individual',
-									'name'      => $request['full_name'],
-									'birthdate' => $request['birthdate'],
+									'type'           => 'individual',
+									'name'           => $request['full_name'],
+									'birthdate'      => $request['birthdate'],
 									'monthly_income' => $request['monthly_income'],
 									'professional_occupation' => $request['occupation'],
 								)
 							),
-							'default_bank_account'         => array_merge(
+							'default_bank_account' => array_merge(
 								$data['default_bank_account'],
 								array(
-									'holder_name' => substr( $request['full_name'], 0, 30 ),
-									'holder_type' => 'individual',
+									'holder_name'     => substr( $request['full_name'], 0, 30 ),
+									'holder_type'     => 'individual',
 									'holder_document' => $request['document'],
 								)
 							),
@@ -262,5 +229,4 @@ class Payload {
 			return $data;
 		}
 	}
-
 }

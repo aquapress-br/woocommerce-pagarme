@@ -17,7 +17,7 @@ if ( ! function_exists( 'wc_pagarme_gateways_register' ) ) {
 		// Adds Pagar.me's Credit Card gateway to the WooCommerce payment methods list.
 		add_filter(
 			'woocommerce_payment_gateways',
-			function ( $payment_methods ) use ( $load_methods ) {
+			function ( $payment_methods ) {
 				$payment_methods[] = '\Aquapress\Pagarme\Gateways\CreditCard';
 				return $payment_methods;
 			}
@@ -59,7 +59,7 @@ if ( ! function_exists( 'wc_pagarme_marketplaces_register' ) ) {
 				$obj = new $class_name();
 
 				if ( $obj->is_available() ) {
-					$obj->init_actions();
+					$obj->init_connector();
 				}
 			}
 		}
@@ -157,7 +157,7 @@ if ( ! function_exists( 'wc_pagarme_tasks_unregister' ) ) {
 					'The Dashlifter\Abstract_Block class has not been extended to one or more elements.'
 				);
 			}
-			
+
 			wp_clear_scheduled_hook( "pagarme_{$task->id}" );
 		}
 	}
