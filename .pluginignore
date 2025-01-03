@@ -1,7 +1,7 @@
 ./.git
-./vendor
 ./tools
 ./dist
+.eslintignore
 .editorconfig
 .gitignore
 .php-cs-fixer.cache
@@ -10,3 +10,5 @@
 composer.json
 composer.lock
 pluginrelance.php
+phpcs.xml.dist
+phpcompat.xml.dist

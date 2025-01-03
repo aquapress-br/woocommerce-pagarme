@@ -1,7 +1,7 @@
 <?php
 
 $zipName = $argv[2] ?? basename( __DIR__ );
-$version = $argv[1] ?? '';
+$version = $argv[1] ?? date( 'd.m.Y' );
 
 // Get zip ignore files
 $pluginignore = file_get_contents( '.pluginignore' );

@@ -421,9 +421,9 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		$data = new \Aquapress\Pagarme\Models\Split_Data();
 		// Get order data.
 		$order = wc_get_order( $the_order );
-		
+
 		// Build a split payment logic...
-		
+
 		return $data;
 	}
 

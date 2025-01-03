@@ -34,7 +34,7 @@ trait Base_Gateway_General {
 				'customer_id'    => $transaction['customer']['id'] ?? '',
 				'charge_id'      => $transaction['charges'][0]['id'] ?? '',
 				'payment_method' => $transaction['charges'][0]['payment_method'] ?? '',
-				'gateway_id'     => 
+				'gateway_id'     =>
 					$transaction['charges'][0]['last_transaction']['gateway_id'] ?? '',
 				'operation_type' =>
 					$transaction['charges'][0]['last_transaction']['operation_type'] ?? '',

@@ -414,8 +414,8 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 			$this->process_order_status( $order_id, $transaction['status'] );
 			// Go to order received page.
 			return array(
-				'result' => 'success', 
-				'redirect' => $this->get_return_url( $order ) 
+				'result'   => 'success',
+				'redirect' => $this->get_return_url( $order ),
 			);
 		} catch ( \Exception $e ) {
 			// Output checkout error message.
@@ -721,8 +721,8 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		$card_brand  = $this->get_card_brand( $card_number );
 
 		$card_save_option = isset( $_POST[ static::CARD_SAVE_OPTION ] );
-		
-		$card_expiration  = isset( $_POST[ static::CARD_EXPIRY ] ) 
+
+		$card_expiration = isset( $_POST[ static::CARD_EXPIRY ] )
 			? preg_replace(
 				'/\s/',
 				'',
