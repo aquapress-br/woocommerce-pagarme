@@ -28,28 +28,24 @@ class Split_Data {
 	/**
 	 * Adds a split rule to the data.
 	 *
-	 * @param string $walletId           Asaas wallet identifier to receive the transfer.
-	 * @param float  $fixedValue         Fixed amount to be transferred to the account when the charge is received.
-	 * @param float  $percentualValue    Percentage of the net value of the charge to be transferred when received.
-	 * @param float  $totalFixedValue    (Only for installments) Value that will be split concerning the total amount to be installed.
+	 * @param string $recipient_id              Pagarme recipient identifier to receive the transfer.
+	 * @param int    $amount                    Fixed amount to be transferred to the account when the charge is received.
+	 * @param bool   $liable                    Indicates whether the recipient is responsible for the transaction in the event of a chargeback.
+	 * @param bool   $charge_processing_fee     Indicates whether the recipient will be charged transaction fees.
+	 * @param bool   $charge_processing_fee     Indicates whether the recipient will receive the remainder of the receivables after a split.
 	 *
 	 * @return void
 	 */
-	public function add_to_split( $walletId, $fixedValue = null, $percentualValue = null, $totalFixedValue = null ) {
-		$settings        = get_option( 'woocommerce_asaas-credit-card_settings' );
-		$commission_type = $settings['wc-asaas-marketplace-commission-type'] ?? 'percentualValue';
-
-		if ( 'fixedValue' == $commission_type ) {
-			$split_rule = compact( 'walletId', 'fixedValue', 'totalFixedValue' );
-		} else {
-			$split_rule = compact( 'walletId', 'percentualValue', 'totalFixedValue' );
-		}
-
-		$this->data[] = array_filter(
-			$split_rule,
-			function ( $value ) {
-				return ! is_null( $value );
-			}
+	public function add_to_split( $recipient_id, $amount, $liable = true, $charge_processing_fee = false, $charge_remainder_fee = false ) {
+		$this->data[] = array(
+			'type' => 'flat',
+			'amount' => $amount,
+			'recipient_id' => $recipient_id,
+			'options' => array(
+				'liable' => $liable,
+				'charge_processing_fee' => $charge_processing_fee,
+				'charge_remainder_fee'  => $charge_remainder_fee,
+			),
 		);
 	}
 

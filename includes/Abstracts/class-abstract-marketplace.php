@@ -83,17 +83,12 @@ abstract class Marketplace {
 	 * @return array
 	 */
 	final public function build_split_data( $payload, $the_order, $context ) {
+		// Get split data from child class. 
 		$split_data = $this->split_data( $the_order, $context );
+		// Merge split data in transaction payload.
 		if ( is_a( $split_data, '\Aquapress\Pagarme\Models\Split_Data' ) ) {
-			if ( $split_data->get_data() && 'single' == $payload[0]['type'] ) {
-				if ( isset( $payload[0]['payment_data']['split'] ) ) {
-					$payload[0]['payment_data']['split'] = array_merge(
-						$payload[0]['payment_data']['split'],
-						$split_data->get_data()
-					);
-				} else {
-					$payload[0]['payment_data']['split'] = $split_data->get_data();
-				}
+			if ( $split_data->get_data() ) {
+				$payload['payments'][0]['split'] = $split_data->get_data();
 			}
 		}
 
@@ -137,7 +132,6 @@ abstract class Marketplace {
 	public function init_actions() {
 		// Initialize any additional hooks needed by the connector in the child class.
 		$this->init_hooks();
-
 		// Build split data in process payment.
 		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_split_data' ), 10, 3 );
 	}

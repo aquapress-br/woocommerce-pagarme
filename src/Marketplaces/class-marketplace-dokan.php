@@ -126,7 +126,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
 
-		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipiente_id', true ); // TODO: change to "pagarme_recipient_id" in future
+		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipient_id', true );
 		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
 		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
 		?>
@@ -419,21 +419,90 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	public function split_data( $the_order, $context ) {
 		// Get empty split data object.
 		$data = new \Aquapress\Pagarme\Models\Split_Data();
-		// Get order data.
+		// Get woocommerce order data.
 		$order = wc_get_order( $the_order );
-
-		// Build a split payment logic...
+		// Get dokan orders data.
+		$vendors_orders = $this->get_vendors_orders( $order );
+		if ( is_array( $vendors_orders ) && !empty( $vendors_orders ) ) {
+			// Loop dokan orders data.
+			foreach ( $vendors_orders as $tmp_order ) {
+				$tmp_order_id = dokan_get_prop( $tmp_order, 'id' );
+				$vendor_id    = dokan_get_seller_id_by_order( $tmp_order_id );
+				// Get pagarme recipient id from user.
+				$recipient_id = get_user_meta( $vendor_id, 'pagarme_recipient_id', true );
+				//$recipient_id = 're_cm4lz80050b8m0m9t4z0h69ml';
+				if ( !$recipient_id ) {
+					continue;
+				}
+				// Get order commission from dokan order.
+				$sale_data  = $this->get_sale_data( $tmp_order_id, $vendor_id );
+				if ( ! $sale_data ) {
+					continue;
+				}
+				// Get commission amount and add to split data.
+				$vendor_order_amount = round( $sale_data->net_amount, 2 );
+				$data->add_to_split( $recipient_id, (int) $vendor_order_amount * 100 );
+			}
+		}
 
 		return $data;
 	}
 
+	/**
+	 * Get vendors orders by parent order id.
+	 *
+	 * @param  object  $order
+	 * @return array
+	 */
+	public function get_vendors_orders( $order ) 
+	{
+		$all_orders     = [];
+		$has_suborder   = get_post_meta( $order->ID, 'has_sub_order', true );
+
+		// put orders in an array
+		// if has sub-orders, pick only sub-orders
+		// if it's a single order, get the single order only
+		if ( $has_suborder == '1' ) {
+			$sub_orders = get_children( array( 'post_parent' => $order->ID, 'post_type' => 'shop_order' ) );
+
+			foreach ( $sub_orders as $order_post ) {
+				$sub_order    = wc_get_order( $order_post->ID  );
+				$all_orders[] = $sub_order;
+			}
+
+		} else {
+			$all_orders[] = $order;
+		}
+			
+		return $all_orders;
+	}
+	
+	/**
+	 * Get dokan order details
+	 *
+	 * @param  int  $order_id
+	 * @param  int  $seller_id
+	 * @return array|null
+	 */
+	public function get_sale_data( $order_id, $seller_id ) 
+	{
+		global $wpdb;
+
+		$sql = "SELECT *
+		FROM {$wpdb->prefix}dokan_orders AS do
+		WHERE
+		do.seller_id = %d AND
+		do.order_id = %d";
+
+		return $wpdb->get_row( $wpdb->prepare( $sql, $seller_id, $order_id ) );
+	}
+	
 	/**
 	 * Check the requirements.
 	 *
 	 * @return boolean
 	 */
 	public function is_available() {
-		return false;
 		if ( class_exists( 'WeDevs_Dokan' ) ) {
 			return true;
 		}
