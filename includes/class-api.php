@@ -400,7 +400,6 @@ class API {
 			if ( ! $this->logger ) {
 				$this->logger = new \Aquapress\Pagarme\Logger();
 			}
-
 			$this->logger->add( $message, $start_time, $end_time );
 		}
 	}

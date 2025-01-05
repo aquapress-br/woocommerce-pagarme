@@ -83,12 +83,14 @@ abstract class Marketplace {
 	 * @return array
 	 */
 	final public function build_split_data( $payload, $the_order, $context ) {
-		// Get split data from child class. 
-		$split_data = $this->split_data( $the_order, $context );
-		// Merge split data in transaction payload.
-		if ( is_a( $split_data, '\Aquapress\Pagarme\Models\Split_Data' ) ) {
-			if ( $split_data->get_data() ) {
-				$payload['payments'][0]['split'] = $split_data->get_data();
+		if ( $this->settings['recipient_id'] ) {
+			// Get split data from child class. 
+			$split_data = $this->split_data( $the_order, $context );
+			// Merge split data in transaction payload.
+			if ( is_a( $split_data, '\Aquapress\Pagarme\Models\Split_Data' ) ) {
+				if ( $split_data->get_data() ) {
+					$payload['payments'][0]['split'] = $split_data->get_data();
+				}
 			}
 		}
 

@@ -475,7 +475,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		// Set woocommerce order total as single item.
 		$payload['items'][0]['quantity']    = 1;
 		$payload['items'][0]['code']        = $order->get_id();
-		$payload['items'][0]['amount']      = $card_data['card_order_total'] * 100;
+		$payload['items'][0]['amount']      = (int) $card_data['card_order_total'] * 100;
 		$payload['items'][0]['description'] = sprintf(
 			__( 'WooCommerce ordem #%1$s. %2$sx com juros de %3$s%% a.m. Total: %4$s', 'wc-pagarme' ),
 			$order->get_id(),

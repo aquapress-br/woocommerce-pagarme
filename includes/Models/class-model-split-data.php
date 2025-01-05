@@ -32,7 +32,7 @@ class Split_Data {
 	 * @param int    $amount                    Fixed amount to be transferred to the account when the charge is received.
 	 * @param bool   $liable                    Indicates whether the recipient is responsible for the transaction in the event of a chargeback.
 	 * @param bool   $charge_processing_fee     Indicates whether the recipient will be charged transaction fees.
-	 * @param bool   $charge_processing_fee     Indicates whether the recipient will receive the remainder of the receivables after a split.
+	 * @param bool   $charge_remainder_fee      Indicates whether the recipient will receive the remainder of the receivables after a split.
 	 *
 	 * @return void
 	 */

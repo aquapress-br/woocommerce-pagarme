@@ -85,8 +85,13 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		$settings_fields['wc_pagarme_marketplace_settings'] = array(
 			'secret_key' => array(
 				'name'  => 'secret_key',
-				'label' => __( 'Pagar.me API Key', 'wc-pagarme' ),
+				'label' => __( 'API Key', 'wc-pagarme' ),
 				'desc'  => sprintf( __( 'Por favor, insira sua chave de API Pagar.me. Ela é necessária para a homologação dos vendedores, relatórios de recebimentos e as notificações de URL. É possível obter sua chave de API em %s.', 'wc-pagarme' ), '<a href="https://dashboard.pagar.me/">' . __( 'Pagar.me Dashboard > Página Minha Conta', 'wc-pagarme' ) . '</a>' ),
+			),
+			'recipient_id' => array(
+				'name'  => 'recipient_id',
+				'label' => __( 'Recebedor ID', 'wc-pagarme' ),
+				'desc'  => sprintf( __( 'Por favor, insira seu ID de recebedor Pagar.me. É necessário criar e configurar um recebedor para que o marketplace participe da divisão dos valores de venda. É possível criar um recebedor em %s.', 'wc-pagarme' ), '<a href="https://pagarme.helpjuice.com/pt_BR/p2-manual-da-dashboard/dashboard-%7C-criar-recebedores-e-validar-identidade">' . __( 'Pagar.me Dashboard > Recebedores', 'wc-pagarme' ) . '</a>' ),
 			),
 			'debug'      => array(
 				'name'    => 'debug',
@@ -359,24 +364,17 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	public function show_recipient_transactions_template() {
 		?>
 		<div class="dokan-dashboard-wrap">
-
 			<?php do_action( 'dokan_dashboard_content_before' ); ?>
-
 			<div class="dokan-dashboard-content">
-
 				<article>
 					<header class="dokan-dashboard-header">
 						<h1 class="entry-title"><?php _e( 'Movimentações', 'wc-pagarme' ); ?></h1>
 					</header>
 					<?php parent::output_recipient_transactions_template(); ?>
 				</article>
-
 				<?php do_action( 'dokan_pagarme_transactions_content_inside_after' ); ?>
-
 			</div>
-
 			<?php do_action( 'dokan_dashboard_content_after' ); ?>
-
 		</div>
 		<?php
 	}
@@ -389,21 +387,14 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	public function show_recipient_verification_template() {
 		?>
 		<div class="dokan-dashboard-wrap">
-
 			<?php do_action( 'dokan_dashboard_content_before' ); ?>
-
 			<div class="dokan-dashboard-content">
-
 				<article>
 					<?php parent::output_recipient_verification_template(); ?>
 				</article>
-
 				<?php do_action( 'dokan_pagarme_transactions_content_inside_after' ); ?>
-
 			</div>
-
 			<?php do_action( 'dokan_dashboard_content_after' ); ?>
-
 		</div>
 		<?php
 	}
@@ -423,6 +414,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		$order = wc_get_order( $the_order );
 		// Get dokan orders data.
 		$vendors_orders = $this->get_vendors_orders( $order );
+		// Build vendors split rule.
 		if ( is_array( $vendors_orders ) && !empty( $vendors_orders ) ) {
 			// Loop dokan orders data.
 			foreach ( $vendors_orders as $tmp_order ) {
@@ -444,7 +436,18 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 				$data->add_to_split( $recipient_id, (int) $vendor_order_amount * 100 );
 			}
 		}
-
+		// Build marketplace split rule.
+		if ( $data->get_data() ) {
+			// Get parent order total.
+			$order_total = $order->get_total();
+			// Get marketplace value to reduce in the order total.
+			$order_reduction = array_reduce( $data->get_data(), function ( $carry, $item ) {
+				return isset( $item['amount'] ) ? $carry + $item['amount'] : $carry;
+			}, 0);
+			// Deduct individual seller orders from the parent order total.
+			$data->add_to_split( $this->settings['recipient_id'], (int) ( $order_total - $order_reduction ) * 100, false, true, true );
+		}
+		
 		return $data;
 	}
 
