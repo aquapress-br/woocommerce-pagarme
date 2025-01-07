@@ -81,8 +81,7 @@ abstract class Gateway extends \WC_Payment_Gateway {
 	public function init_api() {
 		if ( empty( $this->api ) ) {
 			$this->api = \Aquapress\Pagarme\Helpers\Factory::Load_API(
-				$this->id,
-				$this->debug // Check API credentials for sandbox.
+				$this->id
 			);
 		}
 	}
@@ -103,6 +102,53 @@ abstract class Gateway extends \WC_Payment_Gateway {
 	public function init_actions() {
 		// Initialize any additional hooks needed by the connector in the child class.
 		$this->init_hooks();
+	}
+
+	/**
+	 * Processes the payment for the specified order.
+	 *
+	 * This method handles the payment process after a payment request has been sent
+	 * during checkout. It uses the provided `$order_id` to retrieve order details and
+	 * complete the payment transaction. The method typically involves interacting with
+	 * the payment gateway to process the payment and may return an array containing the
+	 * result of the payment operation, such as the payment status and any relevant messages.
+	 *
+	 * @param string $order_id The ID of the order being processed.
+	 *
+	 * @return array An array containing the result of the payment processing, which may include
+	 *               payment status, redirect URLs, or error messages.
+	 */
+	public function process_payment( $order_id ) {
+		// Get order data.
+		$order = wc_get_order( $order_id );
+		// Process payment API.
+		try {
+			// Process transaction request.
+			$transaction = $this->api->do_transaction(
+				apply_filters(
+					'wc_pagarme_transaction_data',
+					\Aquapress\Pagarme\Helpers\Payload::Build_Transaction_Payload( $order_id ),
+					$order,
+					$this
+				)
+			);
+			// Process order status and save response info.
+			$this->save_order_meta_fields( $order_id, $transaction );
+			$this->process_order_status( $order_id, $transaction['status'] );
+			// Go to order received page.
+			return array(
+				'result'   => 'success',
+				'redirect' => $this->get_return_url( $order ),
+			);
+		} catch ( \Exception $e ) {
+			// Output checkout error message.
+			wc_pagarme_add_checkout_notice(
+				__( 'Não conseguimos processar o pagamento com o cartão fornecido. Verifique as informações fornecidas e tente novamente. Se o problema persistir, entre em contato com o banco emissor para obter mais informações.', 'wc-pagarme' ),
+				'error'
+			);
+		}
+		// Go to checkout.
+		return array( 'result' => 'failure' );
 	}
 
 	/**

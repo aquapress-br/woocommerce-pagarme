@@ -26,6 +26,6 @@
 		// Set on change the card brand.
 		$( document.body ).on( 'change', '#pagarme-card-payment-form #pagarme-card-number', function() {
 			setInstallmentsFields( $.payment.cardType( $( this ).val() ) );
-		});		  		 // Process the credit card data when submit the checkout form. 		$( 'body' ).on( 'click', '#place_order', function(e) {			if ( ! $( '#payment_method_wc_pagarme_creditcard' ).is( ':checked' ) || $( '.pagarme-card-option:checked' ).val() ) {				return true;			}						if ( ! $( '#add_payment_method, .checkout.woocommerce-checkout' )[0].checkValidity() ) {				$( '#add_payment_method, .checkout.woocommerce-checkout' )[0].reportValidity();								e.preventDefault();			} 							/* var process = {				success: function(data) {					console.log(data);					return true;				},				fail: function(error) {					console.error(error);				},			}					PagarmeCheckout.init( process.success, process.fail );			*/		});
+		});		  		 // Process the credit card data when submit the checkout form. 		$( 'body' ).on( 'click', '#place_order', function(e) {			if ( ! $( '#payment_method_wc_pagarme_creditcard' ).is( ':checked' ) || $( '.pagarme-card-option:checked' ).val() ) {				return true;			}						if ( ! $( '#add_payment_method, .checkout.woocommerce-checkout' )[0].checkValidity() ) {				$( '#add_payment_method, .checkout.woocommerce-checkout' )[0].reportValidity();								e.preventDefault();			} 		});
 	});
 }( jQuery ));

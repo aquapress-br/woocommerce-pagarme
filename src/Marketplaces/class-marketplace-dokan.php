@@ -83,17 +83,42 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		}
 
 		$settings_fields['wc_pagarme_marketplace_settings'] = array(
-			'secret_key' => array(
+			'integration'  => array(
+				'name'  => 'integration_settings',
+				'label' => __( 'Configurações de Integração', 'wc-pagarme' ),
+				'type'  => 'sub_section',
+			),
+			'public_key'   => array(
+				'name'  => 'public_key',
+				'label' => __( 'Chave Pública', 'wc-pagarme' ),
+				'desc'  => sprintf( __( 'Por favor, insira sua chave de API Pública Pagar.me. Ela é necessária para receber pagamentos e criptografar dados de transações. É possível obter sua chave de API em %s.', 'wc-pagarme' ), '<a href="https://pagarme.helpjuice.com/p10-minha-conta/configura%C3%A7%C3%B5es-gestao-de-chaves" target="_blank">' . __( 'Pagar.me Dashboard > Configurações  > Dados da API', 'wc-pagarme' ) . '</a>' ),
+			),
+			'secret_key'   => array(
 				'name'  => 'secret_key',
-				'label' => __( 'API Key', 'wc-pagarme' ),
-				'desc'  => sprintf( __( 'Por favor, insira sua chave de API Pagar.me. Ela é necessária para a homologação dos vendedores, relatórios de recebimentos e as notificações de URL. É possível obter sua chave de API em %s.', 'wc-pagarme' ), '<a href="https://dashboard.pagar.me/">' . __( 'Pagar.me Dashboard > Página Minha Conta', 'wc-pagarme' ) . '</a>' ),
+				'label' => __( 'Chave Secreta', 'wc-pagarme' ),
+				'desc'  => sprintf( __( 'Por favor, insira sua chave de API Secreta Pagar.me. Ela é necessária para a homologação dos vendedores, relatórios de recebimentos e as notificações de URL. É possível obter sua chave de API em %s.', 'wc-pagarme' ), '<a href="https://pagarme.helpjuice.com/p10-minha-conta/configura%C3%A7%C3%B5es-gestao-de-chaves" target="_blank">' . __( 'Pagar.me Dashboard > Configurações  > Dados da API', 'wc-pagarme' ) . '</a>' ),
+			),
+			'commission'   => array(
+				'name'  => 'commission',
+				'label' => __( 'Configurações de Comissões', 'wc-pagarme' ),
+				'type'  => 'sub_section',
 			),
 			'recipient_id' => array(
 				'name'  => 'recipient_id',
 				'label' => __( 'Recebedor ID', 'wc-pagarme' ),
-				'desc'  => sprintf( __( 'Por favor, insira seu ID de recebedor Pagar.me. É necessário criar e configurar um recebedor para que o marketplace participe da divisão dos valores de venda. É possível criar um recebedor em %s.', 'wc-pagarme' ), '<a href="https://pagarme.helpjuice.com/pt_BR/p2-manual-da-dashboard/dashboard-%7C-criar-recebedores-e-validar-identidade">' . __( 'Pagar.me Dashboard > Recebedores', 'wc-pagarme' ) . '</a>' ),
+				'desc'  => sprintf( __( 'Por favor, insira seu ID de recebedor Pagar.me. É necessário criar e configurar um recebedor para que o marketplace participe da divisão dos valores de venda. É possível criar um recebedor em %s.', 'wc-pagarme' ), '<a href="https://pagarme.helpjuice.com/pt_BR/p2-manual-da-dashboard/dashboard-%7C-criar-recebedores-e-validar-identidade" target="_blank">' . __( 'Pagar.me Dashboard > Recebedores', 'wc-pagarme' ) . '</a>' ),
 			),
-			'debug'      => array(
+			'integration'  => array(
+				'name'  => 'integration_settings',
+				'label' => __( 'Configurações de Integração', 'wc-pagarme' ),
+				'type'  => 'sub_section',
+			),
+			'others'       => array(
+				'name'  => 'others',
+				'label' => __( 'Configurações Adicionais', 'wc-pagarme' ),
+				'type'  => 'sub_section',
+			),
+			'debug'        => array(
 				'name'    => 'debug',
 				'label'   => __( 'Habilitar Logs', 'wc-pagarme' ),
 				'desc'    => sprintf( __( 'Registre eventos da Pagar.me como solicitações de API. Você pode verificar o log em %s', 'wc-pagarme' ), '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . esc_attr( 'wc_pagarme_dokan' ) . '-' . sanitize_file_name( wp_hash( 'wc_pagarme_dokan' ) ) . '.log' ) ) . '">' . __( 'Status do sistema &gt; Logs', 'wc-pagarme' ) . '</a>' ),
@@ -415,7 +440,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		// Get dokan orders data.
 		$vendors_orders = $this->get_vendors_orders( $order );
 		// Build vendors split rule.
-		if ( is_array( $vendors_orders ) && !empty( $vendors_orders ) ) {
+		if ( is_array( $vendors_orders ) && ! empty( $vendors_orders ) ) {
 			// Loop dokan orders data.
 			foreach ( $vendors_orders as $tmp_order ) {
 				$tmp_order_id = dokan_get_prop( $tmp_order, 'id' );
@@ -423,11 +448,11 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 				// Get pagarme recipient id from user.
 				$recipient_id = get_user_meta( $vendor_id, 'pagarme_recipient_id', true );
 				//$recipient_id = 're_cm4lz80050b8m0m9t4z0h69ml';
-				if ( !$recipient_id ) {
+				if ( ! $recipient_id ) {
 					continue;
 				}
 				// Get order commission from dokan order.
-				$sale_data  = $this->get_sale_data( $tmp_order_id, $vendor_id );
+				$sale_data = $this->get_sale_data( $tmp_order_id, $vendor_id );
 				if ( ! $sale_data ) {
 					continue;
 				}
@@ -441,13 +466,17 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 			// Get parent order total.
 			$order_total = $order->get_total();
 			// Get marketplace value to reduce in the order total.
-			$order_reduction = array_reduce( $data->get_data(), function ( $carry, $item ) {
-				return isset( $item['amount'] ) ? $carry + $item['amount'] : $carry;
-			}, 0);
+			$order_reduction = array_reduce(
+				$data->get_data(),
+				function ( $carry, $item ) {
+					return isset( $item['amount'] ) ? $carry + $item['amount'] : $carry;
+				},
+				0
+			);
 			// Deduct individual seller orders from the parent order total.
 			$data->add_to_split( $this->settings['recipient_id'], (int) ( $order_total - $order_reduction ) * 100, false, true, true );
 		}
-		
+
 		return $data;
 	}
 
@@ -457,29 +486,32 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @param  object  $order
 	 * @return array
 	 */
-	public function get_vendors_orders( $order ) 
-	{
-		$all_orders     = [];
-		$has_suborder   = get_post_meta( $order->ID, 'has_sub_order', true );
+	public function get_vendors_orders( $order ) {
+		$all_orders   = array();
+		$has_suborder = get_post_meta( $order->ID, 'has_sub_order', true );
 
 		// put orders in an array
 		// if has sub-orders, pick only sub-orders
 		// if it's a single order, get the single order only
 		if ( $has_suborder == '1' ) {
-			$sub_orders = get_children( array( 'post_parent' => $order->ID, 'post_type' => 'shop_order' ) );
+			$sub_orders = get_children(
+				array(
+					'post_parent' => $order->ID,
+					'post_type'   => 'shop_order',
+				)
+			);
 
 			foreach ( $sub_orders as $order_post ) {
-				$sub_order    = wc_get_order( $order_post->ID  );
+				$sub_order    = wc_get_order( $order_post->ID );
 				$all_orders[] = $sub_order;
 			}
-
 		} else {
 			$all_orders[] = $order;
 		}
-			
+
 		return $all_orders;
 	}
-	
+
 	/**
 	 * Get dokan order details
 	 *
@@ -487,8 +519,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @param  int  $seller_id
 	 * @return array|null
 	 */
-	public function get_sale_data( $order_id, $seller_id ) 
-	{
+	public function get_sale_data( $order_id, $seller_id ) {
 		global $wpdb;
 
 		$sql = "SELECT *
@@ -499,7 +530,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 
 		return $wpdb->get_row( $wpdb->prepare( $sql, $seller_id, $order_id ) );
 	}
-	
+
 	/**
 	 * Check the requirements.
 	 *

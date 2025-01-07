@@ -84,7 +84,7 @@ abstract class Marketplace {
 	 */
 	final public function build_split_data( $payload, $the_order, $context ) {
 		if ( $this->settings['recipient_id'] ) {
-			// Get split data from child class. 
+			// Get split data from child class.
 			$split_data = $this->split_data( $the_order, $context );
 			// Merge split data in transaction payload.
 			if ( is_a( $split_data, '\Aquapress\Pagarme\Models\Split_Data' ) ) {
@@ -136,6 +136,12 @@ abstract class Marketplace {
 		$this->init_hooks();
 		// Build split data in process payment.
 		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_split_data' ), 10, 3 );
+		// Hiden API key in gateway settings.
+		add_filter( 'woocommerce_settings_api_form_fields_wc_pagarme_creditcard', array( $this, 'hide_gateway_settings_fields' ), 90 );
+		add_filter( 'woocommerce_settings_api_form_fields_wc_pagarme_boleto', array( $this, 'hide_gateway_settings_fields' ), 90 );
+		add_filter( 'woocommerce_settings_api_form_fields_wc_pagarme_pix', array( $this, 'hide_gateway_settings_fields' ), 90 );
+		// Load payment settings from marketplace options.
+		add_filter( 'wc_pagarme_load_api_settings', array( $this, 'load_default_api_settings' ), 10, 2 );
 	}
 
 	/**
@@ -149,12 +155,20 @@ abstract class Marketplace {
 	 * @uses get_option()
 	 */
 	public function init_settings() {
-		$this->settings = get_option(
-			'wc_pagarme_marketplace_settings',
-			array(
-				'recipiente_id' => apply_filters( 'wc_pagarme_marketplace_default_recipiente_id', '' ), // Seller recipiente id.
-			)
+		// Sets default values ​​for settings.
+		$default_settings = array(
+			'secret_key'         => '',
+			'public_key'         => '',
+			'secret_key_sandbox' => '',
+			'public_key_sandbox' => '',
+			'recipiente_id'      => '',
+			'debug'              => 'no',
+			'testmode'           => 'no',
 		);
+		// Get the settings stored in the database.
+		$stored_settings = get_option( 'wc_pagarme_marketplace_settings' );
+		// Merge stored settings with default values.
+		$this->settings = wp_parse_args( $stored_settings, $default_settings );
 	}
 
 	/**
@@ -168,7 +182,7 @@ abstract class Marketplace {
 	 * @return void
 	 */
 	public function init_api() {
-		$this->api = \Aquapress\Pagarme\Helpers\Factory::Load_API( 'marketplace' );
+		$this->api = \Aquapress\Pagarme\Helpers\Factory::Load_API( 'wc_pagarme_marketplace' );
 	}
 
 	/*
@@ -720,5 +734,42 @@ abstract class Marketplace {
 		}
 
 		return '#';
+	}
+
+	/**
+	 * Load payment settings from marketplace options.
+	 *
+	 * @param string $value  The default value from gateway settings.
+	 * @param string $key  The settings key.
+	 *
+	 * @return string
+	 */
+	public function load_default_api_settings( $settings, $key ) {
+		// Get marketplace settings.
+		$settings['secret_key']         = $this->settings['secret_key'];
+		$settings['secret_key_sandbox'] = $this->settings['secret_key_sandbox'];
+
+		return $settings;
+	}
+
+	/**
+	 * Hiden API key in gateway settings.
+	 * The API key must be configured once for all methods in the gateway plugin settings.
+	 *
+	 * @param array $fields  The gateway settings fields.
+	 *
+	 * @return void
+	 */
+	public function hide_gateway_settings_fields( $fields ) {
+		// Hide sandbox mode.
+		unset( $fields['environment'] );
+		unset( $fields['testmode'] );
+		// Hide API credentials.
+		unset( $fields['public_key'] );
+		unset( $fields['public_key_sandbox'] );
+		unset( $fields['secret_key'] );
+		unset( $fields['secret_key_sandbox'] );
+
+		return $fields;
 	}
 }

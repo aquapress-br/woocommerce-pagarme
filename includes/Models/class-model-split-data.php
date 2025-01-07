@@ -38,11 +38,11 @@ class Split_Data {
 	 */
 	public function add_to_split( $recipient_id, $amount, $liable = true, $charge_processing_fee = false, $charge_remainder_fee = false ) {
 		$this->data[] = array(
-			'type' => 'flat',
-			'amount' => $amount,
+			'type'         => 'flat',
+			'amount'       => $amount,
 			'recipient_id' => $recipient_id,
-			'options' => array(
-				'liable' => $liable,
+			'options'      => array(
+				'liable'                => $liable,
 				'charge_processing_fee' => $charge_processing_fee,
 				'charge_remainder_fee'  => $charge_remainder_fee,
 			),

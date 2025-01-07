@@ -95,7 +95,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'checkout_enqueue' ) );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_filter( 'wc_pagarme_transaction_data', array( $this, 'add_payment_data_to_payload' ), 5, 2 );
+		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_payment_data' ), 5, 2 );
 	}
 
 	/**
@@ -199,20 +199,6 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 					'Personalize as opções de pagamento',
 					'wc-pagarme'
 				),
-			),
-			'statement_descriptor' => array(
-				'title'             => __(
-					'Texto no Extrato do Cartão de Crédito',
-					'wc-pagarme'
-				),
-				'type'              => 'text',
-				'description'       => __(
-					'Texto a ser exibido no extrato do cartão de crédito',
-					'wc-pagarme'
-				),
-				'desc_tip'          => true,
-				'default'           => __( 'Compra online', 'wc-pagarme' ),
-				'custom_attributes' => array( 'maxlength' => '13' ),
 			),
 			'smallest_installment' => array(
 				'title'       => __( 'Menor Parcela', 'wc-pagarme' ),
@@ -347,6 +333,20 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 					'pre_auth'         => __( 'Pré-autorização', 'wc-pagarme' ),
 				),
 			),
+			'statement_descriptor' => array(
+				'title'             => __(
+					'Texto para Fatura do Cartão',
+					'wc-pagarme'
+				),
+				'type'              => 'text',
+				'description'       => __(
+					'Texto a ser exibido na fatura do cartão de crédito',
+					'wc-pagarme'
+				),
+				'desc_tip'          => true,
+				'default'           => __( 'Compra online', 'wc-pagarme' ),
+				'custom_attributes' => array( 'maxlength' => '13' ),
+			),
 			'tokenize_card'        => array(
 				'title'       => __( 'Coletar Dados do Cartão', 'wc-pagarme' ),
 				'type'        => 'select',
@@ -436,7 +436,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 *
 	 * @return array
 	 */
-	public function add_payment_data_to_payload( $payload, $the_order ) {
+	public function build_payment_data( $payload, $the_order ) {
 		// Get order data.
 		$order = wc_get_order( $the_order );
 		// Get card request data.
@@ -681,12 +681,9 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		}
 
 		// Get order total.
-		if ( method_exists( $this, 'get_order_total' ) ) {
-			$order_total = $this->get_order_total();
-		} else {
-			$order_total = $this->get_order_total();
-		}
+		$order_total = $this->get_order_total();
 
+		// Output creditcard form.
 		$this->get_checkout_form( $order_total );
 	}
 
