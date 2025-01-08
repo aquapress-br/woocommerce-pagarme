@@ -36,7 +36,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		$this->id                   = 'wc_pagarme_creditcard';
 		$this->method_title         = __( 'Pagar.me', 'wc-pagarme' );
 		$this->method_description   = __(
-			'Receba com Cartão de Crédito usando a Pagar.me.',
+			'Receba pagamentos com Cartão de Crédito de forma rápida e segura usando a Pagar.me.',
 			'wc-pagarme'
 		);
 		$this->supports             = array(
@@ -68,7 +68,6 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		$this->operation_type       = $this->get_option( 'operation_type' );
 		$this->tokenize_card        = $this->get_option( 'tokenize_card' );
 		$this->debug                = $this->get_option( 'debug' ) === 'yes';
-		$this->icon                 = null;
 
 		// Enable custom form fields for this gateway.
 		$this->has_fields = true;
@@ -95,7 +94,6 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'checkout_enqueue' ) );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_payment_data' ), 5, 2 );
 	}
 
 	/**
@@ -378,74 +376,48 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 			),
 		);
 
-		$this->form_fields = $fields;
+		$this->form_fields = apply_filters( 'wc_pagarme_gateway_form_fields', $fields, $this->id );
 	}
 
 	/**
-	 * Processes the payment for the specified order.
+	 * Merge payload method data with transaction data.
 	 *
-	 * This method handles the payment process after a payment request has been sent
-	 * during checkout. It uses the provided `$order_id` to retrieve order details and
-	 * complete the payment transaction. The method typically involves interacting with
-	 * the payment gateway to process the payment and may return an array containing the
-	 * result of the payment operation, such as the payment status and any relevant messages.
-	 *
-	 * @param string $order_id The ID of the order being processed.
-	 *
-	 * @return array An array containing the result of the payment processing, which may include
-	 *               payment status, redirect URLs, or error messages.
-	 */
-	public function process_payment( $order_id ) {
-		// Get order data.
-		$order = wc_get_order( $order_id );
-		// Process payment API.
-		try {
-			// Process transaction request.
-			$transaction = $this->api->do_transaction(
-				apply_filters(
-					'wc_pagarme_transaction_data',
-					\Aquapress\Pagarme\Helpers\Payload::Build_Transaction_Payload( $order_id ),
-					$order,
-					$this
-				)
-			);
-			// Process order status and save response info.
-			$this->save_order_meta_fields( $order_id, $transaction );
-			$this->process_order_status( $order_id, $transaction['status'] );
-			// Go to order received page.
-			return array(
-				'result'   => 'success',
-				'redirect' => $this->get_return_url( $order ),
-			);
-		} catch ( \Exception $e ) {
-			// Output checkout error message.
-			wc_pagarme_add_checkout_notice(
-				__( 'Não conseguimos processar o pagamento com o cartão fornecido. Verifique as informações fornecidas e tente novamente. Se o problema persistir, entre em contato com o banco emissor para obter mais informações.', 'wc-pagarme' ),
-				'error'
-			);
-		}
-		// Go to checkout.
-		return array( 'result' => 'failure' );
-	}
-
-	/**
-	 * Merge payment method data with transaction data.
-	 *
-	 * @param array  $payload    Regular transaction data.
 	 * @param mixed  $the_order  Woocommerce Order ID or Object WC_Order.
 	 *
 	 * @return array
 	 */
-	public function build_payment_data( $payload, $the_order ) {
+	public function build_payload_data( $the_order ) {
 		// Get order data.
 		$order = wc_get_order( $the_order );
 		// Get card request data.
 		$card_data = $this->get_creditcard_data( $order->get_id() );
-		// Merge credit card settings.
-		$payload['payments'][0]['payment_method']                      = 'credit_card';
-		$payload['payments'][0]['credit_card']['installments']         = $card_data['card_installments'];
-		$payload['payments'][0]['credit_card']['statement_descriptor'] = $this->statement_descriptor;
-		$payload['payments'][0]['credit_card']['operation_type']       = $this->operation_type;
+		// Define payment and items.
+		$payload = array(
+			'payments' => array(
+				0 => array(
+					'payment_method' => 'credit_card',
+					'credit_card'    => array(
+						'installments'         => $card_data['card_installments'],
+						'statement_descriptor' => $this->statement_descriptor,
+						'operation_type'       => $this->operation_type,
+					),
+				),
+			),
+			'items'    => array(
+				array(
+					'quantity'    => 1,
+					'code'        => $order->get_id(),
+					'amount'      => (int) $card_data['card_order_total'] * 100,
+					'description' => sprintf(
+						__( 'WooCommerce ordem #%1$s. %2$sx com juros de %3$s%% a.m. Total: %4$s', 'wc-pagarme' ),
+						$order->get_id(),
+						$card_data['card_installments'],
+						$card_data['card_interest_rate'],
+						$card_data['card_order_total']
+					),
+				),
+			),
+		);
 		// Merge card data request.
 		if ( $card_data['card_id'] != '' ) {
 			$payload['payments'][0]['credit_card']['card_id'] = $card_data['card_id'];
@@ -472,17 +444,6 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				),
 			);
 		}
-		// Set woocommerce order total as single item.
-		$payload['items'][0]['quantity']    = 1;
-		$payload['items'][0]['code']        = $order->get_id();
-		$payload['items'][0]['amount']      = (int) $card_data['card_order_total'] * 100;
-		$payload['items'][0]['description'] = sprintf(
-			__( 'WooCommerce ordem #%1$s. %2$sx com juros de %3$s%% a.m. Total: %4$s', 'wc-pagarme' ),
-			$order->get_id(),
-			$card_data['card_installments'],
-			$card_data['card_interest_rate'],
-			$card_data['card_order_total']
-		);
 
 		return $payload;
 	}
@@ -500,7 +461,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 * @return string HTML markup for the checkout form fields.
 	 */
 	public function get_checkout_form( $order_total ) {
-		wc_get_template(
+		wc_pagarme_get_template(
 			'woocommerce/payment-form.php',
 			array(
 				'card_id'          => static::CARD_ID,
@@ -516,9 +477,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				'saved_cards'      => $this->get_saved_payment_tokens(),
 
 				'is_checkout'      => is_checkout(),
-			),
-			'woocommerce/pagarme/',
-			WC_PAGARME_PATH . 'templates/'
+			)
 		);
 	}
 
@@ -626,9 +585,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 * @return bool
 	 */
 	public function validate_installments() {
-		global $woocommerce;
-
-		$order_total = $woocommerce->cart->total;
+		$order_total = $this->get_order_total();
 
 		// Stop if don't have installments.
 		if ( ! isset( $_POST[ static::CARD_INSTALLMENTS ] ) ) {
@@ -693,10 +650,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 * @return array
 	 */
 	public function get_creditcard_data() {
-
-		global $woocommerce;
-
-		$order_total = $woocommerce->cart->total;
+		$order_total = $this->get_order_total();
 
 		$card_id    = isset( $_POST[ static::CARD_ID ] )
 			? sanitize_text_field( $_POST[ static::CARD_ID ] )

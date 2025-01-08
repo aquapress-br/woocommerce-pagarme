@@ -139,15 +139,38 @@ if ( ! function_exists( 'wc_pagarme_get_phone_information' ) ) {
 }
 
 if ( ! function_exists( 'wc_pagarme_add_checkout_notice' ) ) {
-		/**
-		 * Add checkout notice.
-		 *
-		 * @param string $notice The text of notice.
-		 * @param string $type   The notice type.
-		 */
+	/**
+	 * Add checkout notice.
+	 *
+	 * @param string $notice The text of notice.
+	 * @param string $type   The notice type.
+	 */
 	function wc_pagarme_add_checkout_notice( $notice, $type = 'error' ) {
 		if ( is_checkout() ) {
 			wc_add_notice( $notice, $type );
 		}
+	}
+}
+
+if ( ! function_exists( 'wc_pagarme_add_days_to_date' ) ) {
+	/**
+	 * Adds a specified number of days to the current date and returns it in ISO 8601 format.
+	 * The function works with the timezone of Brasília (America/Sao_Paulo).
+	 *
+	 * @param int $days The number of days to add to the current date.
+	 * @return string The resulting date in the format "YYYY-MM-DDT00:00:00Z".
+	 */
+	function wc_pagarme_add_days_to_date( $days ) {
+		// Define the timezone for Brasília (America/Sao_Paulo)
+		$timezone = new DateTimeZone( 'America/Sao_Paulo' );
+
+		// Create a DateTime instance for the current date and time in the specified timezone
+		$date = new DateTime( 'now', $timezone );
+
+		// Add the specified number of days to the date
+		$date->modify( "+$days days" );
+
+		// Return the date formatted as "YYYY-MM-DDT00:00:00Z"
+		return $date->format( 'Y-m-d\T00:00:00\Z' );
 	}
 }

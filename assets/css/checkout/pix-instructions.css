@@ -1,0 +1,51 @@
+.pagarme-pix-instructions-title {
+    margin-bottom: 20px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.pagarme-pix-instructions-container {
+    box-sizing: border-box;
+    border: 2px dashed #d2d6dc;
+    margin-bottom: 55px;
+    padding: 40px 40px 35px;
+}
+
+.pagarme-pix-instructions-container img {
+    text-align: center;
+    margin: auto;
+    display: block;
+}
+
+.pagarme-pix-instructions-container > span {
+    text-align: center;
+    margin: 20px auto 10px;
+    display: block;
+    max-width: fit-content;
+}
+
+.pagarme-pix-instructions-container a > span {
+    text-transform: uppercase;
+}
+
+.pagarme-pix-instructions-container ul {
+	float: left;
+    list-style: none;
+	margin: 30px 0;
+	padding: 0;
+}
+
+.pagarme-pix-instructions-container .copied-successful, 
+.pagarme-pix-instructions-container .copy-successful .copy-clipboard {
+  display: none;
+}
+
+.pagarme-pix-instructions-container .copy-successful {
+  background: #82b735 !important;
+  color: #fff !important;
+}
+
+.pagarme-pix-instructions-container .copy-successful .copied-successful {
+  display: block !important;
+}
+

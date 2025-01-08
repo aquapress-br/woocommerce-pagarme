@@ -137,9 +137,7 @@ abstract class Marketplace {
 		// Build split data in process payment.
 		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_split_data' ), 10, 3 );
 		// Hiden API key in gateway settings.
-		add_filter( 'woocommerce_settings_api_form_fields_wc_pagarme_creditcard', array( $this, 'hide_gateway_settings_fields' ), 90 );
-		add_filter( 'woocommerce_settings_api_form_fields_wc_pagarme_boleto', array( $this, 'hide_gateway_settings_fields' ), 90 );
-		add_filter( 'woocommerce_settings_api_form_fields_wc_pagarme_pix', array( $this, 'hide_gateway_settings_fields' ), 90 );
+		add_filter( 'wc_pagarme_gateway_form_fields', array( $this, 'hide_gateway_settings_fields' ), 90 );
 		// Load payment settings from marketplace options.
 		add_filter( 'wc_pagarme_load_api_settings', array( $this, 'load_default_api_settings' ), 10, 2 );
 	}

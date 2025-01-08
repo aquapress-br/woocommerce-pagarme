@@ -20,6 +20,7 @@ if ( ! function_exists( 'wc_pagarme_gateways_register' ) ) {
 			function ( $payment_methods ) {
 				$payment_methods[] = '\Aquapress\Pagarme\Gateways\CreditCard';
 				$payment_methods[] = '\Aquapress\Pagarme\Gateways\PIX';
+				$payment_methods[] = '\Aquapress\Pagarme\Gateways\Boleto';
 				return $payment_methods;
 			}
 		);

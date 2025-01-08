@@ -11,7 +11,7 @@ function wc_pagarme_get_template_part( $slug, $name = '' ) {
 	$template = '';
 
 	if ( $name ) {
-		$template = wc_pagarme_locate_template( "{$slug}-{$name}.php", apply_filters( 'wc_pagarme_template_path', wc_pagarme_get_template_path() ) . "{$slug}-{$name}.php" );
+		$template = wc_pagarme_locate_template( "{$slug}-{$name}.php", wc_pagarme_get_template_path() . "{$slug}-{$name}.php" );
 	}
 
 	// Get default slug-name.php.
@@ -20,7 +20,7 @@ function wc_pagarme_get_template_part( $slug, $name = '' ) {
 	}
 
 	if ( ! $template ) {
-		$template = wc_pagarme_locate_template( "{$slug}.php", apply_filters( 'wc_pagarme_template_path', wc_pagarme_get_template_path() ) . "{$slug}.php" );
+		$template = wc_pagarme_locate_template( "{$slug}.php", wc_pagarme_get_template_path() . "{$slug}.php" );
 	}
 
 	/**
@@ -45,17 +45,14 @@ function wc_pagarme_get_template_part( $slug, $name = '' ) {
  * @param string $template_name Name of template.
  * @param array  $args          Array of arguments accessible from the template.
  * @param string $template_path Optional. Dir path to template. Default is empty string.
- *                              If not supplied the one retrived from `humanbot()->template_path()` will be used.
- * @param string $default_path  Optional. Default path is empty string.
- *                              If not supplied the template path is `WC_PAGARME_PATH . '/templates/'`.
  * @return void
  */
-function wc_pagarme_get_template( $template_name, $args = array(), $template_path = '', $default_path = '' ) {
+function wc_pagarme_get_template( $template_name, $args = array(), $template_path = '' ) {
 	if ( $args && is_array( $args ) ) {
 		extract( $args );
 	}
 
-	$located = wc_pagarme_locate_template( $template_name, $template_path, $default_path );
+	$located = wc_pagarme_locate_template( $template_name, $template_path );
 
 	/**
 	 * Fired before a template part is included
@@ -87,25 +84,18 @@ function wc_pagarme_get_template( $template_name, $args = array(), $template_pat
  *
  * @param string $template_name Name of template.
  * @param string $template_path Optional. Dir path to template. Default is empty string.
- *                              If not supplied the one retrived from `humanbot()->template_path()` will be used.
- * @param string $default_path  Optional. Default path is empty string.
- *                              If not supplied the template path is `WC_PAGARME_PATH . '/templates/'`.
  * @return string
  */
-function wc_pagarme_locate_template( $template_name, $template_path = '', $default_path = '' ) {
+function wc_pagarme_locate_template( $template_name, $template_path = '' ) {
 	if ( ! $template_path ) {
-		$template_path = apply_filters( 'wc_pagarme_template_path', wc_pagarme_get_template_path() );
-	}
-
-	if ( ! $default_path ) {
-		$default_path = WC_PAGARME_PATH . '/templates/';
+		$template_path = wc_pagarme_get_template_path();
 	}
 
 	// Check theme and template directories for the template.
 	$override_path = wc_pagarme_get_template_override( $template_name );
 
 	// Get default template.
-	$path = ( $override_path ) ? $override_path : $default_path;
+	$path = ( $override_path ) ? $override_path : $template_path;
 
 	$template = $path . $template_name;
 
@@ -199,5 +189,5 @@ function wc_pagarme_get_template_path() {
 	 *
 	 * @param string $template_path Default template directory path.
 	 */
-	return apply_filters( 'wc_pagarme_template_path', 'wc-pagarme-v5-beta/' );
+	return apply_filters( 'wc_pagarme_template_path', WC_PAGARME_PATH . 'templates/' );
 }

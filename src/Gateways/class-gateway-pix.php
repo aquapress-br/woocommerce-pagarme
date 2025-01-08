@@ -27,7 +27,7 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 		$this->id                 = 'wc_pagarme_pix';
 		$this->method_title       = __( 'Pagar.me', 'wc-pagarme' );
 		$this->method_description = __(
-			'Receba com PIX usando a Pagar.me.',
+			'Receba pagamentos com PIX usando a Pagar.me, com confirmação instantânea, tarifas competitivas.',
 			'wc-pagarme'
 		);
 		$this->supports           = array(
@@ -48,8 +48,8 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 		$this->secret_key         = $this->get_option( 'secret_key' );
 		$this->public_key_sandbox = $this->get_option( 'public_key_sandbox' );
 		$this->secret_key_sandbox = $this->get_option( 'secret_key_sandbox' );
+		$this->expires            = $this->get_option( 'expiration' );
 		$this->debug              = $this->get_option( 'debug' ) === 'yes';
-		$this->icon               = null;
 
 		// Enable custom form fields for this gateway.
 		$this->has_fields = true;
@@ -76,7 +76,7 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'checkout_enqueue' ) );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_payment_data' ), 5, 2 );
+		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'order_summary_preview' ) );
 	}
 
 	/**
@@ -195,43 +195,95 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 			),
 		);
 
-		$this->form_fields = $fields;
+		$this->form_fields = apply_filters( 'wc_pagarme_gateway_form_fields', $fields, $this->id );
 	}
 
 	/**
-	 * Merge payment method data with transaction data.
+	 * Merge payload method data with transaction data.
 	 *
-	 * @param array  $payload    Regular transaction data.
-	 * @param mixed  $the_order  Woocommerce Order ID or Object WC_Order.
+	 * @param mixed  $the_order    Woocommerce Order ID or Object WC_Order.
 	 *
 	 * @return array
 	 */
-	public function build_payment_data( $payload, $the_order ) {
+	public function build_payload_data( $the_order ) {
 		// Get order data.
 		$order = wc_get_order( $the_order );
 		// Merge pix settings.
-		$payload['payments'] = array(
-			array(
-				'payment_method' => 'pix',
-				'Pix'            => array(
-					'expires_in' => $this->expires,
+		$payload = array(
+			'payments' => array(
+				0 => array(
+					'payment_method' => 'pix',
+					'Pix'            => array(
+						'expires_in' => (int) $this->expires,
+					),
+				),
+			),
+			'items'    => array(
+				array(
+					'quantity'    => 1,
+					'code'        => $order->get_id(),
+					'amount'      => (int) $order->get_total() * 100,
+					'description' => sprintf(
+						__( 'WooCommerce ordem #%1$s. Total: %2$s', 'wc-pagarme' ),
+						$order->get_id(),
+						$order->get_total()
+					),
 				),
 			),
 		);
-		// Set woocommerce order total as single item.
-		$payload['items'] = array(
-			array(
-				'quantity'    => 1,
-				'code'        => $order->get_id(),
-				'amount'      => (int) $order->get_total() * 100,
-				'description' => sprintf(
-					__( 'WooCommerce ordem #%1$s. Total: %2$s', 'wc-pagarme' ),
-					$order->get_id(),
-					$order->get_total()
-				),
-			),
-		);
+
 		return $payload;
+	}
+
+	/**
+	 * Add a pix code view in order summary.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	public function order_summary_preview( $order_id ) {
+		$order = wc_get_order( $order_id );
+
+		if ( $order->get_meta( 'PAGARME_PIX_QRCODE_URL' ) && $order->get_meta( 'PAGARME_PIX_QRCODE' ) && in_array( $order->get_status(), array( 'pending', 'on-hold' ) ) ) {
+			?>
+			<div class="pagarme-pix-instructions-container">
+				<h4 class="pagarme-pix-instructions-title"><?php esc_html_e( 'Escanei e pague o QR code a seguir para efeturar a compra do seu pedido', 'wc-pagarme' ); ?></h4>
+				<br>
+				<ul>
+					<li><?php esc_html_e( '1 - Abra o aplicativo do seu banco no seu telefone', 'wc-pagarme' ); ?></li>
+					<li><?php esc_html_e( '2 - Selecione a opção Pagar com PIX', 'wc-pagarme' ); ?></li>
+					<li><?php esc_html_e( '3 - Após o pagamento você receberá um e-mail de confirmação', 'wc-pagarme' ); ?></li>
+				</ul>
+				<img width="150" height="150" src="<?php echo esc_url( $order->get_meta( 'PAGARME_PIX_QRCODE_URL' ) ); ?>"/>
+				<br>
+				<span><a class="button" data-qrcode="<?php esc_html_e( $order->get_meta( 'PAGARME_PIX_QRCODE' ) ); ?>" id="pagarme-copy-button" href="javascript:void(0);"><span class="copy-clipboard"><?php esc_html_e( 'Copiar chave PIX', 'wc-pagarme' ); ?></span><span class="copied-successful"><?php esc_html_e( 'Chave PIX copiada!', 'wc-pagarme' ); ?></span></a></span>				
+				<br>
+			</div>
+			<?php
+		}
+	}
+
+	/**
+	 * The payment confirmation screen is displayed seconds after payment automatically.
+	 *
+	 * @since    1.0.0
+	 * @return   array    void
+	 */
+	public function check_payment_complete() {
+		if ( isset( $_REQUEST['order_id'] ) ) {
+			// Get the order object.
+			$order = wc_get_order( $_REQUEST['order_id'] );
+			if ( ! $order ) {
+				wp_send_json( false ); // Order not found.
+			}
+			if ( $order->get_customer_id() != get_current_user_id() ) {
+				wp_send_json( false ); // Access fail.
+			}
+			// Check if the order payment status is completed or processing.
+			if ( in_array( $order->get_status(), array( 'completed', 'processing' ) ) ) {
+				wp_send_json( true );
+			}
+		}
+		wp_die();
 	}
 
 	/**
@@ -243,7 +295,7 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 	public function admin_enqueue() {
 		wp_enqueue_script(
 			'wc-pagarme-pix-settings',
-			WC_PAGARME_URI . 'assets/js/admin/card-settings.js',
+			WC_PAGARME_URI . 'assets/js/admin/pix-settings.js',
 			array( 'jquery' ),
 			WC_PAGARME_VERSION,
 			true
@@ -259,15 +311,15 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 	public function checkout_enqueue() {
 		if ( is_checkout() ) {
 			wp_enqueue_script(
-				'wc-pagarme-pix-form',
-				WC_PAGARME_URI . 'assets/js/checkout/pix-form.js',
+				'wc-pagarme-pix-instructions',
+				WC_PAGARME_URI . 'assets/js/checkout/pix-instructions.js',
 				array( 'jquery' ),
 				WC_PAGARME_VERSION,
 				true
 			);
 			wp_enqueue_style(
-				'wc-pagarme-pix-form',
-				WC_PAGARME_URI . 'assets/css/checkout/pix-form.css'
+				'wc-pagarme-pix-instructions',
+				WC_PAGARME_URI . 'assets/css/checkout/pix-instructions.css'
 			);
 		}
 	}

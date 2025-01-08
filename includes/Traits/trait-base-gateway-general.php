@@ -26,24 +26,24 @@ trait Base_Gateway_General {
 	 * @param array $transaction Order transaction.
 	 */
 	public function save_order_meta_fields( $order_id, $transaction ) {
-		// Transaction data.
-		$transaction_data = array_map(
-			'sanitize_text_field',
-			array(
-				'transaction_id' => $transaction['id'] ?? '',
-				'customer_id'    => $transaction['customer']['id'] ?? '',
-				'charge_id'      => $transaction['charges'][0]['id'] ?? '',
-				'payment_method' => $transaction['charges'][0]['payment_method'] ?? '',
-				'gateway_id'     =>
-					$transaction['charges'][0]['last_transaction']['gateway_id'] ?? '',
-				'operation_type' =>
-					$transaction['charges'][0]['last_transaction']['operation_type'] ?? '',
-			)
-		);
-
-		// Transaction data.
-		update_post_meta( $order_id, '_wc_pagarme_transaction_id', $transaction['id'] );
-		update_post_meta( $order_id, '_wc_pagarme_transaction_data', $transaction_data );
+		// Get order.
+		$order = wc_get_order( $order_id );
+		// Set transaction meta data.
+		$order->add_meta_data( 'PAGARME_TRANSACTION_ID', $transaction['id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_CUSTOMER_ID', $transaction['customer']['id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_CHARGE_ID', $transaction['charges'][0]['last_transaction']['id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_PAYMENT_METHOD', $transaction['charges'][0]['last_transaction']['transaction_type'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_GATEWAY_ID', $transaction['charges'][0]['last_transaction']['gateway_id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_CARD_ID', $transaction['charges'][0]['last_transaction']['card']['id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_CARD_INSTALLMENTS', $transaction['charges'][0]['last_transaction']['installments'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_CARD_OPERATION_TYPE', $transaction['charges'][0]['last_transaction']['operation_type'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_BOLETO_URL', $transaction['charges'][0]['last_transaction']['pdf'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_BOLETO_DUE_AT', $transaction['charges'][0]['last_transaction']['due_at'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_PIX_QRCODE', $transaction['charges'][0]['last_transaction']['qr_code'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_PIX_QRCODE_URL', $transaction['charges'][0]['last_transaction']['qr_code_url'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_PIX_EXPIRES_AT', $transaction['charges'][0]['last_transaction']['expires_at'] ?? '', true );
+		// Save transaction meta data.
+		$order->save();
 	}
 
 	/**

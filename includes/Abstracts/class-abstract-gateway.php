@@ -40,6 +40,15 @@ abstract class Gateway extends \WC_Payment_Gateway {
 	abstract public function init_hooks();
 
 	/**
+	 * Merge payload method data with transaction data.
+	 *
+	 * @param mixed  $the_order  Woocommerce Order ID or Object WC_Order.
+	 *
+	 * @return array
+	 */
+	abstract public function build_payload_data( $the_order );
+
+	/**
 	 * Initializes the Pagar.me payment gateway.
 	 *
 	 * This method sets up the payment method by initializing various components such as form fields,
@@ -126,10 +135,11 @@ abstract class Gateway extends \WC_Payment_Gateway {
 			// Process transaction request.
 			$transaction = $this->api->do_transaction(
 				apply_filters(
-					'wc_pagarme_transaction_data',
-					\Aquapress\Pagarme\Helpers\Payload::Build_Transaction_Payload( $order_id ),
-					$order,
-					$this
+					'wc_pagarme_transaction_data', array_merge(
+						\Aquapress\Pagarme\Helpers\Payload::Build_Transaction_Payload( $order_id )
+						$this->build_payload_data( $order )
+					),
+					$order, $this
 				)
 			);
 			// Process order status and save response info.
@@ -143,7 +153,7 @@ abstract class Gateway extends \WC_Payment_Gateway {
 		} catch ( \Exception $e ) {
 			// Output checkout error message.
 			wc_pagarme_add_checkout_notice(
-				__( 'NÃ£o conseguimos processar o pagamento com o cartÃ£o fornecido. Verifique as informaÃ§Ãµes fornecidas e tente novamente. Se o problema persistir, entre em contato com o banco emissor para obter mais informaÃ§Ãµes.', 'wc-pagarme' ),
+				__( 'Não foi possível processar o pagamento. Verifique as informações fornecidas e tente novamente. Se o problema persistir, entre em contato para obter mais informações.', 'wc-pagarme' ),
 				'error'
 			);
 		}
