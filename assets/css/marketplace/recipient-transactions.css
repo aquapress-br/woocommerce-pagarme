@@ -1,0 +1,59 @@
+.pagarme-transactions-cards {
+	display: inline-grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 30px;
+    width: 100%;
+}
+
+.pagarme-transactions-card {
+	position: relative;
+    display: inline-grid;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 30px;
+    padding-left: 65px;
+    min-height: 60px;
+    text-align: left;
+    border: none;
+    border-radius: 5px;
+	color: #ffffff;
+    font-size: 14px;
+	font-weight: 500;
+}
+
+.pagarme-transactions-card::before {
+	position: absolute;
+	top: 50%;
+	left: 24px;
+	margin-top: -9px;
+	line-height: 18px;
+	font-family: dashicons;
+	font-size: 22px;
+}
+
+.pagarme-transactions-card.green {
+	background-color: #5c931d;
+}
+
+.pagarme-transactions-card.green::before {
+	content: "\f15e";
+}
+
+.pagarme-transactions-card.orange {
+	background-color: #ccbf2a;
+}
+
+.pagarme-transactions-card.orange::before {
+	content: "\f14c";
+}
+
+.pagarme-transactions-card.red {
+	background-color: #cc482a;
+}
+
+.pagarme-transactions-card.red::before {
+	content: "\f463";
+}

@@ -620,7 +620,7 @@ abstract class Marketplace {
 	 *
 	 * @return void
 	 */
-	public function output_recipient_form_template() {
+	public static function output_recipient_form_template() {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
 
@@ -653,35 +653,31 @@ abstract class Marketplace {
 	 * @return void
 	 */
 	public function output_recipient_transactions_template() {
-		$balance         = array();
+		$balance  = $operations  = array();
 		$current_user_id = get_current_user_id();
 		$recipient_id    = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
 		try {
-			// Check recipient exists.
-			if ( $recipient_id ) {
-				// Process recipient balance request.
-				$balance = $this->api->get_recipient_balance( $recipient_id );
-				// Process recipient operations request.
-				$operations = $this->api->get_recipient_operations(
-					array(
-						'recipient_id' => $recipient_id,
-						'page'         => ( $_GET['operations-page'] ?: 1 ),
-						'size'         => '10',
-					)
-				);
-			}
+			// Process recipient balance request.
+			$balance = $this->api->get_recipient_balance( $recipient_id );
+			// Process recipient operations request.
+			$operations = $this->api->get_recipient_operations(
+				array(
+					'recipient_id' => $recipient_id,
+					'page'         => ( $_GET['operations-page'] ?: 1 ),
+					'size'         => '10',
+				)
+			);
 		} catch ( \Exception $e ) {
 			$balance    = array(
-				'available'     => 0,
-				'waiting_funds' => 0,
-				'transferred'   => 0,
+				'available_amount'     => 0,
+				'waiting_funds_amount' => 0,
+				'transferred_amount'   => 0,
 			);
 			$operations = array(
 				'data'   => array(),
 				'paging' => array(),
 			);
 		}
-
 		wc_pagarme_get_template(
 			'recipient-transactions.php',
 			array(

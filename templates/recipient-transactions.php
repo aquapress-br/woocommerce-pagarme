@@ -4,8 +4,8 @@
  */
 ?>
 
-<div class="pagarme-recipient-transactions-cards">
-	<div class="pagarme-card pagarme-card-green">
+<div class="pagarme-transactions-cards">
+	<div class="pagarme-transactions-card green">
 			<strong>
 				<?php _e( 'Saldo atual:', 'wc-pagarme' ); ?>
 				<strong class="woocommerce-Price-amount amount">
@@ -17,7 +17,7 @@
 			</strong>
 	</div>
 
-	<div class="pagarme-card pagarme-card-yellow">
+	<div class="pagarme-transactions-card orange">
 			<strong>
 				<?php _e( 'À receber:', 'wc-pagarme' ); ?>
 				<strong class="woocommerce-Price-amount amount">
@@ -29,7 +29,7 @@
 			</strong>
 	</div>
 
-	<div class="pagarme-card pagarme-card-red">
+	<div class="pagarme-transactions-card red">
 			<strong>
 				<?php _e( 'Transferidos:', 'wc-pagarme' ); ?>
 				<strong class="woocommerce-Price-amount amount">
@@ -47,7 +47,7 @@
 		<table>
 			<thead>
 				<tr>
-					<th id="cb" class="manage-column column-cb check-column">
+					<th>
 					</th>
 					<th><?php _e( 'Descrição', 'wc-pagarme' ); ?></th>
 					<th><?php _e( 'Valor', 'wc-pagarme' ); ?></th>
@@ -60,7 +60,7 @@
 				<?php foreach ( $operations['data'] as $operation ) : ?>
 					<tr>
 						<td></td>
-						<td class="dokan-mov-description" >
+						<td class="pagarme-operations-table-column-description" >
 							<?php
 							switch ( $operation['type'] ) {
 								case 'transfer':
@@ -80,7 +80,7 @@
 
 							?>
 						</td>
-						<td class="dokan-mov-value" >
+						<td class="pagarme-operations-table-column-value" >
 							<strong class="woocommerce-Price-amount amount" style="<?php echo ( $operation['amount'] > 0 ) ? 'color:#5cb85c' : 'color:#c9302c'; ?>">
 								<span class="woocommerce-Price-currencySymbol">
 									<?php echo ( $operation['amount'] > 0 ) ? '<span>&nbsp;&nbsp;&nbsp;</span>' : '<span>-&nbsp;</span>'; ?>
@@ -88,7 +88,7 @@
 								<?php echo wc_price( str_replace( '-', '', $operation['amount'] ) / 100 ); ?>
 							</strong>
 						</td>
-						<td class="dokan-mov-status" >
+						<td class="pagarme-operations-table-column-status" >
 								<?php
 								switch ( $operation['status'] ) {
 									case 'waiting_funds':
@@ -101,12 +101,12 @@
 								}
 								?>
 						</td>
-						<td class="dokan-mov-date" >
+						<td class="pagarme-operations-table-column-date" >
 							<abbr title="">
 								<?php echo date( 'd/M/Y', strtotime( $operation['created_at'] ) ); ?>
 							</abbr>
 						</td>
-						<td class="dokan-mov-order" >
+						<td class="pagarme-operations-table-column-order" >
 							<?php
 								$parent_order = Ddfp_Helper::get_order_by_transaction_id( $operation['movement_object']['id'] );
 								$seller_order = Ddfp_Helper::get_seller_order( $access['saller'], $parent_order );
@@ -140,16 +140,17 @@
 	</div>
 	
 <?php else : ?>
-
-	<div style="margin-bottom: 90px;">
-		<strong><?php __( 'Não existem mais dados para mostrar.', 'wc-pagarme' ); ?></strong>
+	<br>
+	<div>
+		<strong><?php _e( 'Não existem mais dados para mostrar.', 'wc-pagarme' ); ?></strong>
 	</div>
-	
+	<br>
 	<div class="pagination-wrap" style="text-align:center">
 		<ul class="pagination">		
 			<?php
 			if ( ! empty( $_GET['operations-page'] ) ) {
 				$operation_count = (int) $_GET['operations-page'] ?: 1;
+				
 				echo '<li><a class="prev page-numbers" href="?operations-page=' . ( $operation_count - 1 ) . '&start_date=' . $_GET['start_date'] . '&end_date=' . $_GET['end_date'] . '">« Anterior</a></li>';
 			}
 			?>

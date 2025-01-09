@@ -145,6 +145,9 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 			wp_enqueue_script( 'pagarme-recipient-form-scripts', WC_PAGARME_URI . 'assets/js/marketplace/recipient-form.js', array( 'jquery' ), WC_PAGARME_VERSION, true );
 			wp_enqueue_script( 'jquery-mask', plugin_dir_url( __DIR__ ) . WC_PAGARME_URI . 'assets/js/jquery.mask.js', array( 'jquery' ), '1.14.10', true );
 		}
+		if ( isset( $wp_query->query['finances'] ) && in_array( $wp_query->query['finances'], array( 'transactions', 'calendar' ) ) ) {
+			wp_enqueue_style( 'pagarme-recipient-transactions-styles', WC_PAGARME_URI . 'assets/css/marketplace/recipient-transactions.css', true, WC_PAGARME_VERSION );
+		}
 	}
 
 	/**
@@ -296,7 +299,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 */
 	public function withdraw_register_methods( $methods ) {
 		$methods['pagarme']['title']    = __( 'Pagar.me', 'wc-pagarme' ); // title can be changed as per your need
-		$methods['pagarme']['callback'] = array( __CLASS__, 'withdraw_method_callback' );
+		$methods['pagarme']['callback'] = array( $this, 'withdraw_method_callback' );
 
 		return $methods;
 	}
@@ -391,6 +394,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		<div class="dokan-dashboard-wrap">
 			<?php do_action( 'dokan_dashboard_content_before' ); ?>
 			<div class="dokan-dashboard-content">
+				<?php do_action( 'dokan_dashboard_content_inside_before' ); ?>
 				<article>
 					<header class="dokan-dashboard-header">
 						<h1 class="entry-title"><?php _e( 'Movimentações', 'wc-pagarme' ); ?></h1>

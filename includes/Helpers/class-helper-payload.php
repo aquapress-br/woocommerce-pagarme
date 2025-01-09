@@ -21,10 +21,10 @@ class Payload {
 	/**
 	 * Get customer data for an order.
 	 *
-	 * @param int $order_id The WooCommerce order ID.
+	 * @param mixed  $the_order  Woocommerce Order ID or Object WC_Order.
 	 * @return array The customer data structure.
 	 */
-	public static function Build_Transaction_Payload( $order_id, $user_id = false ) {
+	public static function Build_Transaction_Payload( $the_order, $user_id = false ) {
 		// Check WP user has customer ID pagarme.
 		$customer_id = get_user_meta( $user_id ?: get_current_user_id(), '_wc_pagarme_customer_id', true );
 		if ( ! empty( $customer_id ) ) {
@@ -33,7 +33,7 @@ class Payload {
 			);
 		} else {
 			// Load the WooCommerce order object.
-			$order = wc_get_order( $order_id );
+			$order = wc_get_order( $the_order );
 			if ( ! $order ) {
 				return array(); // Return an empty array if the order is invalid.
 			}

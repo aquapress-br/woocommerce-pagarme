@@ -134,12 +134,10 @@ abstract class Gateway extends \WC_Payment_Gateway {
 		try {
 			// Process transaction request.
 			$transaction = $this->api->do_transaction(
-				apply_filters(
-					'wc_pagarme_transaction_data', array_merge(
-						\Aquapress\Pagarme\Helpers\Payload::Build_Transaction_Payload( $order_id )
+				apply_filters( 'wc_pagarme_transaction_data', array_merge(
+						\Aquapress\Pagarme\Helpers\Payload::Build_Transaction_Payload( $order ),
 						$this->build_payload_data( $order )
-					),
-					$order, $this
+					), $order, $this
 				)
 			);
 			// Process order status and save response info.
