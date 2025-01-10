@@ -79,6 +79,14 @@
 							</div>
 						</div>
 						<div class="pagarme-form-group pagarme-form-group-row-first">
+							<label for="email"><?php _e( 'E-mail', 'wc-pagarme' ); ?></label>
+							<input type="email" id="email" name="pagarme_recipient_email" value="<?php echo $user_info->pagarme_recipient_email ?: $user_info->user_email; ?>">
+						</div>
+						<div class="pagarme-form-group pagarme-form-group-row-last">
+							<label for="phone"><?php _e( 'Celular', 'wc-pagarme' ); ?></label>
+							<input type="tel" id="phone" name="pagarme_recipient_phone" value="<?php echo $user_info->pagarme_recipient_phone; ?>">
+						</div>
+						<div class="pagarme-form-group pagarme-form-group-row-first">
 							<label for="address_zipcode"><?php _e( 'CEP', 'wc-pagarme' ); ?></label>
 							<input type="tel" id="address_zipcode" name="pagarme_recipient_address_zipcode" value="<?php echo $user_info->pagarme_recipient_address_zipcode; ?>">
 						</div>
@@ -90,29 +98,21 @@
 								<?php endforeach; ?>
 							</select>
 						</div>
-						<div class="pagarme-form-group pagarme-form-group-row-first">
+						<div class="pagarme-form-group">
 							<label for="address_street"><?php _e( 'Logradouro', 'wc-pagarme' ); ?></label>
 							<input type="text" id="address_street" name="pagarme_recipient_address_street" value="<?php echo $user_info->pagarme_recipient_address_street; ?>">
 						</div>
-						<div class="pagarme-form-group pagarme-form-group-row-last">
+						<div class="pagarme-form-group pagarme-form-group-row-first">
 							<label for="address_street_number"><?php _e( 'Número', 'wc-pagarme' ); ?></label>
 							<input type="tel" id="address_street_number" name="pagarme_recipient_address_street_number" value="<?php echo $user_info->pagarme_recipient_address_street_number; ?>">
 						</div>
-						<div class="pagarme-form-group pagarme-form-group-row-first">
+						<div class="pagarme-form-group pagarme-form-group-row-last">
 							<label for="address_neighborhood"><?php _e( 'Bairro', 'wc-pagarme' ); ?></label>
 							<input type="text" id="address_neighborhood" name="pagarme_recipient_address_neighborhood" value="<?php echo $user_info->pagarme_recipient_address_neighborhood; ?>">
 						</div>
-						<div class="pagarme-form-group pagarme-form-group-row-last">
+						<div class="pagarme-form-group pagarme-form-group-row-first">
 							<label for="address_city"><?php _e( 'Cidade', 'wc-pagarme' ); ?></label>
 							<input type="text" id="address_city" name="pagarme_recipient_address_city" value="<?php echo $user_info->pagarme_recipient_address_city; ?>">
-						</div>
-						<div class="pagarme-form-group pagarme-form-group-row-first">
-							<label for="email"><?php _e( 'E-mail', 'wc-pagarme' ); ?></label>
-							<input type="email" id="email" name="pagarme_recipient_email" value="<?php echo $user_info->pagarme_recipient_email ?: $user_info->user_email; ?>">
-						</div>
-						<div class="pagarme-form-group pagarme-form-group-row-last">
-							<label for="phone"><?php _e( 'Celular', 'wc-pagarme' ); ?></label>
-							<input type="tel" id="phone" name="pagarme_recipient_phone" value="<?php echo $user_info->pagarme_recipient_phone; ?>">
 						</div>
 					</div>
 				</div>

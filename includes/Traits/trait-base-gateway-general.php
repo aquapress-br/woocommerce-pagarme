@@ -95,4 +95,5 @@ trait Base_Gateway_General {
 				break;
 		}
 	}
+	
 }

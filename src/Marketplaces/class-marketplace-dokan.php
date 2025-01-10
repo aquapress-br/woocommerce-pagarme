@@ -47,6 +47,8 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		add_filter( 'dokan_is_seller_connected_to_payment_method', array( $this, 'withdraw_seller_connected_to_payment_method' ), 20, 3 );
 		add_filter( 'dokan_get_template_part', array( $this, 'replace_payment_method_template_part' ), 20, 3 );
 		add_filter( 'dokan_query_var_filter', array( $this, 'set_custom_query_vars' ), 100 );
+		
+		add_action( 'wc_pagarme_operations_table_column_order', array( $this, 'print_operations_table_order_link' ), 100 );
 	}
 
 	/**
@@ -442,7 +444,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		// Get woocommerce order data.
 		$order = wc_get_order( $the_order );
 		// Get dokan orders data.
-		$vendors_orders = $this->get_vendors_orders( $order );
+		$vendors_orders = $this->get_dokan_vendors_suborders( $order );
 		// Build vendors split rule.
 		if ( is_array( $vendors_orders ) && ! empty( $vendors_orders ) ) {
 			// Loop dokan orders data.
@@ -456,7 +458,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 					continue;
 				}
 				// Get order commission from dokan order.
-				$sale_data = $this->get_sale_data( $tmp_order_id, $vendor_id );
+				$sale_data = $this->get_dokan_commission_data( $tmp_order_id, $vendor_id );
 				if ( ! $sale_data ) {
 					continue;
 				}
@@ -490,7 +492,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @param  object  $order
 	 * @return array
 	 */
-	public function get_vendors_orders( $order ) {
+	public function get_dokan_vendors_suborders( $order ) {
 		$all_orders   = array();
 		$has_suborder = get_post_meta( $order->ID, 'has_sub_order', true );
 
@@ -517,13 +519,39 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	}
 
 	/**
+	 * Get vendor suborders by parent order id and vendor id.
+	 *
+	 * @param  int  $seller_id
+	 * @param  object  $order
+	 * @return array
+	 */
+	public function get_dokan_vendor_suborder( $seller_id = null, $parent_order = null ) {
+
+		if ( $seller_id != null && $parent_order != null ) {
+
+			$all_orders = static::get_dokan_vendors_suborders( $parent_order );
+
+			foreach( $all_orders as $order ) {		
+				$order_id = dokan_get_prop( $order, 'id' );
+				$order_seller_id    = dokan_get_seller_id_by_order( $order_id );
+
+				if ( $order_seller_id ==  $seller_id ) {
+					return $order;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Get dokan order details
 	 *
 	 * @param  int  $order_id
 	 * @param  int  $seller_id
 	 * @return array|null
 	 */
-	public function get_sale_data( $order_id, $seller_id ) {
+	public function get_dokan_commission_data( $order_id, $seller_id ) {
 		global $wpdb;
 
 		$sql = "SELECT *
@@ -535,6 +563,51 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		return $wpdb->get_row( $wpdb->prepare( $sql, $seller_id, $order_id ) );
 	}
 
+	/**
+	 * Get woocommerce order by pagarme transaction ID.
+	 *
+	 * @param  string  $transaction_id
+	 * @return void
+	 */
+	public function get_order_by_transaction_id( $transaction_id ) {
+		if( !is_null( $transaction_id ) ) {
+			global $wpdb;
+			
+			$order_id = absint( $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'PAGARME_TRANSACTION_ID' AND meta_value = %d", $transaction_id ) ) );
+			$order    = wc_get_order( $order_id );
+
+			if( false != $order ) {
+				return $order;
+			} else {
+				return null;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Print dokan order link in operations table.
+	 *
+	 * @param  array  $data
+	 * @return void
+	 */
+	public function print_operations_table_order_link( $operation ) {
+		$parent_order = $this->get_order_by_transaction_id( $operation['movement_object']['id'] );
+		$vendor_order = $this->get_dokan_vendor_suborder( $parent_order );
+		?>
+			<?php if ( current_user_can( 'dokan_view_order' ) ) : ?>
+				<?php if ( ! is_null( $vendor_order ) ) : ?>
+					<?php echo '<a href="' . esc_url( wp_nonce_url( add_query_arg( array( 'order_id' => $vendor_order->ID ), dokan_get_navigation_url( 'orders' ) ), 'dokan_view_order' ) ) . '"><strong>' . esc_attr( $vendor_order->ID ) . '</strong></a>'; ?>
+				<?php endif; ?>
+				<?php else : ?>
+					<?php echo '<strong>' . sprintf( 'Ordem %s', esc_attr( $vendor_order->ID ) ) . '</strong>'; ?>
+				<?php endif ?>
+		<?php
+	}
+
+
+	
 	/**
 	 * Check the requirements.
 	 *

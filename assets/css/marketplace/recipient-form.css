@@ -63,6 +63,7 @@
 
 .pagarme-form-group {
 	margin-bottom: 15px;
+	clear: both;
 }
 
 .pagarme-form-group-row-first {
@@ -77,4 +78,5 @@
 .pagarme-form-group-row-last {
 	overflow: visible;
 	width: 48%;
+	clear: none;
 }

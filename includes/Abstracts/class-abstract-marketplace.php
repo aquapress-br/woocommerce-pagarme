@@ -663,7 +663,9 @@ abstract class Marketplace {
 			$operations = $this->api->get_recipient_operations(
 				array(
 					'recipient_id' => $recipient_id,
-					'page'         => ( $_GET['operations-page'] ?: 1 ),
+					'page'         => ( $_GET['operations-page'] ?? 1 ),
+					'created_since' => isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) ? ( date_create( $_GET['start_date'], timezone_open('America/Sao_Paulo') )->getTimestamp() * 1000 ) : null,
+					'created_until' => isset( $_GET['end_date'] ) && !empty( $_GET['end_date'] ) ? ( date_create( sprintf( '%sT23:59:59', $_GET['end_date'] ), timezone_open('America/Sao_Paulo') )->getTimestamp() * 1000 ) : null,
 					'size'         => '10',
 				)
 			);
@@ -678,6 +680,7 @@ abstract class Marketplace {
 				'paging' => array(),
 			);
 		}
+		
 		wc_pagarme_get_template(
 			'recipient-transactions.php',
 			array(
@@ -766,4 +769,5 @@ abstract class Marketplace {
 
 		return $fields;
 	}
+
 }
