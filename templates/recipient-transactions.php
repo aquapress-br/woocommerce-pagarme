@@ -107,7 +107,7 @@
 								</abbr>
 							</td>
 							<td class="pagarme-operations-table-column-order" style="text-align:center">
-								<?php do_action( 'wc_pagarme_operations_table_column_order', $operation ); ?>
+								<?php do_action( 'wc_pagarme_recipient_transactions_table_column_order', $operation ); ?>
 							</td>
 						</tr>
 					<?php endforeach; ?>

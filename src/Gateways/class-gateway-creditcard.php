@@ -407,7 +407,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				array(
 					'quantity'    => 1,
 					'code'        => $order->get_id(),
-					'amount'      => (int) $card_data['card_order_total'] * 100,
+					'amount'      => (int) round( $card_data['card_order_total'] * 100, 0 ),
 					'description' => sprintf(
 						__( 'WooCommerce ordem #%1$s. %2$sx com juros de %3$s%% a.m. Total: %4$s', 'wc-pagarme' ),
 						$order->get_id(),

@@ -31,9 +31,11 @@ trait Base_Gateway_General {
 		// Set transaction meta data.
 		$order->add_meta_data( 'PAGARME_TRANSACTION_ID', $transaction['id'] ?? '', true );
 		$order->add_meta_data( 'PAGARME_CUSTOMER_ID', $transaction['customer']['id'] ?? '', true );
-		$order->add_meta_data( 'PAGARME_CHARGE_ID', $transaction['charges'][0]['last_transaction']['id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_CHARGE_ID', $transaction['charges'][0]['id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_CHARGE_GATEWAY_ID', $transaction['charges'][0]['gateway_id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_LAST_TRANSACTION_ID', $transaction['charges'][0]['last_transaction']['id'] ?? '', true );
+		$order->add_meta_data( 'PAGARME_LAST_TRANSACTION_GATEWAY_ID', $transaction['charges'][0]['last_transaction']['gateway_id'] ?? '', true );
 		$order->add_meta_data( 'PAGARME_PAYMENT_METHOD', $transaction['charges'][0]['last_transaction']['transaction_type'] ?? '', true );
-		$order->add_meta_data( 'PAGARME_GATEWAY_ID', $transaction['charges'][0]['last_transaction']['gateway_id'] ?? '', true );
 		$order->add_meta_data( 'PAGARME_CARD_ID', $transaction['charges'][0]['last_transaction']['card']['id'] ?? '', true );
 		$order->add_meta_data( 'PAGARME_CARD_INSTALLMENTS', $transaction['charges'][0]['last_transaction']['installments'] ?? '', true );
 		$order->add_meta_data( 'PAGARME_CARD_OPERATION_TYPE', $transaction['charges'][0]['last_transaction']['operation_type'] ?? '', true );

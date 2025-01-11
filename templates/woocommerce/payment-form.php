@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || exit;
 			</p>
 			<p class="form-row form-row-last">
 				<label for="pagarme-card-holder-name"><?php _e( 'Titular do Cartão', 'wc-pagarme' ); ?> <span class="required">*</span></label>
-				<input value="" id="pagarme-card-holder-name" name="<?php echo $card_name; ?>" class="input-text" type="text" autocomplete="off" required pattern="^[a-zA-Z\s]{2,}$" title="<?php _e( 'Please enter a valid name', 'wc-pagarme' ); ?>" style="font-size: 1.5em; padding: 8px;max-height: 41px;" />
+				<input value="" id="pagarme-card-holder-name" name="<?php echo $card_name; ?>" class="input-text" type="text" autocomplete="off" required pattern="^[a-zA-ZÀ-ÿ\s]{2,}$" title="<?php _e( 'Please enter a valid name', 'wc-pagarme' ); ?>" style="font-size: 1.5em; padding: 8px;max-height: 41px;" />
 			</p>
 			<div class="clear"></div>
 			<p class="form-row form-row-first">

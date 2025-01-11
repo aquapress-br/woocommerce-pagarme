@@ -51,9 +51,9 @@ if ( ! function_exists( 'wc_pagarme_only_numbers' ) ) {
 	}
 }
 
-if ( ! function_exists( 'wc_pagarme_asaas_date_formatter' ) ) {
+if ( ! function_exists( 'wc_pagarme_pagarme_date_formatter' ) ) {
 
-	function wc_pagarme_asaas_date_formatter( $value ) {
+	function wc_pagarme_pagarme_date_formatter( $value ) {
 		// Converte a data brasileira para objeto DateTime
 		$date = DateTime::createFromFormat( 'Y-m-d', $value );
 		// Formata a data para o formato americano (dd/mm/yyyy)

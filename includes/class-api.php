@@ -190,7 +190,7 @@ class API {
 
 			$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-			$this->debug( 'Saved recipient data: ' . var_export( $data, true ) );
+			$this->debug( 'Saved recipient data successfully! The endpoint response is: ' . var_export( $data, true ) );
 
 			do_action( 'wc_pagarme_saved_recipient_data', $data );
 
@@ -219,7 +219,7 @@ class API {
 
 			$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-			$this->debug( 'Updated recipient data: ' . var_export( $data, true ) );
+			$this->debug( 'Updated recipient data successfully! The endpoint response is: ' . var_export( $data, true ) );
 
 			do_action( 'wc_pagarme_updated_recipient_data', $data );
 
@@ -305,6 +305,33 @@ class API {
 			$this->debug( 'Get recipient operations successfully! The endpoint response is: ' . var_export( $data, true ) );
 
 			do_action( 'wc_pagarme_processed_recipient_operations', $data );
+
+			return $data;
+
+		} else {
+			throw new \Exception( $response->get_error_message() );
+		}
+	}
+
+	/**
+	 * Get recipient payables.
+	 *
+	 * @return array|false
+	 */
+	public function get_recipient_payables( $payload = array() ) {
+
+		$this->debug( 'Get recipient payables: ' . var_export( $payload, true ) );
+
+		$response = $this->do_request( '/payables', 'GET', $payload );
+
+		// Process response data.
+		if ( ! is_wp_error( $response ) ) {
+
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			$this->debug( 'Get recipient payables successfully! The endpoint response is: ' . var_export( $data, true ) );
+
+			do_action( 'wc_pagarme_processed_recipient_payables', $data );
 
 			return $data;
 

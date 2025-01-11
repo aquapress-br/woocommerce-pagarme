@@ -36,7 +36,7 @@ class Split_Data {
 	 *
 	 * @return void
 	 */
-	public function add_to_split( $recipient_id, $amount, $liable = true, $charge_processing_fee = false, $charge_remainder_fee = false ) {
+	public function add_to_split( $recipient_id, int $amount, $liable = true, $charge_processing_fee = false, $charge_remainder_fee = false ) {
 		$this->data[] = array(
 			'type'         => 'flat',
 			'amount'       => $amount,

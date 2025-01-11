@@ -151,7 +151,7 @@ abstract class Gateway extends \WC_Payment_Gateway {
 		} catch ( \Exception $e ) {
 			// Output checkout error message.
 			wc_pagarme_add_checkout_notice(
-				__( 'Não foi possível processar o pagamento. Verifique as informações fornecidas e tente novamente. Se o problema persistir, entre em contato para obter mais informações.', 'wc-pagarme' ),
+				__( 'NÃ£o foi possÃ­vel processar o pagamento. Verifique as informaÃ§Ãµes fornecidas e tente novamente. Se o problema persistir, entre em contato para obter mais informaÃ§Ãµes.', 'wc-pagarme' ),
 				'error'
 			);
 		}

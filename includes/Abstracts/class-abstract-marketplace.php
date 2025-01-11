@@ -184,11 +184,101 @@ abstract class Marketplace {
 	}
 
 	/*
+	 * Get Recipient payables from API.
+	 *
+	 * @return void
+	 */
+	function get_recipient_payables_action()
+	{
+		if ( !wp_verify_nonce( $_POST['nonce'], 'wc_pagarme_verify_action' ) ) { 
+			wp_send_json_error( 'Você está trapaceando?' );
+		}
+		$current_user_id = get_current_user_id();
+		$recipient_id    = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
+		if ( !empty( $_POST['month'] ) ) {
+			try {
+				// Get range based on current calendar month.
+				$payment_date_since = date_create( $_POST['month'], timezone_open('America/Sao_Paulo') )->modify('first day of this month')->format('Y-m-d');
+				$payment_date_until = date_create( $_POST['month'], timezone_open('America/Sao_Paulo') )->modify('last day of this month')->format('Y-m-d');
+				// Process recipient payables request.
+				$payables = $this->api->get_recipient_payables(
+					array(
+						'size'               => '1000',
+						'recipient_id'       => $recipient_id,
+						'payment_date_since' => $payment_date_since,
+						'payment_date_until' => $payment_date_until,
+					)
+				);
+			} catch ( \Exception $e ) {
+				$payables = array(
+					'data'   => array(),
+					'paging' => array(),
+				);
+			}
+			if ( !empty( $payables['data'] ) ) {
+				// Filter and organize payables for calendar viewing.
+				$filter = static::organize_payables_by_date( $payables, $current_user_id );
+				// Data to render the calendar.
+				wp_send_json_success( $filter );
+			}
+		}
+		
+		wp_send_json_success( '{}' );
+	}
+	
+	public static function organize_payables_by_date( $payables, $vendor_id ) {
+		$total_amount = 0;
+		$payables_data = array();
+		// Loop payables.
+		foreach( $payables as $payable ) {
+			// Filter only balance entry payables.
+			if ( $payable['type'] == 'credit' ) {	
+				// Check parent order exists.
+				$parent_order = static::get_order_by_gateway_id( $payable['gateway_id'] );
+				if ( !$parent_order ) {
+					continue;
+				}
+				// Check vendor suborder exists.
+				$vendor_suborder = apply_filters( 'wc_pagarme_get_vendor_suborder', '', $vendor_id, $parent_order );
+				if ( !$vendor_suborder ) {
+					continue;
+				}
+				// Starts key grouping results by date. The payment date is used as the key for the output array. 
+				$payment_date = date( 'Y-m-d', strtotime( $payable['payment_date'] ) );
+				// Define o status e aumenta o valor dos pagamentos para a mesma data.
+				$payables_data[ $payment_date ]['type']['status'] = $payable['status'];
+				$payables_data[ $payment_date ]['type']['total'] += ( $payable['amount'] - $payable['fee'] );
+				// Returns payable details. Multiple payables on the same day are grouped here.
+				$payables_data[ $payment_date ]['type']['transactions'][] = array(
+					'date_created' => date( 'Y-m-d', strtotime( $payable['date_created'] ) ),
+					'payment_date' => $payment_date,
+					'payment_method' => $payable['payment_method'],
+					'installment' => $payable['installment'],
+					'amount' => $payable['amount'] - $payable['fee'],
+					'status' => $payable['status'],
+					'gateway_id' => $payable['gateway_id'],
+					'order' => $vendor_suborder->ID,
+					'order_link' => apply_filters( 'wc_pagarme_get_vendor_suborder_url', '#', $vendor_suborder ),
+				);
+				// Consolidates the total of payables not yet paid.
+				if ( 'waiting_funds' == $payable['status'] ) {
+					$total_amount += ( $payable['amount'] - $payable['fee'] );
+				}
+			}
+		}
+		// Returns data to render the calendar.
+		return array(
+			'total' => $total_amount,
+			'transactions' => $payables_data
+		);
+	}
+	
+	/*
 	 * Update Recipient Data
 	 *
 	 * @return void
 	 */
-	public function update_recipient_data( $user_id = false ) {
+	public function update_recipient_data_action( $user_id = false ) {
 		$data            = array();
 		$show_errors     = true;
 		$current_user_id = $user_id ?: get_current_user_id();
@@ -248,7 +338,7 @@ abstract class Marketplace {
 					if ( strpos( $item, 'pagarme_recipient_' ) === 0 ) {
 						$field  = substr( $item, strlen( 'pagarme_recipient_' ) );
 						$schema = static::form_schema();
-						if ( isset( $schema[ $field ] ) ) {
+						if ( isset( $schema[ (string) $field ] ) ) {
 							update_user_meta( $current_user_id, $item, $value );
 						}
 					}
@@ -258,8 +348,8 @@ abstract class Marketplace {
 				update_user_meta( $current_user_id, 'pagarme_recipient_status', $request['status'] );
 
 				// Save bank account id for create request.
-				if ( isset( $request['bank_account']['id'] ) ) {
-					update_user_meta( $current_user_id, 'pagarme_recipiente_bank_account_id', $request['bank_account']['id'] );
+				if ( isset( $request['default_bank_account']['id'] ) ) {
+					update_user_meta( $current_user_id, 'pagarme_recipiente_bank_account_id', $request['default_bank_account']['id'] );
 				}
 				wp_send_json_success( __( 'As informações foram armazenadas com sucesso.', 'wc-pagarme' ) );
 			}
@@ -419,7 +509,7 @@ abstract class Marketplace {
 				'min'               => false,
 				'size'              => false,
 				'type'              => 'regex',
-				'sanitize_callback' => 'wc_pagarme_asaas_date_formatter',
+				'sanitize_callback' => 'wc_pagarme_pagarme_date_formatter',
 				'equal'             => array( '/^(19|20)\d\d\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/' ),
 				'error_msg'         => __( 'Insira uma data de aniversário valida.', 'wc-pagarme' ),
 			),
@@ -591,8 +681,8 @@ abstract class Marketplace {
 			'branch_number'         => array(
 				'required'          => true,
 				'label'             => __( 'Número da Agência', 'wc-pagarme' ),
-				'max'               => false,
-				'min'               => false,
+				'max'               => 6,
+				'min'               => 3,
 				'size'              => false,
 				'type'              => 'regex',
 				'equal'             => array( '/^\d{1,10}(-\d{1})?$/' ),
@@ -623,12 +713,12 @@ abstract class Marketplace {
 	public static function output_recipient_form_template() {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
-
+		
 		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipient_id', true );
 		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
 		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
 		$bank_account_id      = get_user_meta( $current_user_id, 'pagarme_recipiente_bank_account_id', true );
-
+		
 		wc_pagarme_get_template(
 			'recipient-form.php',
 			array(
@@ -664,8 +754,8 @@ abstract class Marketplace {
 				array(
 					'recipient_id' => $recipient_id,
 					'page'         => ( $_GET['operations-page'] ?? 1 ),
-					'created_since' => isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) ? ( date_create( $_GET['start_date'], timezone_open('America/Sao_Paulo') )->getTimestamp() * 1000 ) : null,
-					'created_until' => isset( $_GET['end_date'] ) && !empty( $_GET['end_date'] ) ? ( date_create( sprintf( '%sT23:59:59', $_GET['end_date'] ), timezone_open('America/Sao_Paulo') )->getTimestamp() * 1000 ) : null,
+					'created_since' => isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) ? ( date_create( $_GET['start_date'], timezone_open('America/Sao_Paulo') )->format('Y-m-d') ) : null,
+					'created_until' => isset( $_GET['end_date'] ) && !empty( $_GET['end_date'] ) ? ( date_create( sprintf( '%sT23:59:59', $_GET['end_date'] ), timezone_open('America/Sao_Paulo') )->format('Y-m-d') ) : null,
 					'size'         => '10',
 				)
 			);
@@ -686,6 +776,45 @@ abstract class Marketplace {
 			array(
 				'balance'    => $balance,
 				'operations' => $operations,
+			)
+		);
+	}
+
+	/**
+	 * Get recipient calendar template.
+	 *
+	 * @return void
+	 */
+	public function output_recipient_calendar_template() {
+		$current_user_id = get_current_user_id();
+		$recipient_id    = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
+		try {
+			// Process recipient balance request.
+			$balance = $this->api->get_recipient_balance( $recipient_id );
+			// Process recipient payables request.
+			$payables = $this->api->get_recipient_payables(
+				array(
+					'recipient_id' => $recipient_id,
+					'size'         => '1000',
+				)
+			);
+		} catch ( \Exception $e ) {
+			$balance    = array(
+				'available_amount'     => 0,
+				'waiting_funds_amount' => 0,
+				'transferred_amount'   => 0,
+			);
+			$payables = array(
+				'data'   => array(),
+				'paging' => array(),
+			);
+		}
+		
+		wc_pagarme_get_template(
+			'recipient-calendar.php',
+			array(
+				'balance'    => $balance,
+				'payables'    => $payables,
 			)
 		);
 	}
@@ -743,7 +872,10 @@ abstract class Marketplace {
 	 */
 	public function load_default_api_settings( $settings, $key ) {
 		// Get marketplace settings.
-		$settings['secret_key']         = $this->settings['secret_key'];
+		$settings['testmode'] = ''; // It is set to empty because the marketplace settings do not yet manage keys for different environments.
+		$settings['public_key']         = $this->settings['public_key'];
+		$settings['public_key_sandbox'] = $this->settings['public_key_sandbox'];
+		$settings['secret_key']         = $this->settings['secret_key']; // Default.
 		$settings['secret_key_sandbox'] = $this->settings['secret_key_sandbox'];
 
 		return $settings;

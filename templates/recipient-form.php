@@ -13,13 +13,13 @@
 		</div>
 		<div class="pagarme-form-content-main">
 			<div class="pagarme-form-content-main-section">
-				<div class="pagarme-form-card-section <?php $recipient_id ? print( 'section-completed section-open' ) : print( 'section-open' ); ?>">
+				<div class="pagarme-form-card-section <?php $recipient_id ? print( 'section-completed section-close' ) : print( 'section-open' ); ?>">
 					<div class="pagarme-form-section-intro">
 						<div class="pagarme-form-card-section-title">  
 							<span class="section-number">1. </span><?php _e( 'Preenchimento dos Dados Comerciais', 'wc-pagarme' ); ?>
 						</div>
 						<div class="pagarme-form-card-section-text">
-							<span class="intro-close"><?php _e( '<a href="javascript:;">Clique aqui</a> para editar seus dados comerciais.', 'wc-pagarme' ); ?></span>
+							<span class="intro-close"><?php _e( 'Seus dados comerciais foram cadastrados com sucesso.', 'wc-pagarme' ); ?></span>
 							<span class="intro-open"><?php _e( 'Preencha o formulário abaixo com seus dados comerciais ou da sua empresa.', 'wc-pagarme' ); ?></span>
 						</div>
 					</div>
@@ -191,5 +191,7 @@
 			</div>
 		</div>
 	</section>
-	<input type="submit" id="pagarme-form-submit" class="dokan-btn dokan-btn-theme dokan-btn-danger" value="<?php _e( 'Atualizar Configurações', 'wc-pagarme' ); ?>">
+	<?php if ( ! $recipient_id ) : ?>
+		<input type="submit" id="pagarme-form-submit" class="dokan-btn dokan-btn-theme dokan-btn-danger" value="<?php _e( 'Atualizar Configurações', 'wc-pagarme' ); ?>">
+	<?php endif; ?>
 </div>

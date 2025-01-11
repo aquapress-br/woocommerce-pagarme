@@ -222,7 +222,7 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 				array(
 					'quantity'    => 1,
 					'code'        => $order->get_id(),
-					'amount'      => (int) $order->get_total() * 100,
+					'amount'      => (int) round( $order->get_total() * 100, 0 ),
 					'description' => sprintf(
 						__( 'WooCommerce ordem #%1$s. Total: %2$s', 'wc-pagarme' ),
 						$order->get_id(),

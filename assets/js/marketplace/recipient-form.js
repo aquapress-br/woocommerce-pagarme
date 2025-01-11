@@ -47,12 +47,13 @@
 			// Builder request data
             var data = {
                 action: 'update_recipient_data',
+				nonce: PAGARME_MKTPC.nonce,
                 data: self.serialize(),
             };
 
             feedback.fadeOut();
 
-            $.post( ajaxurl, data, function ( resp ) {
+            $.post( PAGARME_MKTPC.ajaxurl, data, function ( resp ) {
                 if ( resp.success == true ) {
                     feedback.removeClass( 'dokan-alert-danger' );
                     feedback.addClass( 'dokan-alert dokan-alert-success' );
