@@ -49,9 +49,10 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		add_filter( 'dokan_is_seller_connected_to_payment_method', array( $this, 'withdraw_seller_connected_to_payment_method' ), 20, 3 );
 		add_filter( 'dokan_get_template_part', array( $this, 'replace_payment_method_template_part' ), 20, 3 );
 		add_filter( 'dokan_query_var_filter', array( $this, 'set_custom_query_vars' ), 100 );
-		
-		add_action( 'wc_pagarme_get_vendor_suborder', array( $this, 'filter_vendor_suborder' ), 100, 3 );
-		add_action( 'wc_pagarme_get_vendor_suborder_url', array( $this, 'filter_vendor_suborder_url' ), 100, 2 );
+		add_action( 'dokan_order_details_after_customer_info', array( $this, 'set_vendor_order_summary_details' ), 100 );
+
+		add_action( 'wc_pagarme_get_vendor_suborder', array( $this, 'filter_vendor_suborder' ), 10, 3 );
+		add_action( 'wc_pagarme_get_vendor_suborder_url', array( $this, 'filter_vendor_suborder_url' ), 10, 2 );
 		add_action( 'wc_pagarme_recipient_transactions_table_column_order', array( $this, 'print_recipient_transactions_column_order' ), 100 );
 	}
 
@@ -148,18 +149,18 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 
 		if ( ( isset( $wp_query->query['finances'] ) && in_array( $wp_query->query['finances'], array( 'calendar' ) ) )
 			|| ( isset( $wp_query->query['settings'] ) && in_array( $wp_query->query['settings'], array( 'payment-manage-pagarme-edit', 'payment-manage-pagarme' ) ) ) ) {
-		?>
+			?>
 		<script>
 			var PAGARME_MKTPC = {
 				ajaxurl: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
-				contenturl: '<?php echo esc_url( plugins_url( '/', dirname( __FILE__, 2 ) ) ); ?>',
+				contenturl: '<?php echo esc_url( plugins_url( '/', dirname( __DIR__, 1 ) ) ); ?>',
 				nonce: '<?php echo esc_js( wp_create_nonce( 'wc_pagarme_verify_action' ) ); ?>'
 			};
 		</script>
-		<?php
+			<?php
 		}
 	}
-	
+
 	/**
 	 * Enqueue Dokan Dashboard Scripts
 	 *
@@ -316,6 +317,33 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		return $dokan_menus;
 	}
 
+	/**
+	 * Print payment method details in vendor order dashboard.
+	 *
+	 * @return void
+	 */
+	public function set_vendor_order_summary_details( $order ) {
+		$vendor_order = ( $order->get_parent_id() != 0) ? wc_get_order( $order->get_parent_id() ) : $order;
+		?>
+		<?php if ( $vendor_order->get_payment_method() == 'wc_pagarme_creditcard' ) : ?>
+			<li>
+				<span><?php _e( 'Número de parcelas:', 'wc-pagarme' ) ?> </span>
+				<?php echo $vendor_order->get_meta( 'PAGARME_CARD_INSTALLMENTS' ); ?>
+			</li>
+		<?php elseif ( $vendor_order->get_payment_method() == 'wc_pagarme_boleto' ) : ?>
+			<li>
+				<span><?php _e( 'URL do boleto:', 'wc-pagarme' ) ?> </span>
+				<p><?php echo $vendor_order->get_meta( 'PAGARME_BOLETO_URL' ); ?></p>
+			</li>
+		<?php elseif ( $vendor_order->get_payment_method() == 'wc_pagarme_pix' ) : ?>
+			<li>
+				<span><?php _e( 'Código PIX:', 'wc-pagarme' ) ?> </span>
+				<p><?php echo $vendor_order->get_meta( 'PAGARME_PIX_QRCODE_URL' ); ?></p>
+			</li>
+		<?php endif; ?>
+	<?php
+	}
+	
 	/**
 	 * Replace the setup wizard.
 	 *
@@ -540,7 +568,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 			// Calculate marketplace commission.
 			$marketplace_commission = round( ( $order_total - $vendors_commission ), 0 );
 			// Set marketplace commission to split rule.
-			$data->add_to_split( $this->settings['recipient_id'], $marketplace_commission , false, true, true );
+			$data->add_to_split( $this->settings['recipient_id'], $marketplace_commission, false, true, true );
 		}
 
 		return $data;
@@ -549,30 +577,29 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	/**
 	 * Get vendors orders by parent order id.
 	 *
-	 * @param  object  $order
+	 * @param  object  $parent_order
 	 * @return array
 	 */
-	public function get_dokan_vendors_suborders( $order ) {
+	public function get_dokan_vendors_suborders( $parent_order ) {
 		$all_orders   = array();
-		$has_suborder = get_post_meta( $order->ID, 'has_sub_order', true );
-
+		$has_suborder = get_post_meta( $parent_order->get_id(), 'has_sub_order', true );
 		// put orders in an array
 		// if has sub-orders, pick only sub-orders
 		// if it's a single order, get the single order only
 		if ( $has_suborder == '1' ) {
-			$sub_orders = get_children(
+			$suborders = get_children(
 				array(
-					'post_parent' => $order->ID,
+					'post_parent' => $parent_order->get_id(),
 					'post_type'   => 'shop_order',
 				)
 			);
 
-			foreach ( $sub_orders as $order_post ) {
-				$sub_order    = wc_get_order( $order_post->ID );
+			foreach ( $suborders as $suborder ) {
+				$sub_order    = wc_get_order( $suborder->ID );
 				$all_orders[] = $sub_order;
 			}
 		} else {
-			$all_orders[] = $order;
+			$all_orders[] = $parent_order;
 		}
 
 		return $all_orders;
@@ -583,27 +610,28 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 *
 	 * @param  int  $vendor_id
 	 * @param  object  $parent_order
-	 * @return array
+	 * @return array|false
 	 */
 	public function get_dokan_vendor_suborder( $vendor_id = false, $parent_order = false ) {
 
 		if ( $vendor_id && $parent_order ) {
 
-			$all_orders = static::get_dokan_vendors_suborders( $parent_order );
+			$all_orders = $this->get_dokan_vendors_suborders( $parent_order );
 
-			foreach( $all_orders as $order ) {		
-				$order_id = dokan_get_prop( $order, 'id' );
-				$order_vendor_id    = dokan_get_seller_id_by_order( $order_id );
+			foreach ( $all_orders as $order ) {
+				$order_id        = dokan_get_prop( $order, 'id' );
+				$order_vendor_id = dokan_get_seller_id_by_order( $order_id );
 
-				if ( $order_vendor_id ==  $vendor_id ) {
+				if ( $order_vendor_id == $vendor_id ) {
 					return $order;
 				}
 			}
 		}
 		
-		return null;
+
+		return false;
 	}
-	
+
 	/**
 	 * Get dokan order details
 	 *
@@ -622,7 +650,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 
 		return $wpdb->get_row( $wpdb->prepare( $sql, $seller_id, $order_id ) );
 	}
-	
+
 	/**
 	 * Print dokan order link in operations table.
 	 *
@@ -644,41 +672,17 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	}
 
 	/**
-	 * Get woocommerce order by pagarme transaction ID.
-	 *
-	 * @param  string  $transaction_id
-	 * @return void
-	 */
-	public function get_order_by_gateway_id( $gateway_id ) {
-		if ( ! is_null( $gateway_id ) ) {
-			// Search for orders with the meta_key 'PAGARME_CHARGE_GATEWAY_ID' and the corresponding value
-			$orders = wc_get_orders( array(
-				'meta_key'   => 'PAGARME_CHARGE_GATEWAY_ID',
-				'meta_value' => $gateway_id,
-				'limit'      => 1, // Ensure that only one request is returned
-			) );
-
-			// Returns the order if found
-			if ( ! empty( $orders ) && is_a( $orders[0], 'WC_Order' ) ) {
-				return $orders[0];
-			}
-		}
-
-		return false;
-	}
-	
-	/**
 	 * Filter vendor suborders by parent order id and vendor id.
 	 *
 	 * @param  int  $vendor_id
 	 * @param  object  $parent_order
-	 * 
+	 *
 	 * @see  $this->payables_filter_by_day()
-	 * 
+	 *
 	 * @return array
 	 */
 	public function filter_vendor_suborder( $suborder = false, $vendor_id = false, $parent_order = false ) {
-		if ( $vendor_id &&  $parent_order ) {
+		if ( $vendor_id && $parent_order ) {
 			$suborder = $this->get_dokan_vendor_suborder( $vendor_id, $parent_order );
 		}
 
@@ -690,14 +694,14 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 *
 	 * @param  string  $suborder_url
 	 * @param  object  $vendor_suborder
-	 * 
+	 *
 	 * @see  $this->payables_filter_by_day()
-	 * 
+	 *
 	 * @return string
 	 */
 	public function filter_vendor_suborder_url( $suborder_url, $vendor_suborder = false ) {
 		if ( $vendor_suborder ) {
-			$suborder_url = esc_url( wp_nonce_url( add_query_arg( array( 'order_id' => $vendor_suborder->ID ), dokan_get_navigation_url( 'orders' ) ), 'dokan_view_order' ) );
+			$suborder_url = esc_url( wp_nonce_url( add_query_arg( array( 'order_id' => $vendor_suborder->get_id() ), dokan_get_navigation_url( 'orders' ) ), 'dokan_view_order' ) );
 		}
 
 		return $suborder_url;

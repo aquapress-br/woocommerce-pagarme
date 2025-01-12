@@ -42,15 +42,19 @@
 				var data = {
 						action: 'get_recipient_payables',
 						nonce: PAGARME_MKTPC.nonce,
-						data: { order_id: order_id, month: date },
+						data: { order_id: order_id, date: date },
 					};
 			
-				$.post( PAGARME_MKTPC.ajaxurl, data, function(resp) {		
-				console.log(resp); return;
+				$.post( PAGARME_MKTPC.ajaxurl, data, function(resp) {	
 					if (resp.success == true) {
-						payablesByDate[date] = JSON.parse( resp.data );
-						init.renderPayables( date, payablesByDate[date] );
-						$( '#payables-calendar' ).trigger( 'loadPayables' );	
+						if ( $.type( resp.data ) === 'object' ) {
+							payablesByDate[date] = resp.data;
+							init.renderPayables( date, payablesByDate[date] );
+							calendarEl.trigger( 'loadPayables' );
+						} else {
+							calendarEl.removeClass( 'loading' );;
+						}
+						
 					} else {
 						alert( 'Houve um erro ao obter os dados. Por favor se o problema persistir entre em contato com o responsável pelo site.' );
 					}
@@ -71,8 +75,10 @@
 
 			renderPayablesTotals: function(date) {
 				
-				if( typeof payablesByDate[date] != 'undefined' ) {
+				if ( payablesByDate?.[date]?.['total'] !== undefined ) {
 					$( '#month-total' ).text( ( payablesByDate[date]['total'] / 100 ).toLocaleString('en-US', { style: 'currency', currency: 'BRL' }) );
+				} else {
+					$( '#month-total' ).text( 'R$ 0.00' );
 				}
 			},
 
@@ -92,7 +98,7 @@
 				var payables_staus = payables.type,
 					payables_total = payables.type.total / 100,
 					labelcolor = ( payables.type.status ==  'waiting_funds' ? '#de9f25' : (payables.type.status ==  'paid' ? '#5cb85c' : (payables.type.status ==  'prepaid' ? '#de9f25' : '#eee' ) ) )
-							
+
 					calendarObj.addEvent({
 						classNames: ['payables-day'],
 						title: payables_total.toLocaleString('en-US', { style: 'currency', currency: 'BRL' }),
@@ -123,17 +129,16 @@
 				init.getCachedPayablesByDate( date );
 			},
 			
-			renderOrderSummary: function( data ) {
-				
+			renderOrderSummary: function( data ) {				
 				var html = '';
 				
 				$.each( data.transactions, function( i, transaction ) {
 					html += '<li>' + 
 						'<div class="img-type">' +
-							'<img src="' + PAGARME_MKTPC.contenturl + 'assets/img/icons/' + transaction.payment_method + '.png"' + '/>' +
+							'<img src="' + PAGARME_MKTPC.contenturl + 'assets/img/white-' + transaction.payment_method + '-icon.png"' + '/>' +
 						'</div>' +
 						'<div class="orde-info">' +
-							'<strong class="order-id">' + ( ( transaction.order_id ) ? (  '<a target="_blank" href="' + transaction.order_link + '">#' + transaction.order_id + '</a>' ) : ( transaction.transaction_id ) ) +  '</strong>' +
+							'<strong class="order-id">' + ( ( transaction.order_id ) ? (  '<a target="_blank" href="' + transaction.order_link + '">#' + transaction.order_id + '</a>' ) : ( transaction.gateway_id ) ) +  '</strong>' +
 							'<span class="order-desc">' + ( transaction.payment_method == 'boleto' ? 'Boleto Bancário' : ( transaction.payment_method == 'credit_card' ? 'Cartão de Crédito' : 'PIX' ) ) + '</span>' +
 						'</div>' +
 						'<span class="order-price">' + ( transaction.amount/100 ).toLocaleString('en-US', { style: 'currency', currency: 'BRL' }) + '</span>' +
@@ -155,7 +160,7 @@
 
 		}
 		
-		$( '#payables-calendar' ).on( 'click', '.payables-day', function() { 
+		calendarEl.on( 'click', '.payables-day', function() { 
 			
 			var self = $( this ),
 				allEventsDay = $( '#payables-calendar .payables-day' ),
@@ -167,7 +172,7 @@
 			init.renderOrderSummary( payablesByDate[dateKey]['transactions'][dateSelected]['type'] );						
 		});
 
-		$( '#payables-calendar' ).on( 'loadPayables', function() {
+		calendarEl.on( 'loadPayables', function() {
 			
 			if( $( '.fc-daygrid-event' ).hasClass( 'payables-day' ) ) {
 				$( 'td.fc-daygrid-day.fc-day:not(.fc-day-other) .payables-day' )[0].click();

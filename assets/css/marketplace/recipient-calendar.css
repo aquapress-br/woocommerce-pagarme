@@ -1,0 +1,158 @@
+.pagarme-calendar-content {
+	display: grid; 
+	grid-template-columns: 1fr 1fr auto; 
+	grid-template-rows: auto auto auto; 
+	gap: 0px 0px; 
+	grid-template-areas: 
+	"pagarme-calendar-header pagarme-calendar-header pagarme-calendar-header"
+	"pagarme-calendar-payables pagarme-calendar-payables pagarme-calendar-summary"
+	"pagarme-calendar-footer pagarme-calendar-footer pagarme-calendar-footer"; 
+}
+
+.pagarme-calendar-header { 
+	grid-area: pagarme-calendar-header; 
+}
+
+.pagarme-calendar-payables {
+	grid-area: pagarme-calendar-payables;
+}
+
+.pagarme-calendar-summary { 
+	grid-area: pagarme-calendar-summary;
+	overflow: hidden;
+	overflow-y: scroll;
+	height: auto;
+}
+
+.pagarme-calendar-footer { 
+	grid-area: pagarme-calendar-footer;
+}
+
+.fc .fc-scrollgrid, .fc .fc-scrollgrid table, .fc .fc-daygrid-body {
+    width: 100% !important;
+}
+
+.fc-scroller {
+    overflow: hidden !important;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background: transparent;
+}
+
+.fc-day-other a.fc-daygrid-event {
+	visibility: hidden;
+}
+
+a.fc-daygrid-event {
+	cursor: pointer;
+}
+a.fc-daygrid-event:active {
+    bottom: -2px;
+}
+
+.payables-day-actived::after {
+    content: '\2022';
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    font-size: 26px;
+    color: white;
+    line-height: 0;
+}
+
+.payables-summary-title {
+    line-height: 2.5;
+    padding: 0 15px;
+}
+
+#payables-summary {
+	position: relative;
+	width: 295px;
+	padding: 0 0 40px;
+	margin: 65px 0 0 0;
+	border: solid 1px #dddddd;
+	margin-left: 25px;
+	max-height: 445px;
+	overflow: auto;
+}
+
+ul.order-list li > * {
+    float: left;
+}
+
+#payables-summary ul.order-list {
+    padding: 0;
+    margin: 0;
+}
+
+#payables-summary ul.order-list li {
+    border-top: 1px solid var(--fc-border-color,#ddd);
+    margin: 0 0 55px 0;
+    padding: 10px 15px 0 15px;
+    clear: both;
+}
+
+ul.order-list li .img-type {
+    width: 30px;
+    height: 25px;
+    background: #676565;
+    margin-top: 10px;
+}
+
+ul.order-list li .img-type img {
+    opacity: 0.9;
+    position: relative;
+    top: -2px;
+}
+
+ul.order-list li .order-price {
+    width: 85px;
+    text-align: right;
+	float: right;
+}
+
+ul.order-list li .orde-info {
+    /*width: 125px;*/
+    padding-left: 15px;
+}
+
+ul.order-list li .order-desc {
+    display: block;
+    line-height: 1;
+    font-size: 14px;
+}
+
+ul.order-list li .order-id a {
+    color: initial;
+    text-decoration: underline !important;
+}
+
+.label-total {
+    padding: 10px 20px;
+    border: 1px solid var(--fc-border-color,#ddd);
+    overflow: hidden;
+    margin-top: 31px;
+    margin-bottom: 95px;
+    display: block;
+    float: left;
+    width: calc( 100% - 320px );
+    text-transform: uppercase;
+}
+
+#month-total {
+    float: right;
+}
+
+#payables-calendar.loading .fc-view-harness::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffffab;
+    background-image: url( '../../img/loading.gif' );
+    background-repeat: no-repeat;
+    background-position: 50% 40%;
+    background-size: 43px;
+    z-index: 5;
+}

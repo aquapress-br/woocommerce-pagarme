@@ -120,12 +120,12 @@
 		<ul>		
 			<?php
 			$operation_count = (int) ( $_GET['operations-page'] ?? 1 );
-			
+
 			if ( $operation_count > 1 ) {
-				echo '<li><a class="prev" href="?operations-page=' . ( $operation_count - 1 )  . '&start_date=' . ( $_GET['start_date'] ?? '' ) . '&end_date=' . ( $_GET['end_date'] ?? '' ) . '">« Anterior</a></li>';
+				echo '<li><a class="prev" href="?operations-page=' . ( $operation_count - 1 ) . '&start_date=' . ( $_GET['start_date'] ?? '' ) . '&end_date=' . ( $_GET['end_date'] ?? '' ) . '">« Anterior</a></li>';
 			}
 			if ( $operation_count < 100 ) {
-				echo '<li><a class="next" href="?operations-page=' . ( $operation_count + 1 )  . '&start_date=' . ( $_GET['start_date'] ?? '' ) . '&end_date=' . ( $_GET['end_date'] ?? '' ) . '">Próximo »</a></li>';
+				echo '<li><a class="next" href="?operations-page=' . ( $operation_count + 1 ) . '&start_date=' . ( $_GET['start_date'] ?? '' ) . '&end_date=' . ( $_GET['end_date'] ?? '' ) . '">Próximo »</a></li>';
 			}
 			?>
 		</ul>
@@ -139,9 +139,9 @@
 		<ul>		
 			<?php
 			$operation_count = (int) ( $_GET['operations-page'] ?? 0 );
-			
+
 			if ( $operation_count > 1 ) {
-				echo '<li><a class="prev" href="?operations-page=' . ( $operation_count - 1 )  . '&start_date=' . ( $_GET['start_date'] ?? '' ) . '&end_date=' . ( $_GET['end_date'] ?? '' ) . '">« Anterior</a></li>';
+				echo '<li><a class="prev" href="?operations-page=' . ( $operation_count - 1 ) . '&start_date=' . ( $_GET['start_date'] ?? '' ) . '&end_date=' . ( $_GET['end_date'] ?? '' ) . '">« Anterior</a></li>';
 			}
 			?>
 		</ul>
