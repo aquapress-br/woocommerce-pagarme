@@ -27,7 +27,7 @@ class Config {
 	 *
 	 * @var string
 	 */
-	public string $secret_key = '';
+	public $secret_key = '';
 
 	/**
 	 * Public API key.
@@ -36,16 +36,16 @@ class Config {
 	 *
 	 * @var string
 	 */
-	public string $public_key = '';
+	public $public_key = '';
 
 	/**
 	 * Debug mode.
 	 *
 	 * If true, enables detailed logging for debugging purposes.
 	 *
-	 * @var bool
+	 * @var mixed
 	 */
-	public bool $debug = false;
+	public $debug = false;
 
 	/**
 	 * Constructor.
@@ -56,7 +56,7 @@ class Config {
 	 * @param string $public_key The public API key for client-side authentication.
 	 * @param bool   $debug      Debug mode (default: false).
 	 */
-	public function __construct( string $secret_key = '', string $public_key = '', bool $debug = false ) {
+	public function __construct( $secret_key = '', $public_key = '', $debug = false ) {
 		$this->secret_key = $secret_key;
 		$this->public_key = $public_key;
 		$this->debug      = $debug;
@@ -68,7 +68,7 @@ class Config {
 	 * @param string $secret_key The secret API key.
 	 * @return void
 	 */
-	public function set_secret_key( string $secret_key ): void {
+	public function set_secret_key( $secret_key ) {
 		$this->secret_key = $secret_key;
 	}
 
@@ -77,7 +77,7 @@ class Config {
 	 *
 	 * @return string The secret API key.
 	 */
-	public function get_secret_key(): string {
+	public function get_secret_key() {
 		return $this->secret_key;
 	}
 
@@ -87,7 +87,7 @@ class Config {
 	 * @param string $public_key The public API key.
 	 * @return void
 	 */
-	public function set_public_key( string $public_key ): void {
+	public function set_public_key( $public_key ) {
 		$this->public_key = $public_key;
 	}
 
@@ -96,7 +96,7 @@ class Config {
 	 *
 	 * @return string The public API key.
 	 */
-	public function get_public_key(): string {
+	public function get_public_key() {
 		return $this->public_key;
 	}
 
@@ -106,7 +106,7 @@ class Config {
 	 * @param bool $debug Whether to enable debug mode.
 	 * @return void
 	 */
-	public function set_debug( bool $debug ): void {
+	public function set_debug( $debug ) {
 		$this->debug = $debug;
 	}
 
@@ -115,7 +115,7 @@ class Config {
 	 *
 	 * @return bool True if debug mode is enabled, false otherwise.
 	 */
-	public function get_debug(): bool {
+	public function get_debug() {
 		return $this->debug;
 	}
 }

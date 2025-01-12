@@ -258,6 +258,7 @@ abstract class Marketplace {
 				$payables_data[ $payment_date ]['type']['transactions'][] = array(
 					'payment_date'   => $payment_date,
 					'payment_method' => $payable['payment_method'],
+					'installments'   => $vendor_suborder->get_meta( 'PAGARME_CARD_INSTALLMENTS' ),
 					'installment'    => $payable['installment'],
 					'amount'         => $payable['amount'] - $payable['fee'],
 					'status'         => $payable['status'],
@@ -896,6 +897,7 @@ abstract class Marketplace {
 	public function load_default_api_settings( $settings, $key ) {
 		// Get marketplace settings.
 		$settings['testmode']           = ''; // It is set to empty because the marketplace settings do not yet manage keys for different environments.
+		$settings['debug']              = $this->settings['debug'];
 		$settings['public_key']         = $this->settings['public_key'];
 		$settings['public_key_sandbox'] = $this->settings['public_key_sandbox'];
 		$settings['secret_key']         = $this->settings['secret_key']; // Default.

@@ -77,6 +77,7 @@ class Boleto extends \Aquapress\Pagarme\Abstracts\Gateway {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'order_summary_preview' ) );
+		add_filter( 'woocommerce_my_account_my_orders_actions', array( $this, 'add_link_to_boleto' ), 10, 2 );
 	}
 
 	/**
@@ -269,6 +270,33 @@ class Boleto extends \Aquapress\Pagarme\Abstracts\Gateway {
 		}
 	}
 
+	/**
+	 * Add boleto link/button in My Orders section on My Accout page.
+	 *
+	 * @param array    $actions Actions.
+	 * @param WC_Order $order   Order data.
+	 *
+	 * @return array
+	 */
+	public function add_link_to_boleto( $actions, $order ) {
+		if ( $this->id !== $order->payment_method ) {
+			return $actions;
+		}
+
+		if ( ! in_array( $order->get_status(), array( 'pending', 'on-hold' ), true ) ) {
+			return $actions;
+		}
+
+		if ( ! empty( $order->get_meta( 'PAGARME_BOLETO_URL' ) ) ) {
+			$actions[] = array(
+				'url'  => $order->get_meta( 'PAGARME_BOLETO_URL' ),
+				'name' => __( 'Imprimir Boleto', 'wc-pagarme' ),
+			);
+		}
+
+		return $actions;
+	}
+	
 	/**
 	 * Register admin_enqueue styles and scripts for payment method
 	 *

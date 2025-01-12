@@ -38,8 +38,8 @@ class Factory {
 			'secret_key_sandbox' => '', // The default API secret key for sandbox.
 			'public_key_sandbox' => '', // The default API public key for sandbox.
 			// Enable or disable API request debugging.
-			'testmode'           => 'no',
-			'debug'              => 'no',
+			'testmode'           => '',
+			'debug'              => '',
 		);
 		// Check if a specific key is provided.
 		if ( $key ) {
@@ -53,7 +53,7 @@ class Factory {
 			// Filter data and parse defaults args.
 			$settings = apply_filters( 'wc_pagarme_load_api_settings', wp_parse_args( $stored_settings, $default_settings ), $key );
 			// Build instances for Config.
-			if ( 'yes' == $settings['testmode'] ) {
+			if ( 'yes' == $settings['testmode'] || 'on' == $settings['testmode'] ) {
 				$config = new \Aquapress\Pagarme\Config( $settings['secret_key_sandbox'], $settings['public_key_sandbox'], $settings['debug'] );
 			} else {
 				$config = new \Aquapress\Pagarme\Config( $settings['secret_key'], $settings['public_key'], $settings['debug'] );

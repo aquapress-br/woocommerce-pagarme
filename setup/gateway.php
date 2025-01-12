@@ -68,6 +68,40 @@ if ( ! function_exists( 'wc_pagarme_marketplaces_register' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wc_pagarme_resources_register' ) ) {
+	/**
+	 * Registers and initializes resources for WooCommerce Pagar.me integration.
+	 *
+	 * @return void
+	 */
+	function wc_pagarme_resources_register() {
+		$embedded = array(
+			'\Aquapress\Pagarme\Resources\International_Payments',
+		);
+
+		$load_connectors = array_unique(
+			apply_filters(
+				'wc_pagarme_resources',
+				$embedded
+			)
+		);
+
+		foreach ( $load_connectors as $class_name ) {
+			if ( ! apply_filters( 'wc_pagarme_resource_load', true, $class_name ) ) {
+				continue;
+			}
+
+			if ( is_string( $class_name ) && class_exists( $class_name ) ) {
+				$obj = new $class_name();
+
+				if ( $obj->is_available() ) {
+					$obj->init_hooks();
+				}
+			}
+		}
+	}
+}
+
 if ( ! function_exists( 'wc_pagarme_tasks_register' ) ) {
 
 	/**

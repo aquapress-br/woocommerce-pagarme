@@ -107,7 +107,7 @@ ul.order-list li .img-type img {
 }
 
 ul.order-list li .order-price {
-    width: 85px;
+    width: auto;
     text-align: right;
 	float: right;
 }

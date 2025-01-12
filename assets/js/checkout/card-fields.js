@@ -2,22 +2,63 @@
 	'use strict';
 
 	$( function() {
-		$(document).ready(function(){
-			// Add mask to form fields
-			function InitPagarmeMaskFields() {
-				$('#pagarme-card-expiry').mask('00-0000');
-			}
-			
-			// Reload input mask in checkout page 
-			$(document.body).on('load updated_checkout', function(event, data) {
-				setTimeout(InitPagarmeMaskFields(), 1000);
-			});
+		
+		$( '.form-row.hidden' ).hide();
+		
+		$( '#pagarme-card-expiry' ).mask( '00-0000' );
+		$( '#billing_nationality' ).select2()
 
-			// Load input mask in myaccount method add
-			if( $(document.body).find('#add_payment_method').length ) {
-				InitPagarmeMaskFields();
+		$( '#billing_persontype, #billing_nationality' ).on( 'change', function () {
+			var persontype = $( '#billing_persontype' ).val(),
+				country = $( '#billing_nationality' ).val();
+
+			$( '#billing_cpf_field, #billing_birthdate_field, #billing_company_field, #billing_cnpj_field, #billing_taxvat_field' ).hide().removeClass( 'validate-required' ).find( 'label .optional' ).hide();
+
+			if ( 'BR' === country ) {				
+				if ( '1' === persontype ) {
+					$( '#billing_nationality_field' ).show();
+					$( '#billing_nationality + .select2' ).css( 'width', '100%' );
+					$( '#billing_birthdate_field' ).show().find( 'label .optional' ).show();
+					$( '#billing_cpf_field' ).show().addClass( 'validate-required' );
+					
+					$( '#billing_cpf_field label .required' ).remove();
+					$( '#billing_cpf_field label' ).append( ' <abbr class="required">*</abbr>' );
+				}
+
+				if ( '2' === persontype ) {
+					$( '#billing_company_field, #billing_cnpj_field' ).show().addClass( 'validate-required' );
+
+					$( '#billing_company_field label .required, #billing_cnpj_field label .required' ).remove();
+					$( '#billing_company_field label, #billing_cnpj_field label' ).append( ' <abbr class="required">*</abbr>' );
+					$( '#billing_nationality_field' ).hide();
+					$( '#billing_nationality' ).val( 'BR' );
+				}
+			} else {				
+				$( '#billing_taxvat_field' ).show().addClass( 'validate-required' );
+				$( '#billing_taxvat_field label .required' ).remove();
+				$( '#billing_taxvat_field label' ).append( ' <abbr class="required">*</abbr>' );
+					
+				if ( '1' === persontype ) {
+					$( '#billing_birthdate_field' ).show().find( 'label .optional' ).show();					
+				}
+
+				if ( '2' === persontype ) {
+					$( '#billing_company_field' ).show().addClass( 'validate-required' );
+
+					$( '#billing_company_field label .required' ).remove();
+					$( '#billing_company_field label' ).append( ' <abbr class="required">*</abbr>' );
+				}
 			}
+
+		}).change().select2();
+		
+		// Reload input mask in checkout page 
+		$( document.body ).on( 'load updated_checkout', function( event, data ) {
+			setTimeout( function() {
+				$( '#pagarme-card-expiry' ).mask( '00-0000' );
+			}, 1000 );
 		});
+		
 	});
 
 }( jQuery ));

@@ -139,7 +139,7 @@
 						'</div>' +
 						'<div class="orde-info">' +
 							'<strong class="order-id">' + ( ( transaction.order_id ) ? (  '<a target="_blank" href="' + transaction.order_link + '">#' + transaction.order_id + '</a>' ) : ( transaction.gateway_id ) ) +  '</strong>' +
-							'<span class="order-desc">' + ( transaction.payment_method == 'boleto' ? 'Boleto Bancário' : ( transaction.payment_method == 'credit_card' ? 'Cartão de Crédito' : 'PIX' ) ) + '</span>' +
+							'<span class="order-desc">' + ( transaction.payment_method == 'boleto' ? 'Boleto Bancário' : ( transaction.payment_method == 'credit_card' ? 'Cartão de Crédito ' + ( transaction.installment + '/' + transaction.installments ) : 'PIX' ) ) + '</span>' +
 						'</div>' +
 						'<span class="order-price">' + ( transaction.amount/100 ).toLocaleString('en-US', { style: 'currency', currency: 'BRL' }) + '</span>' +
 					'</li>';

@@ -78,6 +78,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 
 		// Initializes the Pagar.me payment gateway.
 		parent::init_gateway();
+		
 	}
 
 	/**
@@ -908,7 +909,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 			true
 		);
 	}
-
+		
 	/**
 	 * Register public styles and scripts for payment method
 	 *
