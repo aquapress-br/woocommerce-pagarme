@@ -375,6 +375,12 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				'default'     => 'no',
 				'description' => sprintf( __( 'Registre eventos da Pagar.me, como solicitações de API. Você pode verificar o log em %s', 'wc-pagarme' ), '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.log' ) ) . '">' . __( 'Status do sistema &gt; Logs', 'wc-pagarme' ) . '</a>' ),
 			),
+			'webhook'              => array(
+				'title'       => __( 'Configurações de Webhook', 'wc-pagarme' ),
+				'type'        => 'title',
+				'description' =>  sprintf( __( 'Realize as configurações do webhook. Você só precisa configurá-lo uma vez no dashbboard pagar.me. <br> O webhook permite que a loja receba notificações para atualizar pedidos automaticamente. <a href="%s">Saiba mais aqui</a>. <br>Crie um novo webhook e coloque <code>%s</code> no campo URL. Por fim, selecione todos os eventos. ', 'wc-pagarme'), 'https://pagarme.helpjuice.com/pt_BR/p2-funcionalidades/configura%C3%A7%C3%B5es-como-configurar-webhooks', esc_url( WC()->api_request_url( 'wc_pagarme_webhook' ) ) ),
+
+			),
 		);
 
 		$this->form_fields = apply_filters( 'wc_pagarme_gateway_form_fields', $fields, $this->id );
@@ -440,8 +446,8 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 					'zip_code'      => $order->get_billing_postcode(),
 					'line_1'        => $order->get_billing_address_1() . ' N ' . $order->get_meta( '_billing_number' ) . ' - ' . $order->get_meta( '_billing_neighborhood' ),
 					'line_2'        => $order->get_billing_address_2(),
-					'country'       => strtolower( $order->get_billing_country() ),
-					'state'         => strtolower( $order->get_billing_state() ),
+					'state'         => $order->get_billing_state(),
+					'country'       => $order->get_billing_country(),
 				),
 			);
 		}

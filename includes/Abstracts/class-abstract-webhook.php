@@ -99,17 +99,15 @@ abstract class Webhook {
 		
 		$webhook_response = file_get_contents( 'php://input' );
 
-		$this->debug( 'Gateway Postback Headers: ' . var_export( $_SERVER, true ) );
-		$this->debug( 'Gateway received a URL notification content: ' . var_export( $_REQUEST, true ) );
 		$this->debug( 'Gateway received a body content: ' . var_export( $webhook_response, true ) );
 		
 		if ( $webhook_response ) {
 			$webhook_body = @json_decode( $webhook_response, true );
 			// Check is valid webhook body response.
-			if ( is_array( $webhook_body ) && isset( $webhook_body['event'], $webhook_body['data'] ) ) {
-				if ( in_array( $webhook_body['event'], $this->event ) ) {
+			if ( is_array( $webhook_body ) && isset( $webhook_body['type'], $webhook_body['data'] ) ) {
+				if ( in_array( $webhook_body['type'], $this->events ) ) {
 					// Initialize any additional hooks needed by the webhook in the child class.
-					$this->process( $webhook_body['event'], $webhook_body['data'] );
+					$this->process( $webhook_body['type'], $webhook_body['data'] );
 				}
 			}
 			exit;

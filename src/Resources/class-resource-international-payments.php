@@ -26,6 +26,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'enqueue_scripts' ), 100 );
 		add_filter( 'woocommerce_billing_fields', array( $this, 'add_checkout_fields' ), 100 );
 		add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_order_meta_fields' ) );
+		//add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_international_payment_data' ), 100, 3 );
 		add_action( 'woocommerce_admin_print_order_meta_fields', array( $this, 'print_order_meta_fields' ) );
 		add_filter( 'wcbcf_disable_checkout_validation', array( $this, 'disable_wcbcf_validation' ), 100 );
 	}
@@ -59,7 +60,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		$fields['billing_nationality']['priority'] = ( $fields['billing_persontype']['priority'] ?? 0 ) + 1;
 		$fields['billing_nationality']['options'] = WC()->countries->get_countries();
 
-		$fields['billing_taxvat']['label'] = __( 'TaxID' );
+		$fields['billing_taxvat']['label'] = __( 'Número do Passaporte' );
 		$fields['billing_taxvat']['required'] = apply_filters( 'checkout_field_billing_taxvat_is_required', false );
 		$fields['billing_taxvat']['class'] = array( 'form-row-wide' );
 		$fields['billing_taxvat']['priority'] = $fields['billing_company']['priority'] ?? ( $fields['billing_cpf']['priority'] ?? 0 ) + 1;
@@ -68,9 +69,6 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		$fields['billing_phone_country']['required'] = apply_filters( 'checkout_field_billing_phone_country_is_required', false );
 		$fields['billing_phone_country']['class'] = array( 'form-row-wide hidden' );
 		$fields['billing_phone_country']['priority'] = 100;
-		
-		$fields['billing_first_name']['label'] = __( 'Nome completo' );
-		$fields['billing_first_name']['class'] = array( 'form-row-wide', 'form-row-first' );
 		
 		return $fields;
 	}
@@ -93,6 +91,39 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		
 		$order->save();
 	}
+
+	/**
+	 * Change transaction data to support international payments.
+	 *
+	 * @param array                                $payload             Regular payment data.
+	 * @param mixed                                $the_order           Woocommerce Order ID or Object WC_Order.
+	 * @param Aquapress\Pagarme\Abstracts\Gateway  $context             The pagarme gateway object.
+	 *
+	 * @return array
+	 */
+	public function build_international_payment_data( $payload, $the_order, $context ) {
+		// Only creditcard payments are supported.
+		if ( 'wc_pagarme_creditcard' === $context->id ) {
+			// Get the order.
+			$order = wc_get_order( $the_order );
+			// Get customer nationality.
+			$customer_nationality = $order->get_meta( 'billing_nationality' ) ?? 'BR';
+			// Check if the customer is of an international nationality.
+			if ( 'BR' != $customer_nationality ) {
+				// Fix transaction data for customer document.
+				$payload['customer']['document_type'] = 'PASSPORT';
+				$payload['customer']['document']      = wc_pagarme_only_numbers( $order->get_meta( 'billing_taxvat' ) );
+				// Fix transaction data for customer phones.
+				if ( isset( $payload['customer']['phones']['home_phone'] ) ) {
+					$payload['customer']['phones']['home_phone']['country_code'] = $order->get_meta( 'billing_phone_country' ) ?? '55';
+				} else if ( isset( $payload['customer']['phones']['mobile_phone'] ) ) {
+					$payload['customer']['phones']['mobile_phone']['country_code'] = $order->get_meta( 'billing_phone_country' ) ?? '55';
+				}
+			}
+		}
+
+		return $payload;
+	}
 	
 	/**
 	 * Print extra checkout fields in admin order details.
@@ -111,11 +142,11 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 	}
 	
 	/**
-	 * Disable CPF AND CNPJ checkout validation.
+	 * Disable CPF AND CNPJ checkout validation of the plugin Brazilian Market on WooCommerce.
 	 * 
-	 * @see Brazilian Market on WooCommerce plugin.
-	 *
 	 * @param bool $is_disabled Default value.
+	 * 
+	 * @return bool
 	 */
 	public function disable_wcbcf_validation( $is_disabled ) {			
 		return true;

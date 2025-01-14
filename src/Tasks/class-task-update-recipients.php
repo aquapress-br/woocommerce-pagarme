@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @extends Aquapress\Pagarme\Abstracts\Task.
  */
-class Update_Recipients extends Aquapress\Pagarme\Abstracts\Task {
+class Update_Recipients extends \Aquapress\Pagarme\Abstracts\Task {
 
 	/**
 	 * Task identifier.
@@ -40,7 +40,7 @@ class Update_Recipients extends Aquapress\Pagarme\Abstracts\Task {
 	 * @return void
 	 */
 	public function process() {
-		$api = Aquapress\Pagarme\Helpers\Load_API( 'dokan', $this->logger );
+		$api = \Aquapress\Pagarme\Helpers\Factory::Load_API( 'wc_pagarme_marketplace' );
 		try {
 			$request = $api->get_recipients(
 				array(

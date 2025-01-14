@@ -68,6 +68,38 @@ if ( ! function_exists( 'wc_pagarme_marketplaces_register' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wc_pagarme_webhooks_register' ) ) {
+	/**
+	 * Registers and initializes webhooks for WooCommerce Pagar.me integration.
+	 *
+	 * @return void
+	 */
+	function wc_pagarme_webhooks_register() {
+		$embedded = array(
+			'\Aquapress\Pagarme\Webhooks\Update_Orders',
+		);
+
+		$load_connectors = array_unique(
+			apply_filters(
+				'wc_pagarme_webhooks',
+				$embedded
+			)
+		);
+
+		foreach ( $load_connectors as $class_name ) {
+			if ( ! apply_filters( 'wc_pagarme_webhook_load', true, $class_name ) ) {
+				continue;
+			}
+
+			if ( is_string( $class_name ) && class_exists( $class_name ) ) {
+				$obj = new $class_name();
+				
+				$obj->init_webhook();
+			}
+		}
+	}
+}
+
 if ( ! function_exists( 'wc_pagarme_resources_register' ) ) {
 	/**
 	 * Registers and initializes resources for WooCommerce Pagar.me integration.

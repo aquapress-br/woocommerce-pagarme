@@ -278,32 +278,6 @@ abstract class Marketplace {
 			'transactions' => $payables_data,
 		);
 	}
-
-	/**
-	 * Get woocommerce order by pagarme transaction ID.
-	 *
-	 * @param  string  $transaction_id
-	 * @return void
-	 */
-	public static function get_order_by_gateway_id( $gateway_id ) {
-		if ( ! is_null( $gateway_id ) ) {
-			// Search for orders with the meta_key 'PAGARME_CHARGE_GATEWAY_ID' and the corresponding value
-			$orders = wc_get_orders(
-				array(
-					'meta_key'   => 'PAGARME_CHARGE_GATEWAY_ID',
-					'meta_value' => $gateway_id,
-					'limit'      => 1, // Ensure that only one request is returned
-				)
-			);
-
-			// Returns the order if found
-			if ( ! empty( $orders ) && is_a( $orders[0], 'WC_Order' ) ) {
-				return $orders[0];
-			}
-		}
-
-		return false;
-	}
 	
 	/*
 	 * Update Recipient Data
@@ -828,10 +802,6 @@ abstract class Marketplace {
 				'available_amount'     => 0,
 				'waiting_funds_amount' => 0,
 				'transferred_amount'   => 0,
-			);
-			$payables = array(
-				'data'   => array(),
-				'paging' => array(),
 			);
 		}
 		

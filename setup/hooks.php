@@ -27,4 +27,5 @@ add_filter( 'plugin_action_links_' . WC_PAGARME_BASENAME, 'wc_pagarme_admin_link
  */
 add_action( 'init', 'wc_pagarme_gateways_register' );
 add_action( 'init', 'wc_pagarme_marketplaces_register' );
+add_action( 'init', 'wc_pagarme_webhooks_register' );
 add_action( 'init', 'wc_pagarme_resources_register' );

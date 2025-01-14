@@ -340,6 +340,34 @@ class API {
 		}
 	}
 
+
+	/**
+	 * Get webhooks.
+	 *
+	 * @return array|false
+	 */
+	public function get_webhooks( $payload = array() ) {
+
+		$this->debug( 'Get webhooks: ' . var_export( $payload, true ) );
+		
+		$response = $this->do_request( '/hooks', 'GET', $payload );
+		
+		// Process response data.
+		if ( ! is_wp_error( $response ) ) {
+
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			$this->debug( 'Get webhooks successfully! The endpoint response is: ' . var_export( $data, true ) );
+
+			do_action( 'wc_pagarme_processed_webhooks', $data );
+
+			return $data;
+
+		} else {
+			throw new \Exception( $response->get_error_message() );
+		}
+	}
+
 	/**
 	 * Perform a request to the server API.
 	 *
