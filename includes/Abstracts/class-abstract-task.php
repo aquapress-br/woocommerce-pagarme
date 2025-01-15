@@ -26,6 +26,17 @@ abstract class Task {
 	public $id;
 
 	/**
+	 * Logger instance.
+	 *
+	 * This attribute is used to record events and log messages.
+	 * The instance may be an object of a specific logging class or
+	 * a similar resource.
+	 *
+	 * @var Aquapress\Pagarme\Logger
+	 */
+	public \Aquapress\Pagarme\Logger $logger;
+	
+	/**
 	 * Task recurrence.
 	 *
 	 * @var string
@@ -79,7 +90,7 @@ abstract class Task {
 	 */
 	public function debug( $message, $start_time = null, $end_time = null ) {
 		if ( ! $this->logger ) {
-			$this->logger = new Aquapress\Pagarme\Logger();
+			$this->logger = new \Aquapress\Pagarme\Logger( 'wc_pagarme_tasks' );
 		}
 
 		$this->logger->add( $message, $start_time, $end_time );

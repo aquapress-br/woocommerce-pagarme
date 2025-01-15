@@ -263,13 +263,13 @@ class Boleto extends \Aquapress\Pagarme\Abstracts\Gateway {
 	public function order_summary_preview( $order_id ) {
 		$order = wc_get_order( $order_id );
 
-		if ( $order->get_meta( 'PAGARME_BOLETO_URL' ) && in_array( $order->get_status(), array( 'pending', 'on-hold' ), true ) ) {
+		if ( $order->get_meta( '_pagarme_boleto_url' ) && in_array( $order->get_status(), array( 'pending', 'on-hold' ), true ) ) {
 			?>
 			<div class="woocommerce-message">
-				<span><a class="button" href="<?php echo esc_url( $order->get_meta( 'PAGARME_BOLETO_URL' ) ); ?>" target="_blank"><?php esc_html_e( 'IMPRIMIR BOLETO', 'wc-pagarme' ); ?></a><?php esc_html_e( 'Você pode imprimir e pagar via internet banking ou em uma casa lotérica.', 'wc-pagarme' ); ?><br /><?php esc_html_e( 'Após recebermos a confirmação do pagamento do boleto bancário, seu pedido será processado.', 'wc-pagarme' ); ?></span>
+				<span><a class="button" href="<?php echo esc_url( $order->get_meta( '_pagarme_boleto_url' ) ); ?>" target="_blank"><?php esc_html_e( 'IMPRIMIR BOLETO', 'wc-pagarme' ); ?></a><?php esc_html_e( 'Você pode imprimir e pagar via internet banking ou em uma casa lotérica.', 'wc-pagarme' ); ?><br /><?php esc_html_e( 'Após recebermos a confirmação do pagamento do boleto bancário, seu pedido será processado.', 'wc-pagarme' ); ?></span>
 			</div>
 			<div>
-				<p> <iframe src="<?php echo esc_url( $order->get_meta( 'PAGARME_BOLETO_URL' ) ); ?>" style="width:100%; height:1000px;border: solid 1px #eee;"></iframe> </p>
+				<p> <iframe src="<?php echo esc_url( $order->get_meta( '_pagarme_boleto_url' ) ); ?>" style="width:100%; height:1000px;border: solid 1px #eee;"></iframe> </p>
 			</div>
 			<br>
 			<?php
@@ -293,9 +293,9 @@ class Boleto extends \Aquapress\Pagarme\Abstracts\Gateway {
 			return $actions;
 		}
 
-		if ( ! empty( $order->get_meta( 'PAGARME_BOLETO_URL' ) ) ) {
+		if ( ! empty( $order->get_meta( '_pagarme_boleto_url' ) ) ) {
 			$actions[] = array(
-				'url'  => $order->get_meta( 'PAGARME_BOLETO_URL' ),
+				'url'  => $order->get_meta( '_pagarme_boleto_url' ),
 				'name' => __( 'Imprimir Boleto', 'wc-pagarme' ),
 			);
 		}

@@ -77,7 +77,9 @@ class API {
 	 */
 	private function get_api_url( $endpoint = '' ) {
 		if ( $endpoint ) {
-			return sprintf( '%s/%s', static::API_URL, $endpoint );
+			$url = sprintf( '%s/%s', static::API_URL, $endpoint );
+			// Remove double slashes, but keep those after "http://", "https://", etc.
+			return preg_replace( '#(?<!:)//+#', '/', $url );
 		}
 		return static::API_URL;
 	}

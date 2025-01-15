@@ -48,7 +48,7 @@ class Logger {
 	 *
 	 * @param string $filename The logger file name.
 	 */
-	public function __construct( $filename = 'wc-pagarme' ) {
+	public function __construct( $filename = 'wc_pagarme' ) {
 		$this->filename = $filename;
 	}
 

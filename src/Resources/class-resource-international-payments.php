@@ -26,7 +26,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'enqueue_scripts' ), 100 );
 		add_filter( 'woocommerce_billing_fields', array( $this, 'add_checkout_fields' ), 100 );
 		add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_order_meta_fields' ) );
-		//add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_international_payment_data' ), 100, 3 );
+		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_international_payment_data' ), 100, 3 );
 		add_action( 'woocommerce_admin_print_order_meta_fields', array( $this, 'print_order_meta_fields' ) );
 		add_filter( 'wcbcf_disable_checkout_validation', array( $this, 'disable_wcbcf_validation' ), 100 );
 	}
@@ -84,11 +84,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		$order->update_meta_data( '_billing_taxvat', sanitize_text_field( wp_unslash( $_POST['billing_taxvat'] ?? $order->billing_taxvat ) ) );
 		$order->update_meta_data( '_billing_nationality', sanitize_text_field( wp_unslash( $_POST['billing_nationality'] ?? $order->billing_nationality ) ) );
 		$order->update_meta_data( '_billing_phone_country', sanitize_text_field( wp_unslash( $_POST['billing_phone_country'] ?? $order->billing_phone_country ) ) );
-		// New format.
-		$order->update_meta_data( 'billing_taxvat', sanitize_text_field( wp_unslash( $_POST['billing_taxvat'] ?? $order->billing_taxvat ) ) );
-		$order->update_meta_data( 'billing_nationality', sanitize_text_field( wp_unslash( $_POST['billing_nationality'] ?? $order->billing_nationality ) ) );
-		$order->update_meta_data( 'billing_phone_country', sanitize_text_field( wp_unslash( $_POST['billing_phone_country'] ?? $order->billing_phone_country ) ) );
-		
+
 		$order->save();
 	}
 
@@ -112,7 +108,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 			if ( 'BR' != $customer_nationality ) {
 				// Fix transaction data for customer document.
 				$payload['customer']['document_type'] = 'PASSPORT';
-				$payload['customer']['document']      = wc_pagarme_only_numbers( $order->get_meta( 'billing_taxvat' ) );
+				$payload['customer']['document']      = $order->get_meta( 'billing_taxvat' );
 				// Fix transaction data for customer phones.
 				if ( isset( $payload['customer']['phones']['home_phone'] ) ) {
 					$payload['customer']['phones']['home_phone']['country_code'] = $order->get_meta( 'billing_phone_country' ) ?? '55';

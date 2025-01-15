@@ -494,8 +494,9 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 * @return array
 	 */
 	public function get_saved_payment_tokens() {
+		$current_user_id = get_current_user_id();
 		$saved_cards = \WC_Payment_Tokens::get_customer_tokens(
-			get_current_user_id(),
+			$current_user_id,
 			$this->id
 		);
 

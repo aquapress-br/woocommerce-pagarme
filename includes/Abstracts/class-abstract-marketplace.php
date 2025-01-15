@@ -258,7 +258,7 @@ abstract class Marketplace {
 				$payables_data[ $payment_date ]['type']['transactions'][] = array(
 					'payment_date'   => $payment_date,
 					'payment_method' => $payable['payment_method'],
-					'installments'   => $vendor_suborder->get_meta( 'PAGARME_CARD_INSTALLMENTS' ),
+					'installments'   => $vendor_suborder->get_meta( '_pagarme_card_installments' ),
 					'installment'    => $payable['installment'],
 					'amount'         => $payable['amount'] - $payable['fee'],
 					'status'         => $payable['status'],
@@ -355,7 +355,7 @@ abstract class Marketplace {
 
 				// Save bank account id for create request.
 				if ( isset( $request['default_bank_account']['id'] ) ) {
-					update_user_meta( $current_user_id, 'pagarme_recipiente_bank_account_id', $request['default_bank_account']['id'] );
+					update_user_meta( $current_user_id, 'pagarme_recipient_bank_account_id', $request['default_bank_account']['id'] );
 				}
 				wp_send_json_success( __( 'As informações foram armazenadas com sucesso.', 'wc-pagarme' ) );
 			}
@@ -723,7 +723,7 @@ abstract class Marketplace {
 		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipient_id', true );
 		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
 		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
-		$bank_account_id      = get_user_meta( $current_user_id, 'pagarme_recipiente_bank_account_id', true );
+		$bank_account_id      = get_user_meta( $current_user_id, 'pagarme_recipient_bank_account_id', true );
 
 		wc_pagarme_get_template(
 			'recipient-form.php',

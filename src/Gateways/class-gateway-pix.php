@@ -60,6 +60,7 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 
 		// Initializes the Pagar.me payment gateway.
 		parent::init_gateway();
+		
 	}
 
 	/**
@@ -249,7 +250,7 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 	public function order_summary_preview( $order_id ) {
 		$order = wc_get_order( $order_id );
 
-		if ( $order->get_meta( 'PAGARME_PIX_QRCODE_URL' ) && $order->get_meta( 'PAGARME_PIX_QRCODE' ) && in_array( $order->get_status(), array( 'pending', 'on-hold' ) ) ) {
+		if ( $order->get_meta( '_pagarme_pix_qrcode_url' ) && $order->get_meta( '_pagarme_pix_qrcode' ) && in_array( $order->get_status(), array( 'pending', 'on-hold' ) ) ) {
 			?>
 			<div class="pagarme-pix-instructions-container">
 				<h4 class="pagarme-pix-instructions-title"><?php esc_html_e( 'Escanei e pague o QR code a seguir para efeturar a compra do seu pedido', 'wc-pagarme' ); ?></h4>
@@ -259,9 +260,9 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 					<li><?php esc_html_e( '2 - Selecione a opção Pagar com PIX', 'wc-pagarme' ); ?></li>
 					<li><?php esc_html_e( '3 - Após o pagamento você receberá um e-mail de confirmação', 'wc-pagarme' ); ?></li>
 				</ul>
-				<img width="150" height="150" src="<?php echo esc_url( $order->get_meta( 'PAGARME_PIX_QRCODE_URL' ) ); ?>"/>
+				<img width="150" height="150" src="<?php echo esc_url( $order->get_meta( '_pagarme_pix_qrcode_url' ) ); ?>"/>
 				<br>
-				<span><a class="button" data-qrcode="<?php esc_html_e( $order->get_meta( 'PAGARME_PIX_QRCODE' ) ); ?>" id="pagarme-copy-button" href="javascript:void(0);"><span class="copy-clipboard"><?php esc_html_e( 'Copiar chave PIX', 'wc-pagarme' ); ?></span><span class="copied-successful"><?php esc_html_e( 'Chave PIX copiada!', 'wc-pagarme' ); ?></span></a></span>				
+				<span><a class="button" data-qrcode="<?php esc_html_e( $order->get_meta( '_pagarme_pix_qrcode' ) ); ?>" id="pagarme-copy-button" href="javascript:void(0);"><span class="copy-clipboard"><?php esc_html_e( 'Copiar chave PIX', 'wc-pagarme' ); ?></span><span class="copied-successful"><?php esc_html_e( 'Chave PIX copiada!', 'wc-pagarme' ); ?></span></a></span>				
 				<br>
 			</div>
 			<?php

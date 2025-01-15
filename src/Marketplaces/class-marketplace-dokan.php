@@ -54,6 +54,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		add_action( 'wc_pagarme_get_vendor_suborder', array( $this, 'filter_vendor_suborder' ), 10, 3 );
 		add_action( 'wc_pagarme_get_vendor_suborder_url', array( $this, 'filter_vendor_suborder_url' ), 10, 2 );
 		add_action( 'wc_pagarme_recipient_transactions_table_column_order', array( $this, 'print_recipient_transactions_column_order' ), 100 );
+		
 	}
 
 	/**

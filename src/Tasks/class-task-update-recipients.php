@@ -44,7 +44,7 @@ class Update_Recipients extends \Aquapress\Pagarme\Abstracts\Task {
 		try {
 			$request = $api->get_recipients(
 				array(
-					'size' => 30,
+					'size' => 30, // TODO: The API does not support time filters to retrieve recipients. Therefore, a random number is set.
 				)
 			);
 			if ( is_array( $request ) && ! empty( $request ) ) {
@@ -63,7 +63,7 @@ class Update_Recipients extends \Aquapress\Pagarme\Abstracts\Task {
 							update_user_meta( $user->ID, 'pagarme_recipient_status', $recipient['status'] );
 							update_user_meta( $user->ID, 'pagarme_recipient_status_reason', $recipient['status_reason'] );
 							update_user_meta( $user->ID, 'pagarme_recipient_kyc_status', $recipient['kyc_details']['status'] ?? '' );
-							update_user_meta( $user->ID, 'pagarme_bank_account_id', $request['bank_account']['id'] );
+							update_user_meta( $user->ID, 'pagarme_recipient_bank_account_id', $request['bank_account']['id'] );
 						}
 					}
 				}

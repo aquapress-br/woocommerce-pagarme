@@ -26,10 +26,10 @@ trait Order_Meta {
 	 */
 	public static function get_order_by_transaction_id( $transaction_id ) {
 		if ( ! is_null( $transaction_id ) ) {
-			// Search for orders with the meta_key 'PAGARME_TRANSACTION_ID' and the corresponding value
+			// Search for orders with the meta_key '_pagarme_transaction_id' and the corresponding value
 			$orders = wc_get_orders(
 				array(
-					'meta_key'   => 'PAGARME_TRANSACTION_ID',
+					'meta_key'   => '_pagarme_transaction_id',
 					'meta_value' => $transaction_id,
 					'limit'      => 1, // Ensure that only one request is returned
 				)
@@ -52,10 +52,10 @@ trait Order_Meta {
 	 */
 	public static function get_order_by_gateway_id( $gateway_id ) {
 		if ( ! is_null( $gateway_id ) ) {
-			// Search for orders with the meta_key 'PAGARME_CHARGE_GATEWAY_ID' and the corresponding value
+			// Search for orders with the meta_key '_pagarme_charge_gateway_id' and the corresponding value
 			$orders = wc_get_orders(
 				array(
-					'meta_key'   => 'PAGARME_CHARGE_GATEWAY_ID',
+					'meta_key'   => '_pagarme_charge_gateway_id',
 					'meta_value' => $gateway_id,
 					'limit'      => 1, // Ensure that only one request is returned
 				)
