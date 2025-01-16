@@ -1,4 +1,22 @@
-<?php
+<?php defined( 'ABSPATH' ) || exit;
+
+/**
+ * Registers the activation hook for the plugin.
+ * This hook is triggered when the plugin is activated.
+ *
+ * @param string WC_PAGARME_BASENAME The plugin's main file path.
+ * @param callable wc_pagarme_plugin_activate The function to run during activation.
+ */
+register_activation_hook( WC_PAGARME_BASENAME, 'wc_pagarme_plugin_activate' );
+
+/**
+ * Registers the deactivation hook for the plugin.
+ * This hook is triggered when the plugin is deactivated.
+ *
+ * @param string WC_PAGARME_BASENAME The plugin's main file path.
+ * @param callable wc_pagarme_plugin_deactivate The function to run during deactivation.
+ */
+register_deactivation_hook( WC_PAGARME_BASENAME, 'wc_pagarme_plugin_deactivate' );
 
 /**
  * Loads the plugin's text domain for translations after all plugins are loaded.
@@ -21,11 +39,5 @@ add_filter( 'plugin_action_links_' . WC_PAGARME_BASENAME, 'wc_pagarme_admin_link
  *
  * These hooks are responsible for initializing key features of the plugin. They register
  * the custom Pagar.me payment gateways and marketplaces during WordPress's 'init' action.
- *
- * @see wc_pagarme_marketplaces_register() For marketplace-specific registration logic.
- * @see wc_pagarme_gateways_register() For payment gateway registration.
  */
-add_action( 'init', 'wc_pagarme_gateways_register' );
-add_action( 'init', 'wc_pagarme_marketplaces_register' );
-add_action( 'init', 'wc_pagarme_webhooks_register' );
-add_action( 'init', 'wc_pagarme_resources_register' );
+add_action( 'init', 'wc_pagarme_plugin_run' );

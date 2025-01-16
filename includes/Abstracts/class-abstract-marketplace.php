@@ -15,6 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * Abstract class that will be inherited by all connectors.
  */
 abstract class Marketplace {
+	
+	use \Aquapress\Pagarme\Traits\Order_Meta;
 
 	/**
 	 * Connector identifier.

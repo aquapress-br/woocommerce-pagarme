@@ -29,6 +29,8 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_international_payment_data' ), 100, 3 );
 		add_action( 'woocommerce_admin_print_order_meta_fields', array( $this, 'print_order_meta_fields' ) );
 		add_filter( 'wcbcf_disable_checkout_validation', array( $this, 'disable_wcbcf_validation' ), 100 );
+		//add_filter( 'woocommerce_checkout_get_value', array( $this, 'checkout_fields_value' ), 100, 2 );
+		//add_action( 'woocommerce_checkout_update_user_meta', array( $this, 'save_user_meta_fields' ), 10, 2 );
 	}
 
 	/**
@@ -80,13 +82,40 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 	 */
 	public function save_order_meta_fields( $post_id ) {
 		$order = wc_get_order( $post_id );
-		// Old format. Will be removed in beve.
-		$order->update_meta_data( '_billing_taxvat', sanitize_text_field( wp_unslash( $_POST['billing_taxvat'] ?? $order->billing_taxvat ) ) );
-		$order->update_meta_data( '_billing_nationality', sanitize_text_field( wp_unslash( $_POST['billing_nationality'] ?? $order->billing_nationality ) ) );
-		$order->update_meta_data( '_billing_phone_country', sanitize_text_field( wp_unslash( $_POST['billing_phone_country'] ?? $order->billing_phone_country ) ) );
+		// Save order meta.
+		$order->update_meta_data( '_billing_taxvat', sanitize_text_field( wp_unslash( $_POST['billing_taxvat'] ?? '' ) ) );
+		$order->update_meta_data( '_billing_nationality', sanitize_text_field( wp_unslash( $_POST['billing_nationality'] ?? 'BR' ) ) );
+		$order->update_meta_data( '_billing_phone_country', sanitize_text_field( wp_unslash( $_POST['billing_phone_country'] ?? '55' ) ) );
 
 		$order->save();
 	}
+	
+	/**
+	 * Save fields values in user meta.
+	 *
+	 * @param  int $user_id The checkout customer ID.
+	 * @param  array $posted_data Checkout posted fields.
+	 */
+	/* public function save_user_meta_fields( $user_id, $posted_data ) {
+		update_user_meta( $user_id, 'billing_taxvat', sanitize_text_field( wp_unslash( $posted_data['billing_taxvat'] ?? '' ) ) );
+		update_user_meta( $user_id, 'billing_nationality', sanitize_text_field( wp_unslash( $posted_data['billing_nationality'] ?? 'BR' ) ) );
+		update_user_meta( $user_id, 'billing_phone_country', sanitize_text_field( wp_unslash( $posted_data['billing_phone_country'] ?? '55' ) ) );
+	} */
+	
+	/**
+	 * Get fields values in checkout.
+	 *
+	 * @param  WC_Order $order WooCommerce order object.
+	 */
+	/* public function checkout_fields_value( $value, $field ) {
+		
+		if ( in_array( $field, array( 'billing_nationality', 'billing_taxvat', 'billing_phone_country' ) ) ) {
+				$order_id = absint( WC()->session->get( 'order_awaiting_payment' ) );
+				return $value; //Change to custom value;
+			}
+		
+		return $value;
+	} */
 
 	/**
 	 * Change transaction data to support international payments.
@@ -103,17 +132,17 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 			// Get the order.
 			$order = wc_get_order( $the_order );
 			// Get customer nationality.
-			$customer_nationality = $order->get_meta( 'billing_nationality' ) ?? 'BR';
+			$customer_nationality = $order->get_meta( '_billing_nationality' ) ?? 'BR';
 			// Check if the customer is of an international nationality.
 			if ( 'BR' != $customer_nationality ) {
 				// Fix transaction data for customer document.
 				$payload['customer']['document_type'] = 'PASSPORT';
-				$payload['customer']['document']      = $order->get_meta( 'billing_taxvat' );
+				$payload['customer']['document']      = $order->get_meta( '_billing_taxvat' );
 				// Fix transaction data for customer phones.
 				if ( isset( $payload['customer']['phones']['home_phone'] ) ) {
-					$payload['customer']['phones']['home_phone']['country_code'] = $order->get_meta( 'billing_phone_country' ) ?? '55';
+					$payload['customer']['phones']['home_phone']['country_code'] = $order->get_meta( '_billing_phone_country' ) ?: '55';
 				} else if ( isset( $payload['customer']['phones']['mobile_phone'] ) ) {
-					$payload['customer']['phones']['mobile_phone']['country_code'] = $order->get_meta( 'billing_phone_country' ) ?? '55';
+					$payload['customer']['phones']['mobile_phone']['country_code'] = $order->get_meta( '_billing_phone_country' ) ?: '55';
 				}
 			}
 		}

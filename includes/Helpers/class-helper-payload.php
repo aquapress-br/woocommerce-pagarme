@@ -41,7 +41,7 @@ class Payload {
 			// Get additional information about the customer.
 			$data = array(
 				'customer' => array(
-					'code'  => '#' . $order->get_customer_id(),
+					'code'  => '#' . $order->get_customer_id() ?: uniqid( 'VISITING-USER-' ),
 					'name'  => trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
 					'email' => $order->get_billing_email(),
 				),

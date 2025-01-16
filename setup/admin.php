@@ -1,4 +1,4 @@
-<?php
+<?php defined( 'ABSPATH' ) || exit;
 
 if ( ! function_exists( 'wc_pagarme_admin_links' ) ) {
 	/**
@@ -19,8 +19,9 @@ if ( ! function_exists( 'wc_pagarme_admin_links' ) ) {
 		$links[] = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout' ) ) . '">' . __( 'Configurações', 'wc-pagarme' ) . '</a>';
 
 		// Adds a link to the Pagar.me support page.
-		$links[] = '<a href="https://pagar.me">' . __( 'Suporte', 'wc-pagarme' ) . '</a>';
+		$links[] = '<a href="https://aquapress.com.br">' . __( 'Suporte', 'wc-pagarme' ) . '</a>';
 
 		return $links;
 	}
 }
+

@@ -1,4 +1,59 @@
-<?php
+<?php defined( 'ABSPATH' ) || exit;
+
+if ( ! function_exists( 'wc_pagarme_plugin_activate' ) ) {
+
+	/**
+	 * Plugin activate call function
+	 *
+	 * @see wc_pagarme_migrations_register() For migrations process registration logic.
+	 * @see wc_pagarme_tasks_register() For schedule events registration.
+	 * 
+	 * @since    1.0.0
+	 * @return   void
+	 */
+	function wc_pagarme_plugin_activate() {
+		wc_pagarme_migrations_register();
+		wc_pagarme_tasks_register();
+	}
+}
+
+if ( ! function_exists( 'wc_pagarme_plugin_deactivate' ) ) {
+
+	/**
+	 * Plugin deactivation call function
+	 *
+	 * @see wc_pagarme_tasks_unregister() To cancel registration for scheduled events.
+	 * 	
+	 * @since    1.0.0
+	 * @return   void
+	 */
+	function wc_pagarme_plugin_deactivate() {
+		wc_pagarme_tasks_unregister();
+	}
+}
+
+if ( ! function_exists( 'wc_pagarme_plugin_run' ) ) {
+
+	/**
+	 * Begins run of the plugin.
+	 *
+	 * @see wc_pagarme_marketplaces_register() For marketplace-specific registration logic.
+	 * @see wc_pagarme_gateways_register() For payment gateway registration.
+	 * @see wc_pagarme_webhooks_register() For webhooks registration.
+	 * @see wc_pagarme_resources_register() For resources registration.
+	 *
+	 * @since    1.0.0
+	 * @return   void
+	 */
+	function wc_pagarme_plugin_run() {
+		do_action( 'wc_pagarme_before_plugin_run' );
+		wc_pagarme_gateways_register();
+		wc_pagarme_marketplaces_register();
+		wc_pagarme_webhooks_register();
+		wc_pagarme_resources_register();
+		do_action( 'wc_pagarme_plugin_run' );
+	}
+}
 
 if ( ! function_exists( 'wc_pagarme_plugin_i18n' ) ) {
 	/**

@@ -13,16 +13,16 @@ namespace Aquapress\Pagarme\Migrations;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Aquapress\Pagarme\Migrations\Legacy_Compatibility class.
+ * \Aquapress\Pagarme\Migrations\User_Meta_Legacy_Compatibility class.
  *
  * @extends \Aquapress\Pagarme\Abstracts\Migration.
  */
-class Legacy_Compatibility  extends \Aquapress\Pagarme\Abstracts\Migration {
+class User_Meta_Legacy_Compatibility  extends \Aquapress\Pagarme\Abstracts\Migration {
     
 	/**
      * @var string The target version for the migration.
      */
-    public $version = '1.0.0-legacy_compatibility';
+    public $version = '1.0.0-user_meta_legacy_compatibility';
 
     /**
      * Process the migration to the specified version.
@@ -47,6 +47,7 @@ class Legacy_Compatibility  extends \Aquapress\Pagarme\Abstracts\Migration {
 		$users_with_id_recipiente_pagarme_meta = get_users([
 			'meta_key' => 'id_recipiente_pagarme',
 			'fields'   => ['ID'], // Retrieve only the user IDs
+			'role__in' => ['seller', 'administrator'], // Limit to specific roles
 		]);
 
 		foreach ( $users_with_id_recipiente_pagarme_meta as $user ) {
@@ -65,6 +66,7 @@ class Legacy_Compatibility  extends \Aquapress\Pagarme\Abstracts\Migration {
 		$users_with_pagarme_recipiente_id_meta = get_users([
 			'meta_key' => 'pagarme_recipiente_id',
 			'fields'   => ['ID'], // Retrieve only the user IDs
+			'role__in' => ['seller', 'administrator'], // Limit to specific roles
 		]);
 
 		foreach ( $users_with_pagarme_recipiente_id_meta as $user ) {
@@ -83,6 +85,7 @@ class Legacy_Compatibility  extends \Aquapress\Pagarme\Abstracts\Migration {
 		$users_with_conta_bancaria_pagarme_meta = get_users([
 			'meta_key' => 'conta_bancaria_pagarme',
 			'fields'   => ['ID'], // Retrieve only the user IDs
+			'role__in' => ['seller', 'administrator'], // Limit to specific roles
 		]);
 
 		foreach ( $users_with_conta_bancaria_pagarme_meta as $user ) {
@@ -101,6 +104,7 @@ class Legacy_Compatibility  extends \Aquapress\Pagarme\Abstracts\Migration {
 		$users_with_pagarme_bank_account_id_meta = get_users([
 			'meta_key' => 'pagarme_bank_account_id',
 			'fields'   => ['ID'], // Retrieve only the user IDs
+			'role__in' => ['seller', 'administrator'], // Limit to specific roles
 		]);
 
 		foreach ( $users_with_pagarme_bank_account_id_meta as $user ) {

@@ -12,7 +12,7 @@ namespace Aquapress\Pagarme\Traits;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Aquapress\Pagarme\Traits\Order_Meta trait.
+ * \Aquapress\Pagarme\Traits\Order_Meta trait.
  *
  * @since 1.0.0
  */

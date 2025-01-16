@@ -100,7 +100,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Save customer data successfully! The response is: ' . var_export( $data, true ) );
 
@@ -134,7 +134,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Transaction completed successfully! The transaction response is: ' . var_export( $data, true ) );
 
@@ -162,7 +162,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Failed in doing save data: ' . var_export( $response, true ) );
 
@@ -190,7 +190,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Saved recipient data successfully! The endpoint response is: ' . var_export( $data, true ) );
 
@@ -219,7 +219,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Updated recipient data successfully! The endpoint response is: ' . var_export( $data, true ) );
 
@@ -247,7 +247,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'KYC Link completed successfully! The endpoint response is: ' . var_export( $data, true ) );
 
@@ -275,7 +275,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Get recipient balance successfully! The endpoint response is: ' . var_export( $data, true ) );
 
@@ -302,7 +302,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Get recipient operations successfully! The endpoint response is: ' . var_export( $data, true ) );
 
@@ -329,7 +329,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Get recipient payables successfully! The endpoint response is: ' . var_export( $data, true ) );
 
@@ -357,7 +357,7 @@ class API {
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			$data = $this->api_remote_retrieve_body( $response );
 
 			$this->debug( 'Get webhooks successfully! The endpoint response is: ' . var_export( $data, true ) );
 
@@ -403,16 +403,15 @@ class API {
 
 		// Perform the request.
 		$response = wp_remote_post( $url, $args );
-
+		
 		if ( wp_remote_retrieve_response_code( $response ) != 200 ) {
 			// Log errors.
 			$this->debug( 'API request fail: ' . var_export( $args, true ) );
 			$this->debug( 'API response fail: ' . var_export( $response, true ) );
 			// Check response erros.
 			$body = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( isset( $body['message'] ) ) {
-				return new \WP_Error( '', $body['message'] );
-			}
+			//  Return error message if existis.
+			return new \WP_Error( '', $body['message'] ?? '' );
 		}
 
 		return $response;
@@ -444,6 +443,25 @@ class API {
 	}
 
 	/**
+	 * Decodes a JSON response from an API into an associative array.
+	 *
+	 * @param string $response The JSON response from the API.
+	 * @return array Returns the decoded associative array.
+	 *               If decoding fails, a JsonException is thrown.
+	 * @throws JsonException If the JSON decoding fails.
+	 */
+	public function api_remote_retrieve_body( $response ) {
+		if ( !is_string( $response ) ) {
+			throw new \Exception( 'The API response is not a valid JSON string. Perhaps the input or authentication data is incorrect. Please review it.' );
+		}
+		// Decode the JSON response into an associative array.
+		$data = json_decode( $response, true, 512, JSON_THROW_ON_ERROR ); // Calls an Exception on failure.
+		
+		// Return the decoded array.
+		return $data;
+	}
+	
+	/**
 	 * Debug logger.
 	 *
 	 * @param string $message      Log message.
@@ -460,4 +478,5 @@ class API {
 			$this->logger->add( $message, $start_time, $end_time );
 		}
 	}
+
 }
