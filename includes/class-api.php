@@ -130,6 +130,7 @@ class API {
 
 		// Perform the request.
 		$response = $this->do_request( $endpoint, 'POST', $payload );
+		
 
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
@@ -351,9 +352,9 @@ class API {
 	public function get_webhooks( $payload = array() ) {
 
 		$this->debug( 'Get webhooks: ' . var_export( $payload, true ) );
-		
+
 		$response = $this->do_request( '/hooks', 'GET', $payload );
-		
+
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
 
@@ -403,7 +404,7 @@ class API {
 
 		// Perform the request.
 		$response = wp_remote_post( $url, $args );
-		
+
 		if ( wp_remote_retrieve_response_code( $response ) != 200 ) {
 			// Log errors.
 			$this->debug( 'API request fail: ' . var_export( $args, true ) );
@@ -445,22 +446,22 @@ class API {
 	/**
 	 * Decodes a JSON response from an API into an associative array.
 	 *
-	 * @param string $response The JSON response from the API.
+	 * @param array $response The WP response from the API.
 	 * @return array Returns the decoded associative array.
 	 *               If decoding fails, a JsonException is thrown.
 	 * @throws JsonException If the JSON decoding fails.
 	 */
 	public function api_remote_retrieve_body( $response ) {
-		if ( !is_string( $response ) ) {
-			throw new \Exception( 'The API response is not a valid JSON string. Perhaps the input or authentication data is incorrect. Please review it.' );
+		if ( is_wp_error( $response ) || ! isset( $response['body'] ) ) {
+			return [];
 		}
 		// Decode the JSON response into an associative array.
-		$data = json_decode( $response, true, 512, JSON_THROW_ON_ERROR ); // Calls an Exception on failure.
-		
+		$data = json_decode( $response['body'], true, 512, JSON_THROW_ON_ERROR ); // Calls an Exception on failure.
+
 		// Return the decoded array.
 		return $data;
 	}
-	
+
 	/**
 	 * Debug logger.
 	 *
@@ -478,5 +479,4 @@ class API {
 			$this->logger->add( $message, $start_time, $end_time );
 		}
 	}
-
 }

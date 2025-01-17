@@ -31,7 +31,7 @@ abstract class Resource {
 	 * @return void
 	 */
 	abstract public function init_hooks();
-	
+
 	/**
 	 * Check the requirements for running the split actions.
 	 *

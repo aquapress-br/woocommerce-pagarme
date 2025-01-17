@@ -54,7 +54,6 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		add_action( 'wc_pagarme_get_vendor_suborder', array( $this, 'filter_vendor_suborder' ), 10, 3 );
 		add_action( 'wc_pagarme_get_vendor_suborder_url', array( $this, 'filter_vendor_suborder_url' ), 10, 2 );
 		add_action( 'wc_pagarme_recipient_transactions_table_column_order', array( $this, 'print_recipient_transactions_column_order' ), 100 );
-		
 	}
 
 	/**
@@ -324,27 +323,27 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @return void
 	 */
 	public function set_vendor_order_summary_details( $order ) {
-		$vendor_order = ( $order->get_parent_id() != 0) ? wc_get_order( $order->get_parent_id() ) : $order;
+		$vendor_order = ( $order->get_parent_id() != 0 ) ? wc_get_order( $order->get_parent_id() ) : $order;
 		?>
 		<?php if ( $vendor_order->get_payment_method() == 'wc_pagarme_creditcard' ) : ?>
 			<li>
-				<span><?php _e( 'Número de parcelas:', 'wc-pagarme' ) ?> </span>
+				<span><?php _e( 'Número de parcelas:', 'wc-pagarme' ); ?> </span>
 				<?php echo $vendor_order->get_meta( 'PAGARME_CARD_INSTALLMENTS' ); ?>
 			</li>
 		<?php elseif ( $vendor_order->get_payment_method() == 'wc_pagarme_boleto' ) : ?>
 			<li>
-				<span><?php _e( 'URL do boleto:', 'wc-pagarme' ) ?> </span>
+				<span><?php _e( 'URL do boleto:', 'wc-pagarme' ); ?> </span>
 				<p><?php echo $vendor_order->get_meta( 'PAGARME_BOLETO_URL' ); ?></p>
 			</li>
 		<?php elseif ( $vendor_order->get_payment_method() == 'wc_pagarme_pix' ) : ?>
 			<li>
-				<span><?php _e( 'Código PIX:', 'wc-pagarme' ) ?> </span>
+				<span><?php _e( 'Código PIX:', 'wc-pagarme' ); ?> </span>
 				<p><?php echo $vendor_order->get_meta( 'PAGARME_PIX_QRCODE_URL' ); ?></p>
 			</li>
 		<?php endif; ?>
-	<?php
+		<?php
 	}
-	
+
 	/**
 	 * Replace the setup wizard.
 	 *
@@ -628,7 +627,6 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 				}
 			}
 		}
-		
 
 		return false;
 	}

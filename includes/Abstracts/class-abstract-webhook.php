@@ -45,7 +45,7 @@ abstract class Webhook {
 	 * Execute the webhook actions.
 	 *
 	 * Run child class additional actions hooks.
-	 * 
+	 *
 	 * @param string $event Webhook event.
 	 * @param array $data Webhook data.
 	 *
@@ -81,7 +81,7 @@ abstract class Webhook {
 	public function init_logger() {
 		$this->logger = new \Aquapress\Pagarme\Logger( 'wc_pagarme_' . $this->id . '_webhook' );
 	}
-	
+
 	/**
 	 * Initialize and register connector action hooks.
 	 *
@@ -96,11 +96,11 @@ abstract class Webhook {
 	 */
 	public function webhook_handler() {
 		@ob_clean();
-		
+
 		$webhook_response = file_get_contents( 'php://input' );
 
 		$this->debug( 'Gateway received a body content: ' . var_export( $webhook_response, true ) );
-		
+
 		if ( $webhook_response ) {
 			$webhook_body = @json_decode( $webhook_response, true );
 			// Check is valid webhook body response.
@@ -113,7 +113,7 @@ abstract class Webhook {
 			exit;
 		}
 	}
-	
+
 	/**
 	 * Debug logger.
 	 *

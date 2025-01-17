@@ -7,7 +7,7 @@ if ( ! function_exists( 'wc_pagarme_plugin_activate' ) ) {
 	 *
 	 * @see wc_pagarme_migrations_register() For migrations process registration logic.
 	 * @see wc_pagarme_tasks_register() For schedule events registration.
-	 * 
+	 *
 	 * @since    1.0.0
 	 * @return   void
 	 */
@@ -23,7 +23,7 @@ if ( ! function_exists( 'wc_pagarme_plugin_deactivate' ) ) {
 	 * Plugin deactivation call function
 	 *
 	 * @see wc_pagarme_tasks_unregister() To cancel registration for scheduled events.
-	 * 	
+	 *
 	 * @since    1.0.0
 	 * @return   void
 	 */
@@ -51,6 +51,7 @@ if ( ! function_exists( 'wc_pagarme_plugin_run' ) ) {
 		wc_pagarme_marketplaces_register();
 		wc_pagarme_webhooks_register();
 		wc_pagarme_resources_register();
+		wc_pagarme_tasks_register();
 		do_action( 'wc_pagarme_plugin_run' );
 	}
 }
@@ -70,6 +71,6 @@ if ( ! function_exists( 'wc_pagarme_plugin_i18n' ) ) {
 	 */
 	function wc_pagarme_plugin_i18n() {
 		// Load the text domain for the 'wc-pagarme' plugin, fetching translations from the 'i18n' folder.
-		load_plugin_textdomain( 'wc-pagarme', false, dirname( plugin_basename( __FILE__ ), 2 ) . '/i18n' );
+		load_plugin_textdomain( 'wc-pagarme', false, dirname( WC_PAGARME_BASENAME ) . '/i18n' );
 	}
 }

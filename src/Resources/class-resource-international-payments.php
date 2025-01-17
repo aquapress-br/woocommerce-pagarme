@@ -27,7 +27,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		add_filter( 'woocommerce_billing_fields', array( $this, 'add_checkout_fields' ), 100 );
 		add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_order_meta_fields' ) );
 		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_international_payment_data' ), 100, 3 );
-		add_action( 'woocommerce_admin_print_order_meta_fields', array( $this, 'print_order_meta_fields' ) );
+		add_action( 'woocommerce_admin_order_data_after_order_details', array( $this, 'print_order_meta_fields' ) );
 		add_filter( 'wcbcf_disable_checkout_validation', array( $this, 'disable_wcbcf_validation' ), 100 );
 		//add_filter( 'woocommerce_checkout_get_value', array( $this, 'checkout_fields_value' ), 100, 2 );
 		//add_action( 'woocommerce_checkout_update_user_meta', array( $this, 'save_user_meta_fields' ), 10, 2 );
@@ -46,7 +46,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		wp_dequeue_script( 'woocommerce-extra-checkout-fields-for-brazil-front' );
 		wp_dequeue_style( 'woocommerce-extra-checkout-fields-for-brazil-front' );
 	}
-	
+
 	/**
 	 * Add checkout fields for international purchases.
 	 *
@@ -54,27 +54,27 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 	 * @return   array    $fields    Updated fields
 	 */
 	public function add_checkout_fields( $fields ) {
-		$fields['billing_nationality']['type'] = 'select';
-		$fields['billing_nationality']['default'] = 'BR';
-		$fields['billing_nationality']['label'] = __( 'Nacionalidade', 'wc-pagarme' );
-		$fields['billing_nationality']['class'] = array( 'form-row-wides' );
+		$fields['billing_nationality']['type']     = 'select';
+		$fields['billing_nationality']['default']  = 'BR';
+		$fields['billing_nationality']['label']    = __( 'Nacionalidade', 'wc-pagarme' );
+		$fields['billing_nationality']['class']    = array( 'form-row-wides' );
 		$fields['billing_nationality']['required'] = apply_filters( 'checkout_field_billing_nationality_is_required', false );
 		$fields['billing_nationality']['priority'] = ( $fields['billing_persontype']['priority'] ?? 0 ) + 1;
-		$fields['billing_nationality']['options'] = WC()->countries->get_countries();
+		$fields['billing_nationality']['options']  = WC()->countries->get_countries();
 
-		$fields['billing_taxvat']['label'] = __( 'Número do Passaporte' );
+		$fields['billing_taxvat']['label']    = __( 'Número do Passaporte' );
 		$fields['billing_taxvat']['required'] = apply_filters( 'checkout_field_billing_taxvat_is_required', false );
-		$fields['billing_taxvat']['class'] = array( 'form-row-wide' );
+		$fields['billing_taxvat']['class']    = array( 'form-row-wide' );
 		$fields['billing_taxvat']['priority'] = $fields['billing_company']['priority'] ?? ( $fields['billing_cpf']['priority'] ?? 0 ) + 1;
-		
-		$fields['billing_phone_country']['label'] = __( 'Codigo de telefone do país', 'wc-pagarme' );
+
+		$fields['billing_phone_country']['label']    = __( 'Codigo de telefone do país', 'wc-pagarme' );
 		$fields['billing_phone_country']['required'] = apply_filters( 'checkout_field_billing_phone_country_is_required', false );
-		$fields['billing_phone_country']['class'] = array( 'form-row-wide hidden' );
+		$fields['billing_phone_country']['class']    = array( 'form-row-wide hidden' );
 		$fields['billing_phone_country']['priority'] = 100;
-		
+
 		return $fields;
 	}
-	
+
 	/**
 	 * Save checkout fields in order meta.
 	 *
@@ -89,7 +89,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 
 		$order->save();
 	}
-	
+
 	/**
 	 * Save fields values in user meta.
 	 *
@@ -101,19 +101,19 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		update_user_meta( $user_id, 'billing_nationality', sanitize_text_field( wp_unslash( $posted_data['billing_nationality'] ?? 'BR' ) ) );
 		update_user_meta( $user_id, 'billing_phone_country', sanitize_text_field( wp_unslash( $posted_data['billing_phone_country'] ?? '55' ) ) );
 	} */
-	
+
 	/**
 	 * Get fields values in checkout.
 	 *
 	 * @param  WC_Order $order WooCommerce order object.
 	 */
 	/* public function checkout_fields_value( $value, $field ) {
-		
+
 		if ( in_array( $field, array( 'billing_nationality', 'billing_taxvat', 'billing_phone_country' ) ) ) {
 				$order_id = absint( WC()->session->get( 'order_awaiting_payment' ) );
 				return $value; //Change to custom value;
 			}
-		
+
 		return $value;
 	} */
 
@@ -137,43 +137,57 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 			if ( 'BR' != $customer_nationality ) {
 				// Fix transaction data for customer document.
 				$payload['customer']['document_type'] = 'PASSPORT';
-				$payload['customer']['document']      = $order->get_meta( '_billing_taxvat' );
+				$payload['customer']['document']      = $order->get_meta( '_billing_taxvat' ); // Passport number.
 				// Fix transaction data for customer phones.
 				if ( isset( $payload['customer']['phones']['home_phone'] ) ) {
 					$payload['customer']['phones']['home_phone']['country_code'] = $order->get_meta( '_billing_phone_country' ) ?: '55';
-				} else if ( isset( $payload['customer']['phones']['mobile_phone'] ) ) {
+				} elseif ( isset( $payload['customer']['phones']['mobile_phone'] ) ) {
 					$payload['customer']['phones']['mobile_phone']['country_code'] = $order->get_meta( '_billing_phone_country' ) ?: '55';
 				}
+				// Set customer address. The address is retrieved from the payment data. Required for international payments.
+				$payload['customer']['address'] = $payload['payments'][0]['credit_card']['card']['billing_address'];
 			}
 		}
 
 		return $payload;
 	}
-	
+
 	/**
 	 * Print extra checkout fields in admin order details.
 	 *
 	 * @param  WC_Order $order WooCommerce order object.
 	 */
-	public function print_order_meta_fields( $order ) {
-		?>
-		<script>
-			(function( $ ) {
-				'use strict';
-				$( '.wcbcf-address p' ).append(' <?php if ( $order->get_meta( '_billing_nationality', false ) ) : ?><strong><?php esc_html_e( 'Nationality', 'wc-pagarme' ); ?>: </strong><?php echo esc_html( $order->get_meta( '_billing_nationality' ) ); ?><br /> <?php if ( isset( $settings['_billing_taxvat'] ) ) : ?> <strong><?php esc_html_e( 'Taxpayer', 'wc-pagarme' ); ?>: </strong><?php echo esc_html( $order->get_meta( '_billing_taxvat' ) ); ?><br /> <?php endif; ?><?php endif; ?> ');
-			}( jQuery ));
-		</script>
-		<?php
+	public function print_order_meta_fields( $order ) {		
+		if ( $order->get_meta( '_billing_nationality', false ) || $order->get_meta( '_billing_taxvat', false ) ) : ?>
+			<script>
+				(function( $ ) {
+					'use strict';
+					$( document ).ready( function() {
+						var content = '';
+
+						<?php if ( $order->get_meta( '_billing_nationality', false ) ) : ?>
+							content += '<strong><?php esc_html_e( 'Nacionalidade', 'wc-pagarme' ); ?>: </strong><?php echo esc_html( $order->get_meta( '_billing_nationality' ) ); ?><br />';
+						<?php endif; ?>
+
+						<?php if ( $order->get_meta( '_billing_taxvat', false ) ) : ?>
+							content += '<strong><?php esc_html_e( 'Passaporte', 'wc-pagarme' ); ?>: </strong><?php echo esc_html( $order->get_meta( '_billing_taxvat' ) ); ?><br />';
+						<?php endif; ?>
+
+						$( '.wcbcf-address p' ).append( content );
+					});
+				})( jQuery );
+			</script>
+		<?php endif;
 	}
-	
+
 	/**
 	 * Disable CPF AND CNPJ checkout validation of the plugin Brazilian Market on WooCommerce.
-	 * 
+	 *
 	 * @param bool $is_disabled Default value.
-	 * 
+	 *
 	 * @return bool
 	 */
-	public function disable_wcbcf_validation( $is_disabled ) {			
+	public function disable_wcbcf_validation( $is_disabled ) {
 		return true;
 	}
 }

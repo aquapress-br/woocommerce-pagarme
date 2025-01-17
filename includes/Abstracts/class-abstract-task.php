@@ -26,17 +26,6 @@ abstract class Task {
 	public $id;
 
 	/**
-	 * Logger instance.
-	 *
-	 * This attribute is used to record events and log messages.
-	 * The instance may be an object of a specific logging class or
-	 * a similar resource.
-	 *
-	 * @var Aquapress\Pagarme\Logger
-	 */
-	public \Aquapress\Pagarme\Logger $logger;
-	
-	/**
 	 * Task recurrence.
 	 *
 	 * @var string
@@ -59,7 +48,7 @@ abstract class Task {
 	 *
 	 * @var Aquapress\Pagarme\Logger
 	 */
-	public Aquapress\Pagarme\Logger $logger;
+	public ?\Aquapress\Pagarme\Logger $logger;
 
 	/**
 	 * Execute the task.

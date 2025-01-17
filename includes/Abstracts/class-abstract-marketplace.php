@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Abstract class that will be inherited by all connectors.
  */
 abstract class Marketplace {
-	
+
 	use \Aquapress\Pagarme\Traits\Order_Meta;
 
 	/**
@@ -196,7 +196,7 @@ abstract class Marketplace {
 		}
 		$current_user_id = get_current_user_id();
 		$recipient_id    = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
-		
+
 		if ( ! empty( $_POST['data']['date'] ) ) {
 			try {
 				// Get range based on current calendar month.
@@ -248,9 +248,12 @@ abstract class Marketplace {
 				// Starts key grouping results by date. The payment date is used as the key for the output array.
 				$payment_date = date( 'Y-m-d', strtotime( $payable['payment_date'] ) );
 				// Initialize the key with the current payable if it does not exist.
-				if ( !isset( $payables_data[ $payment_date ] ) ) {
+				if ( ! isset( $payables_data[ $payment_date ] ) ) {
 					$payables_data[ $payment_date ] = array(
-						'type' => array( 'status' => '', 'total' => 0 )
+						'type' => array(
+							'status' => '',
+							'total'  => 0,
+						),
 					);
 				}
 				// Sets the status and increases the amount of receipts for each payable on the date.
@@ -280,7 +283,7 @@ abstract class Marketplace {
 			'transactions' => $payables_data,
 		);
 	}
-	
+
 	/*
 	 * Update Recipient Data
 	 *
@@ -800,17 +803,17 @@ abstract class Marketplace {
 			// Process recipient balance request.
 			$balance = $this->api->get_recipient_balance( $recipient_id );
 		} catch ( \Exception $e ) {
-			$balance  = array(
+			$balance = array(
 				'available_amount'     => 0,
 				'waiting_funds_amount' => 0,
 				'transferred_amount'   => 0,
 			);
 		}
-		
+
 		wc_pagarme_get_template(
 			'recipient-calendar.php',
 			array(
-				'balance'  => $balance,
+				'balance' => $balance,
 			)
 		);
 	}

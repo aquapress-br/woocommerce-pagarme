@@ -43,7 +43,7 @@ trait Order_Meta {
 
 		return false;
 	}
-	
+
 	/**
 	 * Get woocommerce order by pagarme gateway ID.
 	 *
@@ -69,5 +69,4 @@ trait Order_Meta {
 
 		return false;
 	}
-
 }

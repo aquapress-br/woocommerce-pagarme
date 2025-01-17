@@ -240,7 +240,7 @@ abstract class Gateway extends \WC_Payment_Gateway {
 				break;
 		}
 	}
-	
+
 	/**
 	 * Checks if the Pagar.me payment method is available.
 	 *

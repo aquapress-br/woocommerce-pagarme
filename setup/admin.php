@@ -24,4 +24,3 @@ if ( ! function_exists( 'wc_pagarme_admin_links' ) ) {
 		return $links;
 	}
 }
-

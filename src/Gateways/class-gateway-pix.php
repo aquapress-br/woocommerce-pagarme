@@ -60,7 +60,6 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 
 		// Initializes the Pagar.me payment gateway.
 		parent::init_gateway();
-		
 	}
 
 	/**
@@ -194,10 +193,10 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 				'default'     => 'no',
 				'description' => sprintf( __( 'Registre eventos da Pagar.me, como solicitações de API. Você pode verificar o log em %s', 'wc-pagarme' ), '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.log' ) ) . '">' . __( 'Status do sistema &gt; Logs', 'wc-pagarme' ) . '</a>' ),
 			),
-			'webhook'              => array(
+			'webhook'            => array(
 				'title'       => __( 'Configurações de Webhook', 'wc-pagarme' ),
 				'type'        => 'title',
-				'description' =>  sprintf( __( 'Realize as configurações do webhook. Você só precisa configurá-lo uma vez no dashbboard pagar.me. <br> O webhook permite que a loja receba notificações para atualizar pedidos automaticamente. <a href="%s">Saiba mais aqui</a>. <br>Crie um novo webhook e coloque <code>%s</code> no campo URL. Por fim, selecione todos os eventos. ', 'wc-pagarme'), 'https://pagarme.helpjuice.com/pt_BR/p2-funcionalidades/configura%C3%A7%C3%B5es-como-configurar-webhooks', esc_url( WC()->api_request_url( 'wc_pagarme_webhook' ) ) ),
+				'description' => sprintf( __( 'Realize as configurações do webhook. Você só precisa configurá-lo uma vez no dashbboard pagar.me. <br> O webhook permite que a loja receba notificações para atualizar pedidos automaticamente. <a href="%1$s">Saiba mais aqui</a>. <br>Crie um novo webhook e coloque <code>%2$s</code> no campo URL. Por fim, selecione todos os eventos. ', 'wc-pagarme' ), 'https://pagarme.helpjuice.com/pt_BR/p2-funcionalidades/configura%C3%A7%C3%B5es-como-configurar-webhooks', esc_url( WC()->api_request_url( 'wc_pagarme_webhook' ) ) ),
 
 			),
 		);

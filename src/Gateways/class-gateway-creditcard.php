@@ -78,7 +78,6 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 
 		// Initializes the Pagar.me payment gateway.
 		parent::init_gateway();
-		
 	}
 
 	/**
@@ -378,7 +377,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 			'webhook'              => array(
 				'title'       => __( 'Configurações de Webhook', 'wc-pagarme' ),
 				'type'        => 'title',
-				'description' =>  sprintf( __( 'Realize as configurações do webhook. Você só precisa configurá-lo uma vez no dashbboard pagar.me. <br> O webhook permite que a loja receba notificações para atualizar pedidos automaticamente. <a href="%s">Saiba mais aqui</a>. <br>Crie um novo webhook e coloque <code>%s</code> no campo URL. Por fim, selecione todos os eventos. ', 'wc-pagarme'), 'https://pagarme.helpjuice.com/pt_BR/p2-funcionalidades/configura%C3%A7%C3%B5es-como-configurar-webhooks', esc_url( WC()->api_request_url( 'wc_pagarme_webhook' ) ) ),
+				'description' => sprintf( __( 'Realize as configurações do webhook. Você só precisa configurá-lo uma vez no dashbboard pagar.me. <br> O webhook permite que a loja receba notificações para atualizar pedidos automaticamente. <a href="%1$s">Saiba mais aqui</a>. <br>Crie um novo webhook e coloque <code>%2$s</code> no campo URL. Por fim, selecione todos os eventos. ', 'wc-pagarme' ), 'https://pagarme.helpjuice.com/pt_BR/p2-funcionalidades/configura%C3%A7%C3%B5es-como-configurar-webhooks', esc_url( WC()->api_request_url( 'wc_pagarme_webhook' ) ) ),
 
 			),
 		);
@@ -495,7 +494,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 */
 	public function get_saved_payment_tokens() {
 		$current_user_id = get_current_user_id();
-		$saved_cards = \WC_Payment_Tokens::get_customer_tokens(
+		$saved_cards     = \WC_Payment_Tokens::get_customer_tokens(
 			$current_user_id,
 			$this->id
 		);
@@ -916,7 +915,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 			true
 		);
 	}
-		
+
 	/**
 	 * Register public styles and scripts for payment method
 	 *
