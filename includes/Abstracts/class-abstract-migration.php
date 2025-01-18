@@ -35,7 +35,7 @@ abstract class Migration {
 	 * @var Aquapress\Pagarme\Logger|null
 	 */
 	public ?\Aquapress\Pagarme\Logger $logger = null;
-	
+
 	/**
 	 * Process the migration to the specified version.
 	 *
@@ -45,7 +45,7 @@ abstract class Migration {
 	 * @return bool Returns true if the migration was successful, otherwise false.
 	 */
 	abstract public function process( $current_version ): bool;
-	
+
 	/**
 	 * Debug logger.
 	 *

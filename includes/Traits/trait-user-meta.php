@@ -28,11 +28,13 @@ trait User_Meta {
 		// Check if the recipient ID was provided
 		if ( $recipient_id ) {
 			// Search for the user by meta_key and meta_value
-			$user_query = new \WP_User_Query( [
-				'meta_key'   => 'pagarme_recipient_id',
-				'meta_value' => $recipient_id,
-				'number'     => 1, 
-			] );
+			$user_query = new \WP_User_Query(
+				array(
+					'meta_key'   => 'pagarme_recipient_id',
+					'meta_value' => $recipient_id,
+					'number'     => 1,
+				)
+			);
 
 			// Check for results
 			if ( ! empty( $user_query->get_results() ) ) {
@@ -42,5 +44,5 @@ trait User_Meta {
 
 		// Returns false if there is no match or if $recipient_id is empty
 		return false;
-	}	
+	}
 }

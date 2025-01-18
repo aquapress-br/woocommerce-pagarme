@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * @extends Aquapress\Pagarme\Abstracts\Resource.
  */
 class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
+
 	/**
 	 * Running the connector actions.
 	 *
@@ -157,7 +158,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 	 *
 	 * @param  WC_Order $order WooCommerce order object.
 	 */
-	public function print_order_meta_fields( $order ) {		
+	public function print_order_meta_fields( $order ) {
 		if ( $order->get_meta( '_billing_nationality', false ) || $order->get_meta( '_billing_taxvat', false ) ) : ?>
 			<script>
 				(function( $ ) {
@@ -177,7 +178,8 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 					});
 				})( jQuery );
 			</script>
-		<?php endif;
+			<?php
+		endif;
 	}
 
 	/**

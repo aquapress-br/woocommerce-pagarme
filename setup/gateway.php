@@ -108,6 +108,7 @@ if ( ! function_exists( 'wc_pagarme_resources_register' ) ) {
 	 */
 	function wc_pagarme_resources_register() {
 		$embedded = array(
+			'\Aquapress\Pagarme\Resources\Profile_Fields',
 			'\Aquapress\Pagarme\Resources\International_Payments',
 		);
 
@@ -220,7 +221,7 @@ if ( ! function_exists( 'wc_pagarme_tasks_register' ) ) {
 				$obj = new $class_name();
 				if ( $obj->is_available() ) {
 					// Confirms that we are not in the plugin activation context
-					if ( !did_action( 'activate_' . WC_PAGARME_BASENAME ) ) {
+					if ( ! did_action( 'activate_' . WC_PAGARME_BASENAME ) ) {
 						// Set task process action hook.
 						add_action( "pagarme_{$obj->id}", array( $obj, 'process' ) );
 					} else {

@@ -130,7 +130,6 @@ class API {
 
 		// Perform the request.
 		$response = $this->do_request( $endpoint, 'POST', $payload );
-		
 
 		// Process response data.
 		if ( ! is_wp_error( $response ) ) {
@@ -453,7 +452,7 @@ class API {
 	 */
 	public function api_remote_retrieve_body( $response ) {
 		if ( is_wp_error( $response ) || ! isset( $response['body'] ) ) {
-			return [];
+			return array();
 		}
 		// Decode the JSON response into an associative array.
 		$data = json_decode( $response['body'], true, 512, JSON_THROW_ON_ERROR ); // Calls an Exception on failure.

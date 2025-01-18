@@ -108,7 +108,6 @@ class User_Meta_Legacy_Compatibility extends \Aquapress\Pagarme\Abstracts\Migrat
 			array(
 				'meta_key' => 'pagarme_bank_account_id',
 				'fields'   => array( 'ID' ), // Retrieve only the user IDs
-				'role__in' => array( 'seller', 'administrator' ), // Limit to specific roles
 			)
 		);
 

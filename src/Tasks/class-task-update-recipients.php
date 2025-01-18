@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * @extends Aquapress\Pagarme\Abstracts\Task.
  */
 class Update_Recipients extends \Aquapress\Pagarme\Abstracts\Task {
-	
+
 	use \Aquapress\Pagarme\Traits\User_Meta;
 
 	/**
@@ -52,7 +52,7 @@ class Update_Recipients extends \Aquapress\Pagarme\Abstracts\Task {
 			if ( is_array( $request ) && ! empty( $request ) ) {
 				foreach ( $request['data'] as $recipient ) {
 					$recipient_id = $recipient['id'];
-					$user = static::get_user_by_recipient_id( $recipient_id );
+					$user         = static::get_user_by_recipient_id( $recipient_id );
 					if ( $user !== false ) {
 						if ( $recipient['status'] != 'active' ) {
 							update_user_meta( $user->ID, 'pagarme_recipient_status', $recipient['status'] );

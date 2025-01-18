@@ -192,6 +192,6 @@
 		</div>
 	</section>
 	<?php if ( ! $recipient_id ) : ?>
-		<input type="submit" id="pagarme-form-submit" class="dokan-btn dokan-btn-theme dokan-btn-danger" value="<?php _e( 'Atualizar Configurações', 'wc-pagarme' ); ?>">
+		<input type="submit" id="pagarme-form-submit" class="dokan-btn dokan-btn-theme dokan-btn-danger" value="<?php _e( 'Salvar Configurações', 'wc-pagarme' ); ?>">
 	<?php endif; ?>
 </div>
