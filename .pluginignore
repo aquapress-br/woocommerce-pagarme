@@ -2,6 +2,7 @@
 ./.cache
 ./tools
 ./dist
+./docs
 .eslintignore
 .editorconfig
 .gitignore
