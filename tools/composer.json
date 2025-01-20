@@ -37,7 +37,7 @@
 		"lint": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs --report=summary,source ../",
 		"lint:errors": "@lint -n",
 		"test": [ "Composer\\Config::disableProcessTimeout", "@php ./vendor/phpunit/phpunit/phpunit" ],
-		"docs": "docsify serve docs"
+		"docs": "docsify serve ../docs"
 	},
 	"config": {
 		"allow-plugins": {
