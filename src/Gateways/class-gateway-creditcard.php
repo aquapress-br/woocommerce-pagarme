@@ -173,10 +173,10 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				'desc_tip'    => true,
 			),
 			'public_key_sandbox'   => array(
-				'title'       => __( 'Chave Pública do Sandbox', 'wc-pagarme' ),
+				'title'       => __( 'Chave Pública de Testes', 'wc-pagarme' ),
 				'type'        => 'text',
 				'description' => __(
-					'Chave Pública da Pagar.me para Sandbox',
+					'Chave Pública da Pagar.me para Testes',
 					'wc-pagarme'
 				),
 				'desc_tip'    => true,
@@ -267,7 +267,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				'title'       => __( 'Tipo de Parcelamento', 'wc-pagarme' ),
 				'type'        => 'select',
 				'description' => __(
-					'O cliente adiciona juros às parcelas no valor total do pedido.',
+					'Define quem assume os juros das parcelas no valor total do pedido.',
 					'wc-pagarme'
 				),
 				'desc_tip'    => true,
