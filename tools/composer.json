@@ -1,5 +1,5 @@
 {
-    "name": "aquapress/wc-pagarme",
+    "name": "aquapress-br/wc-pagarme",
     "version": "1.0.0",
     "type": "wordpress-plugin",
     "description": "Pagar.me Gateway for WooCommerce",
@@ -9,7 +9,7 @@
         "WooCommerce",
         "Gateway"
     ],
-    "homepage": "https://github.com/aquapress-pro/wc-pagarme",
+    "homepage": "https://github.com/aquapress-br/wc-pagarme",
     "authors": [
         {
             "name": "WILLIAN SANTANA",

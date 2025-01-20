@@ -8,6 +8,8 @@
 .php-cs-fixer.cache
 .php-cs-fixer.dist.php
 .pluginignore
+.wordpress_org_assets
+.psd
 composer.json
 composer.lock
 pluginrelance.php
