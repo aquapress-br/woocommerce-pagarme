@@ -45,7 +45,7 @@ class API {
 	 *
 	 * @var Aquapress\Pagarme\Logger
 	 */
-	public \Aquapress\Pagarme\Logger $logger;
+	public ?\Aquapress\Pagarme\Logger $logger = null;
 
 	/**
 	 * Constructor.

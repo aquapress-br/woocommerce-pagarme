@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin Name: Pagar.me v5 para WooCommerce
  * Description: Gateway de pagamento Pagar.me para WooCommerce.
- * Version: 1.0.0-alpha18
+ * Version: 1.0.0-alpha26
  * Text Domain: wc-pagarme
  * Domain Path: /i18n/
  * Author: Aquapress
@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  */
 
 define( 'WC_PAGARME_NAME', 'Pagar.me v5 para WooCommerce' );
-define( 'WC_PAGARME_VERSION', '1.0.0-alpha18' );
+define( 'WC_PAGARME_VERSION', '1.0.0-alpha26' );
 define( 'WC_PAGARME_PATH', trailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'WC_PAGARME_URI', trailingslashit( plugin_dir_url( __FILE__ ) ) );
 define( 'WC_PAGARME_BASENAME', plugin_basename( __FILE__ ) );
