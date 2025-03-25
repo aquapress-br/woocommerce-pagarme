@@ -14,15 +14,23 @@
 		$( '#account_type' ).on( 'change', function () {
 			var accountType = $( this ).val();
 			if ( 'individual' === accountType ) {
-				$( '#individual_fields' ).removeClass( 'hidden' );
 				$( '#corporation_fields' ).addClass( 'hidden' );
 				$( '#document' ).mask( '000.000.000-00' );
 			} else if ( 'corporation' === accountType ) {				
 				$( '#corporation_fields' ).removeClass( 'hidden' );
-				$( '#individual_fields' ).addClass( 'hidden' );
 				$( '#document' ).mask( '00.000.000/0000-00' );
 			}
 
+		}).change();
+
+		$( '#transfer_interval' ).on( 'change', function () {
+			var transferInterval = $( this ).val();
+			$( '.weekly_transfer_day, .monthly_transfer_day' ).addClass( 'hidden' );
+			if ( 'weekly' === transferInterval ) {				
+				$( '.weekly_transfer_day' ).removeClass( 'hidden' );
+			} else if ( 'monthly' === transferInterval ) {				
+				$( '.monthly_transfer_day' ).removeClass( 'hidden' );
+			}
 		}).change();
         
         // Submit recipient data
@@ -40,8 +48,6 @@
 			// Remove unused fields before the request
 			if ( 'individual' === accountType ) {
 				self.find( '#corporation_fields' ).remove();
-			} else if ( 'corporation' === accountType ) { 
-				self.find( '#individual_fields' ).remove();
 			}
 			
 			// Builder request data

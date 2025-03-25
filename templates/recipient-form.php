@@ -16,7 +16,7 @@
 				<div class="pagarme-form-card-section <?php $recipient_id ? print( 'section-completed section-close' ) : print( 'section-open' ); ?>">
 					<div class="pagarme-form-section-intro">
 						<div class="pagarme-form-card-section-title">  
-							<span class="section-number">1. </span><?php _e( 'Preenchimento dos Dados Comerciais', 'wc-pagarme' ); ?>
+							<span class="section-number">1. </span><?php _e( 'Dados Comerciais', 'wc-pagarme' ); ?>
 						</div>
 						<div class="pagarme-form-card-section-text">
 							<span class="intro-close"><?php _e( 'Seus dados comerciais foram cadastrados com sucesso.', 'wc-pagarme' ); ?></span>
@@ -42,7 +42,69 @@
 							<label for="document"><?php _e( 'Documento (CPF/CNPJ)', 'wc-pagarme' ); ?></label>
 							<input type="text" id="document" name="pagarme_recipient_document" value="<?php echo $user_info->pagarme_recipient_document; ?>">
 						</div>
-						<div id="individual_fields" class="">
+						<div id="corporation_fields" class="hidden">
+							<div class="pagarme-form-group pagarme-form-group-row-first">
+								<label for="company_name"><?php _e( 'Nome Fantasia da Empresa', 'wc-pagarme' ); ?></label>
+								<input type="text" id="company_name" name="pagarme_recipient_company_name" value="<?php echo $user_info->pagarme_recipient_company_name; ?>">
+							</div>
+							<div class="pagarme-form-group pagarme-form-group-row-last">
+								<label for="company_legal_name"><?php _e( 'Razão social da empresa', 'wc-pagarme' ); ?></label>
+								<input type="text" id="company_legal_name" name="pagarme_recipient_company_legal_name" value="<?php echo $user_info->pagarme_recipient_company_legal_name; ?>">
+							</div>
+							<div class="pagarme-form-group">
+								<label for="annual_revenue"><?php _e( 'Receita anual da empresa (R$)', 'wc-pagarme' ); ?></label>
+								<input type="text" id="annual_revenue" name="pagarme_recipient_annual_revenue" value="<?php echo $user_info->pagarme_recipient_annual_revenue; ?>">
+							</div>
+							<div class="pagarme-form-group pagarme-form-group-row-first">
+								<label for="main_address_zipcode"><?php _e( 'CEP', 'wc-pagarme' ); ?></label>
+								<input type="tel" id="main_address_zipcode" name="pagarme_recipient_main_address_zipcode" value="<?php echo $user_info->pagarme_recipient_main_address_zipcode; ?>">
+							</div>
+							<div class="pagarme-form-group pagarme-form-group-row-last">
+								<label for="main_address_state"><?php _e( 'Estado', 'wc-pagarme' ); ?></label>
+								<select id="main_address_state" name="pagarme_recipient_main_address_state">
+									<?php foreach ( $states as $state ) : ?>
+										<option value="<?php echo $state['abbreviation']; ?>" <?php selected( $user_info->pagarme_recipient_main_address_state, $state['abbreviation'] ); ?>><?php echo $state['name']; ?></option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+							<div class="pagarme-form-group">
+								<label for="main_address_street"><?php _e( 'Logradouro', 'wc-pagarme' ); ?></label>
+								<input type="text" id="main_address_street" name="pagarme_recipient_main_address_street" value="<?php echo $user_info->pagarme_recipient_main_address_street; ?>">
+							</div>
+							<div class="pagarme-form-group pagarme-form-group-row-first">
+								<label for="main_address_street_number"><?php _e( 'Número', 'wc-pagarme' ); ?></label>
+								<input type="tel" id="main_address_street_number" name="pagarme_recipient_main_address_street_number" value="<?php echo $user_info->pagarme_recipient_main_address_street_number; ?>">
+							</div>
+							<div class="pagarme-form-group pagarme-form-group-row-last">
+								<label for="main_address_neighborhood"><?php _e( 'Bairro', 'wc-pagarme' ); ?></label>
+								<input type="text" id="main_address_neighborhood" name="pagarme_recipient_main_address_neighborhood" value="<?php echo $user_info->pagarme_recipient_main_address_neighborhood; ?>">
+							</div>
+							<div class="pagarme-form-group pagarme-form-group-row-first">
+								<label for="main_address_city"><?php _e( 'Cidade', 'wc-pagarme' ); ?></label>
+								<input type="text" id="main_address_city" name="pagarme_recipient_main_address_city" value="<?php echo $user_info->pagarme_recipient_main_address_city; ?>">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="pagarme-form-card-section <?php $recipient_id ? print( 'section-completed section-close' ) : print( 'section-open' ); ?>">
+					<div class="pagarme-form-section-intro">
+						<div class="pagarme-form-card-section-title">  
+							<span class="section-number">2. </span><?php _e( 'Representante Legal', 'wc-pagarme' ); ?>
+						</div>
+						<div class="pagarme-form-card-section-text">
+							<span class="intro-close"><?php _e( 'Seus dados comerciais foram cadastrados com sucesso.', 'wc-pagarme' ); ?></span>
+							<span class="intro-open"><?php _e( 'Se a conta for de pessoa física, preencha com seus dados pessoais. Se for de pessoa jurídica, use os dados do proprietário ou representante legal.', 'wc-pagarme' ); ?></span>
+						</div>
+					</div>
+					<div class="pagarme-form-section-status">
+						<?php if ( $recipient_id ) : ?>
+						<strong class="status-completed"><?php _e( 'Concluído', 'wc-pagarme' ); ?></strong>
+						<?php else : ?>
+						<strong class="status-pending"><?php _e( 'Pendente', 'wc-pagarme' ); ?></strong>
+						<?php endif; ?>
+					</div>
+					<div class="pagarme-form-section-content">
+						<div class="">
 							<div class="pagarme-form-group pagarme-form-group-row-first">
 								<label for="full_name"><?php _e( 'Nome Completo', 'wc-pagarme' ); ?></label>
 								<input type="text" id="full_name" name="pagarme_recipient_full_name" value="<?php echo $user_info->pagarme_recipient_full_name; ?>">
@@ -62,20 +124,6 @@
 							<div class="pagarme-form-group pagarme-form-group-row-last">
 								<label for="monthly_income"><?php _e( 'Renda Mensal (R$)', 'wc-pagarme' ); ?></label>
 								<input type="text" id="monthly_income" name="pagarme_recipient_monthly_income" value="<?php echo $user_info->pagarme_recipient_monthly_income; ?>">
-							</div>
-						</div>
-						<div id="corporation_fields" class="hidden">
-							<div class="pagarme-form-group pagarme-form-group-row-first">
-								<label for="company_name"><?php _e( 'Nome Fantasia da Empresa', 'wc-pagarme' ); ?></label>
-								<input type="text" id="company_name" name="pagarme_recipient_company_name" value="<?php echo $user_info->pagarme_recipient_company_name; ?>">
-							</div>
-							<div class="pagarme-form-group pagarme-form-group-row-last">
-								<label for="company_legal_name"><?php _e( 'Razão social da empresa', 'wc-pagarme' ); ?></label>
-								<input type="text" id="company_legal_name" name="pagarme_recipient_company_legal_name" value="<?php echo $user_info->pagarme_recipient_company_legal_name; ?>">
-							</div>
-							<div class="pagarme-form-group">
-								<label for="annual_revenue"><?php _e( 'Receita anual da empresa (R$)', 'wc-pagarme' ); ?></label>
-								<input type="text" id="annual_revenue" name="pagarme_recipient_annual_revenue" value="<?php echo $user_info->pagarme_recipient_annual_revenue; ?>">
 							</div>
 						</div>
 						<div class="pagarme-form-group pagarme-form-group-row-first">
@@ -118,7 +166,7 @@
 				</div>
 				<div class="pagarme-form-card-section <?php $bank_account_id ? print( 'section-completed section-close' ) : print( 'section-open' ); ?>">
 					<div class="pagarme-form-section-intro">
-						<div class="pagarme-form-card-section-title">  <span class="section-number">2. </span><?php _e( 'Configurações de Transferência', 'wc-pagarme' ); ?></div>
+						<div class="pagarme-form-card-section-title">  <span class="section-number">3. </span><?php _e( 'Configurações de Transferência', 'wc-pagarme' ); ?></div>
 						<div class="pagarme-form-card-section-text">
 							<!--<span class="intro-close"><?php _e( '<a href="javascript:;">Clique aqui</a> para editar seus dados de conta bancária e frequência de transferências.', 'wc-pagarme' ); ?></span>-->
 							<span class="intro-close"><?php _e( 'Seus dados de conta bancária foram cadastrados com sucesso.', 'wc-pagarme' ); ?></span>
@@ -155,6 +203,32 @@
 						<div class="pagarme-form-group pagarme-form-group-row-last">
 							<label for="account_number"><?php _e( 'Número da Conta (Com Dígito se Houver)', 'wc-pagarme' ); ?></label>
 							<input type="tel" id="account_number" name="pagarme_recipient_account_number" value="<?php echo $user_info->pagarme_recipient_account_number; ?>" placeholder="Exemplo: 1234-9">
+						</div>
+						<div class="pagarme-form-group pagarme-form-group-row-first">
+							<label for="transfer_interval"><?php _e( 'Periodicidade da Transferencia', 'wc-pagarme' ); ?></label>
+							<select id="transfer_interval" name="pagarme_recipient_transfer_interval">
+								<option value="daily" <?php selected( $user_info->pagarme_recipient_transfer_interval, 'daily' ); ?>><?php _e( 'Diária', 'wc-pagarme' ); ?></option>
+								<option value="weekly" <?php selected( $user_info->pagarme_recipient_transfer_interval, 'weekly' ); ?>><?php _e( 'Semanal', 'wc-pagarme' ); ?></option>
+								<option value="monthly" <?php selected( $user_info->pagarme_recipient_transfer_interval, 'monthly' ); ?>><?php _e( 'Mensal', 'wc-pagarme' ); ?></option>
+							</select>
+						</div>
+						<div class="pagarme-form-group pagarme-form-group-row-last weekly_transfer_day hidden">
+							<label for="weekly_transfer_day"><?php _e( 'Dia da Semana (Ocorrência)', 'wc-pagarme' ); ?></label>
+							<select id="weekly_transfer_day" name="pagarme_recipient_weekly_transfer_day">
+								<option value="1" <?php selected( $user_info->pagarme_recipient_weekly_transfer_day, '1' ); ?>><?php _e( 'Segunda-feira', 'wc-pagarme' ); ?></option>
+								<option value="2" <?php selected( $user_info->pagarme_recipient_weekly_transfer_day, '2' ); ?>><?php _e( 'Terça-feira', 'wc-pagarme' ); ?></option>
+								<option value="3" <?php selected( $user_info->pagarme_recipient_weekly_transfer_day, '3' ); ?>><?php _e( 'Quarta-feira', 'wc-pagarme' ); ?></option>
+								<option value="4" <?php selected( $user_info->pagarme_recipient_weekly_transfer_day, '4' ); ?>><?php _e( 'Quinta-feira', 'wc-pagarme' ); ?></option>
+								<option value="5" <?php selected( $user_info->pagarme_recipient_weekly_transfer_day, '5' ); ?>><?php _e( 'Sexta-feira', 'wc-pagarme' ); ?></option>
+							</select>
+						</div>
+						<div class="pagarme-form-group pagarme-form-group-row-last monthly_transfer_day hidden">
+							<label for="monthly_transfer_day"><?php _e( 'Dia do Mês (Ocorrência)', 'wc-pagarme' ); ?></label>
+							<select id="monthly_transfer_day" name="pagarme_recipient_monthly_transfer_day">
+								<?php for ( $x = 1; $x <= 30; $x++ ) : ?>
+									<option value="<?php echo $x; ?>" <?php selected( $user_info->pagarme_recipient_monthly_transfer_day, $x ); ?>><?php echo $x; ?></option>
+								<?php endfor; ?>
+							</select>
 						</div>
 					</div>
 				</div>

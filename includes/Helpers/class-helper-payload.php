@@ -94,16 +94,6 @@ class Payload {
 							'type'   => 'mobile',
 						),
 					),
-					'address'       => array(
-						'street'          => $request['address_street'],
-						'complementary'   => 'N/D',
-						'street_number'   => $request['address_street_number'],
-						'neighborhood'    => $request['address_neighborhood'],
-						'city'            => $request['address_city'],
-						'state'           => $request['address_state'],
-						'zip_code'        => $request['address_zipcode'],
-						'reference_point' => 'N/D',
-					),
 				),
 			);
 			if ( $request['account_type'] == 'corporation' ) {
@@ -117,6 +107,45 @@ class Payload {
 									'company_name'   => $request['company_legal_name'],
 									'trading_name'   => $request['company_name'],
 									'annual_revenue' => $request['annual_revenue'],
+									'main_address'   => array(
+										'street'            => $request['main_address_street'],
+										'complementary'     => 'N/D',
+										'street_number'     => $request['main_address_street_number'],
+										'neighborhood'      => $request['main_address_neighborhood'],
+										'city'              => $request['main_address_city'],
+										'state'             => $request['main_address_state'],
+										'zip_code'          => $request['main_address_zipcode'],
+										'reference_point'   => 'N/D',
+									),
+									'managing_partners' => array(
+										0 => array(
+											'type'          => 'individual',
+											'name'          => $request['full_name'],
+											'email'         => $request['email'],
+											'document'      => $request['document'],
+											'self_declared_legal_representative' => true,
+											'birthdate'               => $request['birthdate'],
+											'monthly_income'          => $request['monthly_income'],
+											'professional_occupation' => $request['occupation'],
+											'phone_numbers' => array(
+												array(
+													'ddd'    => wc_pagarme_get_phone_information( $request['phone'], 'area_code' ),
+													'number' => wc_pagarme_get_phone_information( $request['phone'], 'number' ),
+													'type'   => 'mobile',
+												),
+											),
+											'address'                 => array(
+												'street'                  => $request['address_street'],
+												'complementary'           => 'N/D',
+												'street_number'           => $request['address_street_number'],
+												'neighborhood'            => $request['address_neighborhood'],
+												'city'                    => $request['address_city'],
+												'state'                   => $request['address_state'],
+												'zip_code'                => $request['address_zipcode'],
+												'reference_point'         => 'N/D',
+											),
+										)
+									)
 								)
 							),
 						)
@@ -133,6 +162,16 @@ class Payload {
 								'birthdate'               => $request['birthdate'],
 								'monthly_income'          => $request['monthly_income'],
 								'professional_occupation' => $request['occupation'],
+								'address'                 => array(
+									'street'                  => $request['address_street'],
+									'complementary'           => 'N/D',
+									'street_number'           => $request['address_street_number'],
+									'neighborhood'            => $request['address_neighborhood'],
+									'city'                    => $request['address_city'],
+									'state'                   => $request['address_state'],
+									'zip_code'                => $request['address_zipcode'],
+									'reference_point'         => 'N/D',
+								),
 							)
 						),
 					)
@@ -141,9 +180,9 @@ class Payload {
 			return $data;
 		} else {
 			$data = array(
-				'transfer_settings'    => array(
-					'transfer_interval' => 'monthly',
-					'transfer_day'      => '5',
+				'transfer_settings'     => array(
+					'transfer_interval' => $request['transfer_interval'],
+					'transfer_day'      => ( 'daily' == $request['transfer_interval'] ) ? null : ( ( 'weekly' == $request['transfer_interval'] ) ? $request['weekly_transfer_day'] : $request['monthly_transfer_day'] ),
 					'transfer_enabled'  => true,
 				),
 				'register_information' => array(
@@ -155,16 +194,6 @@ class Payload {
 							'number' => wc_pagarme_get_phone_information( $request['phone'], 'number' ),
 							'type'   => 'mobile',
 						),
-					),
-					'address'       => array(
-						'street'          => $request['address_street'],
-						'complementary'   => 'N/D',
-						'street_number'   => $request['address_street_number'],
-						'neighborhood'    => $request['address_neighborhood'],
-						'city'            => $request['address_city'],
-						'state'           => $request['address_state'],
-						'zip_code'        => $request['address_zipcode'],
-						'reference_point' => 'N/D',
 					),
 				),
 				'default_bank_account' => array(
@@ -188,6 +217,45 @@ class Payload {
 									'company_name'   => $request['company_legal_name'],
 									'trading_name'   => $request['company_name'],
 									'annual_revenue' => $request['annual_revenue'],
+									'main_address'   => array(
+										'street'            => $request['main_address_street'],
+										'complementary'     => 'N/D',
+										'street_number'     => $request['main_address_street_number'],
+										'neighborhood'      => $request['main_address_neighborhood'],
+										'city'              => $request['main_address_city'],
+										'state'             => $request['main_address_state'],
+										'zip_code'          => $request['main_address_zipcode'],
+										'reference_point'   => 'N/D',
+									),
+									'managing_partners' => array(
+										0 => array(
+											'type'          => 'individual',
+											'name'          => $request['full_name'],
+											'email'         => $request['email'],
+											'document'      => $request['document'],
+											'self_declared_legal_representative' => true,
+											'birthdate'               => $request['birthdate'],
+											'monthly_income'          => $request['monthly_income'],
+											'professional_occupation' => $request['occupation'],
+											'phone_numbers' => array(
+												array(
+													'ddd'    => wc_pagarme_get_phone_information( $request['phone'], 'area_code' ),
+													'number' => wc_pagarme_get_phone_information( $request['phone'], 'number' ),
+													'type'   => 'mobile',
+												),
+											),
+											'address' => array(
+												'street'                  => $request['address_street'],
+												'complementary'           => 'N/D',
+												'street_number'           => $request['address_street_number'],
+												'neighborhood'            => $request['address_neighborhood'],
+												'city'                    => $request['address_city'],
+												'state'                   => $request['address_state'],
+												'zip_code'                => $request['address_zipcode'],
+												'reference_point'         => 'N/D',
+											),
+										)
+									)
 								)
 							),
 							'default_bank_account' => array_merge(
@@ -212,6 +280,16 @@ class Payload {
 									'birthdate'      => $request['birthdate'],
 									'monthly_income' => $request['monthly_income'],
 									'professional_occupation' => $request['occupation'],
+									'address'                 => array(
+										'street'                  => $request['address_street'],
+										'complementary'           => 'N/D',
+										'street_number'           => $request['address_street_number'],
+										'neighborhood'            => $request['address_neighborhood'],
+										'city'                    => $request['address_city'],
+										'state'                   => $request['address_state'],
+										'zip_code'                => $request['address_zipcode'],
+										'reference_point'         => 'N/D',
+									),
 								)
 							),
 							'default_bank_account' => array_merge(
