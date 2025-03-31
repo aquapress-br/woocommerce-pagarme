@@ -6,6 +6,8 @@
     $( document ).ready( function () {
 		
         // jQuery mask
+		$( '#document_cpf' ).mask( '000.000.000-00' );
+		$( '#document_cnpj' ).mask( '00.000.000/0000-00' );
 		$( '#phone' ).mask( '(00) 0000-00009' );
 		$( '#address_zipcode' ).mask( '00000-000' );
 		$( '#annual_revenue' ).mask( "#.##0,00", {reverse: true} );
@@ -15,10 +17,8 @@
 			var accountType = $( this ).val();
 			if ( 'individual' === accountType ) {
 				$( '#corporation_fields' ).addClass( 'hidden' );
-				$( '#document' ).mask( '000.000.000-00' );
 			} else if ( 'corporation' === accountType ) {				
 				$( '#corporation_fields' ).removeClass( 'hidden' );
-				$( '#document' ).mask( '00.000.000/0000-00' );
 			}
 
 		}).change();

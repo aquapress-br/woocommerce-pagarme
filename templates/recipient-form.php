@@ -31,27 +31,27 @@
 						<?php endif; ?>
 					</div>
 					<div class="pagarme-form-section-content">
-						<div class="pagarme-form-group pagarme-form-group-row-first">
+						<div class="pagarme-form-group">
 							<label for="account_type"><?php _e( 'Tipo da Conta', 'wc-pagarme' ); ?></label>
 							<select id="account_type" name="pagarme_recipient_account_type" class="valid">
 								<option value="individual" <?php selected( $user_info->pagarme_recipient_account_type, 'individual' ); ?>><?php _e( 'Pessoa Física', 'wc-pagarme' ); ?></option>
 								<option value="corporation" <?php selected( $user_info->pagarme_recipient_account_type, 'corporation' ); ?>><?php _e( 'Pessoa Jurídica', 'wc-pagarme' ); ?></option>
 							</select>
 						</div>
-						<div class="pagarme-form-group pagarme-form-group-row-last">
-							<label for="document"><?php _e( 'Documento (CPF/CNPJ)', 'wc-pagarme' ); ?></label>
-							<input type="text" id="document" name="pagarme_recipient_document" value="<?php echo $user_info->pagarme_recipient_document; ?>">
-						</div>
 						<div id="corporation_fields" class="hidden">
 							<div class="pagarme-form-group pagarme-form-group-row-first">
-								<label for="company_name"><?php _e( 'Nome Fantasia da Empresa', 'wc-pagarme' ); ?></label>
-								<input type="text" id="company_name" name="pagarme_recipient_company_name" value="<?php echo $user_info->pagarme_recipient_company_name; ?>">
+								<label for="document_cnpj"><?php _e( 'CNPJ', 'wc-pagarme' ); ?></label>
+								<input type="text" id="document_cnpj" name="pagarme_recipient_document_cnpj" value="<?php echo $user_info->pagarme_recipient_document_cnpj; ?>">
 							</div>
 							<div class="pagarme-form-group pagarme-form-group-row-last">
 								<label for="company_legal_name"><?php _e( 'Razão social da empresa', 'wc-pagarme' ); ?></label>
 								<input type="text" id="company_legal_name" name="pagarme_recipient_company_legal_name" value="<?php echo $user_info->pagarme_recipient_company_legal_name; ?>">
 							</div>
-							<div class="pagarme-form-group">
+							<div class="pagarme-form-group pagarme-form-group-row-first">
+								<label for="company_name"><?php _e( 'Nome Fantasia da Empresa', 'wc-pagarme' ); ?></label>
+								<input type="text" id="company_name" name="pagarme_recipient_company_name" value="<?php echo $user_info->pagarme_recipient_company_name; ?>">
+							</div>
+							<div class="pagarme-form-group pagarme-form-group-row-last">
 								<label for="annual_revenue"><?php _e( 'Receita anual da empresa (R$)', 'wc-pagarme' ); ?></label>
 								<input type="text" id="annual_revenue" name="pagarme_recipient_annual_revenue" value="<?php echo $user_info->pagarme_recipient_annual_revenue; ?>">
 							</div>
@@ -110,18 +110,14 @@
 								<input type="text" id="full_name" name="pagarme_recipient_full_name" value="<?php echo $user_info->pagarme_recipient_full_name; ?>">
 							</div>
 							<div class="pagarme-form-group pagarme-form-group-row-last">
+								<label for="document_cpf"><?php _e( 'CPF', 'wc-pagarme' ); ?></label>
+								<input type="text" id="document_cpf" name="pagarme_recipient_document_cpf" value="<?php echo $user_info->pagarme_recipient_document_cpf; ?>">
+							</div>
+							<div class="pagarme-form-group pagarme-form-group-row-last">
 								<label for="birthdate"><?php _e( 'Data de Aniversário', 'wc-pagarme' ); ?></label>
 								<input type="date" id="birthdate" name="pagarme_recipient_birthdate" value="<?php echo $user_info->pagarme_recipient_birthdate; ?>">
 							</div>
 							<div class="pagarme-form-group pagarme-form-group-row-first">
-								<label for="occupation"><?php _e( 'Ocupação Profissional', 'wc-pagarme' ); ?></label>
-								<select id="occupation" name="pagarme_recipient_occupation">
-									<?php foreach ( $occupations as $occupation ) : ?>
-										<option value="<?php echo $occupation; ?>" <?php selected( $user_info->pagarme_recipient_occupation, $occupation ); ?>><?php echo $occupation; ?></option>';
-									<?php endforeach; ?>
-								</select>
-							</div>
-							<div class="pagarme-form-group pagarme-form-group-row-last">
 								<label for="monthly_income"><?php _e( 'Renda Mensal (R$)', 'wc-pagarme' ); ?></label>
 								<input type="text" id="monthly_income" name="pagarme_recipient_monthly_income" value="<?php echo $user_info->pagarme_recipient_monthly_income; ?>">
 							</div>
@@ -161,6 +157,14 @@
 						<div class="pagarme-form-group pagarme-form-group-row-first">
 							<label for="address_city"><?php _e( 'Cidade', 'wc-pagarme' ); ?></label>
 							<input type="text" id="address_city" name="pagarme_recipient_address_city" value="<?php echo $user_info->pagarme_recipient_address_city; ?>">
+						</div>
+						<div class="pagarme-form-group pagarme-form-group-row-last">
+							<label for="occupation"><?php _e( 'Ocupação Profissional', 'wc-pagarme' ); ?></label>
+							<select id="occupation" name="pagarme_recipient_occupation">
+								<?php foreach ( $occupations as $occupation ) : ?>
+									<option value="<?php echo $occupation; ?>" <?php selected( $user_info->pagarme_recipient_occupation, $occupation ); ?>><?php echo $occupation; ?></option>';
+								<?php endforeach; ?>
+							</select>
 						</div>
 					</div>
 				</div>
