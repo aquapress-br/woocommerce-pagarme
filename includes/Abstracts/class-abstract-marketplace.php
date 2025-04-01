@@ -503,7 +503,7 @@ abstract class Marketplace {
 				'error_msg'         => __( 'Insira um valor válido para o campo CPF.', 'wc-pagarme' ),
 			),
 			'document_cnpj'          => array(
-				'required'          => true,
+				'required'          => false,
 				'label'             => __( 'CNPJ', 'wc-pagarme' ),
 				'max'               => false,
 				'min'               => false,

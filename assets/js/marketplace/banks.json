@@ -4,6 +4,54 @@
     "name": "Banco Do Brasil S.A (BB)"
   },
   {
+    "code": "104",
+    "name": "Caixa Econômica Federal (CEF)"
+  },
+  {
+    "code": "341",
+    "name": "Itaú Unibanco S.A."
+  },
+  {
+    "code": "237",
+    "name": "Bradesco S.A."
+  },
+  {
+    "code": "033",
+    "name": "Banco Santander Brasil S.A."
+  },
+  {
+    "code": "477",
+    "name": "Citibank N.A."
+  },
+  {
+    "code": "422",
+    "name": "Banco Safra S.A."
+  },
+  {
+    "code": "748",
+    "name": "Banco Cooperativa Sicredi S.A."
+  },
+  {
+    "code": "260",
+    "name": "Nu Pagamentos S.A (Nubank)"
+  },
+  {
+    "code": "077",
+    "name": "Banco Inter S.A."
+  },
+  {
+    "code": "323",
+    "name": "Mercado Pago – Conta Do Mercado Livre"
+  },
+  {
+    "code": "290",
+    "name": "Banco PagBank (PagSeguro)"
+  },
+  {
+    "code": "336",
+    "name": "Banco C6 S.A – C6 Bank"
+  },
+  {
     "code": "003",
     "name": "Banco Da Amazônia S.A."
   },
@@ -68,22 +116,6 @@
     "name": "Banco Alfa S.A."
   },
   {
-    "code": "029",
-    "name": "Banco Itaú Consignado S.A."
-  },
-  {
-    "code": "033",
-    "name": "Banco Santander Brasil S.A."
-  },
-  {
-    "code": "036",
-    "name": "Banco Bradesco BBI S.A."
-  },
-  {
-    "code": "037",
-    "name": "Banco Do Estado Do Pará S.A."
-  },
-  {
     "code": "040",
     "name": "Banco Cargill S.A."
   },
@@ -138,10 +170,6 @@
   {
     "code": "076",
     "name": "Banco KDB Brasil S.A."
-  },
-  {
-    "code": "077",
-    "name": "Banco Inter S.A."
   },
   {
     "code": "078",
@@ -256,10 +284,6 @@
     "name": "XP Investimentos S.A."
   },
   {
-    "code": "104",
-    "name": "Caixa Econômica Federal (CEF)"
-  },
-  {
     "code": "105",
     "name": "Lecca Cfi S.A."
   },
@@ -302,10 +326,6 @@
   {
     "code": "121",
     "name": "Banco Agibank S.A."
-  },
-  {
-    "code": "122",
-    "name": "Banco Bradesco BERJ S.A."
   },
   {
     "code": "124",
@@ -444,10 +464,6 @@
     "name": "Socred S.A."
   },
   {
-    "code": "184",
-    "name": "Banco Itaú BBA S.A."
-  },
-  {
     "code": "188",
     "name": "Ativa S.A Investimentos"
   },
@@ -474,10 +490,6 @@
   {
     "code": "197",
     "name": "Stone Pagamentos S.A."
-  },
-  {
-    "code": "204",
-    "name": "Banco Bradesco Cartoes S.A."
   },
   {
     "code": "208",
@@ -510,10 +522,6 @@
   {
     "code": "233",
     "name": "Banco Cifra S.A."
-  },
-  {
-    "code": "237",
-    "name": "Bradesco S.A."
   },
   {
     "code": "237",
@@ -550,10 +558,6 @@
   {
     "code": "259",
     "name": "MONEYCORP BANCO DE CÂMBIO S.A."
-  },
-  {
-    "code": "260",
-    "name": "Nu Pagamentos S.A (Nubank)"
   },
   {
     "code": "265",
@@ -632,10 +636,6 @@
     "name": "DECYSEO CORRETORA DE CAMBIO LTDA."
   },
   {
-    "code": "290",
-    "name": "Banco PagBank (PagSeguro)"
-  },
-  {
     "code": "292",
     "name": "BS2 Distribuidora De Títulos E Investimentos"
   },
@@ -708,10 +708,6 @@
     "name": "Cooperativa de Crédito Rural de Abelardo Luz – Sulcredi/Crediluz"
   },
   {
-    "code": "323",
-    "name": "Mercado Pago – Conta Do Mercado Livre"
-  },
-  {
     "code": "324",
     "name": "CARTOS SOCIEDADE DE CRÉDITO DIRETO S.A."
   },
@@ -744,16 +740,8 @@
     "name": "Banco Digio S.A."
   },
   {
-    "code": "336",
-    "name": "Banco C6 S.A – C6 Bank"
-  },
-  {
     "code": "340",
     "name": "Super Pagamentos S/A (Superdital)"
-  },
-  {
-    "code": "341",
-    "name": "Itaú Unibanco S.A."
   },
   {
     "code": "342",
@@ -900,10 +888,6 @@
     "name": "Banco Volkswagen S.A."
   },
   {
-    "code": "394",
-    "name": "Banco Bradesco Financiamentos S.A."
-  },
-  {
     "code": "396",
     "name": "HUB PAGAMENTOS S.A."
   },
@@ -932,10 +916,6 @@
     "name": "Banco Capital S.A."
   },
   {
-    "code": "422",
-    "name": "Banco Safra S.A."
-  },
-  {
     "code": "456",
     "name": "Banco MUFG Brasil S.A."
   },
@@ -946,10 +926,6 @@
   {
     "code": "473",
     "name": "Banco Caixa Geral Brasil S.A."
-  },
-  {
-    "code": "477",
-    "name": "Citibank N.A."
   },
   {
     "code": "479",
@@ -1048,10 +1024,6 @@
     "name": "Banco Pine S.A."
   },
   {
-    "code": "652",
-    "name": "Itaú Unibanco Holding Bm S.A."
-  },
-  {
     "code": "653",
     "name": "Banco Indusval S.A."
   },
@@ -1102,10 +1074,6 @@
   {
     "code": "747",
     "name": "Banco Rabobank Internacional Do Brasil S.A."
-  },
-  {
-    "code": "748",
-    "name": "Banco Cooperativa Sicredi S.A."
   },
   {
     "code": "751",

@@ -85,7 +85,6 @@ class Payload {
 		if ( ! empty( $recipient_id ) ) {
 			$data = array(
 				'register_information' => array(
-					'document'      => $request['document_cpf'],
 					'email'         => $request['email'],
 					'phone_numbers' => array(
 						array(
@@ -159,6 +158,7 @@ class Payload {
 							$data['register_information'],
 							array(
 								'type'                    => 'individual',
+								'document'                => $request['document_cpf'],
 								'name'                    => $request['full_name'],
 								'birthdate'               => $request['birthdate'],
 								'monthly_income'          => $request['monthly_income'],
@@ -183,12 +183,12 @@ class Payload {
 			$data = array(
 				'transfer_settings'     => array(
 					'transfer_interval' => $request['transfer_interval'],
-					'transfer_day'      => ( 'daily' == $request['transfer_interval'] ) ? null : ( ( 'weekly' == $request['transfer_interval'] ) ? $request['weekly_transfer_day'] : $request['monthly_transfer_day'] ),
+					'transfer_day'      => ( 'daily' == $request['transfer_interval'] ) ? 0 : ( ( 'weekly' == $request['transfer_interval'] ) ? $request['weekly_transfer_day'] : $request['monthly_transfer_day'] ),
 					'transfer_enabled'  => true,
 				),
 				'register_information' => array(
 					'email'         => $request['email'],
-					'document'      => $request['document'],
+					'document'      => $request['document_cpf'],
 					'phone_numbers' => array(
 						array(
 							'ddd'    => wc_pagarme_get_phone_information( $request['phone'], 'area_code' ),
@@ -215,6 +215,7 @@ class Payload {
 								$data['register_information'],
 								array(
 									'type'           => 'corporation',
+									'document'       => $request['document_cnpj'],
 									'company_name'   => $request['company_legal_name'],
 									'trading_name'   => $request['company_name'],
 									'annual_revenue' => $request['annual_revenue'],
@@ -233,7 +234,7 @@ class Payload {
 											'type'          => 'individual',
 											'name'          => $request['full_name'],
 											'email'         => $request['email'],
-											'document'      => $request['document'],
+											'document'      => $request['document_cpf'],
 											'self_declared_legal_representative' => true,
 											'birthdate'               => $request['birthdate'],
 											'monthly_income'          => $request['monthly_income'],
@@ -264,7 +265,7 @@ class Payload {
 								array(
 									'holder_name'     => substr( $request['company_legal_name'], 0, 30 ),
 									'holder_type'     => 'company',
-									'holder_document' => $request['document'],
+									'holder_document' => $request['document_cnpj'],
 								)
 							),
 						)
@@ -298,13 +299,13 @@ class Payload {
 								array(
 									'holder_name'     => substr( $request['full_name'], 0, 30 ),
 									'holder_type'     => 'individual',
-									'holder_document' => $request['document'],
+									'holder_document' => $request['document_cpf'],
 								)
 							),
 						)
 					);
 			}
-
+			
 			return $data;
 		}
 	}
