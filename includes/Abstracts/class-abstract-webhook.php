@@ -108,7 +108,7 @@ abstract class Webhook {
 					$this->debug( 'Gateway received a body content: ' . var_export( $webhook_response, true ) );
 					// Initialize any additional hooks needed by the webhook in the child class.
 					$this->process( $webhook_body['type'], $webhook_body['data'] );
-				} 
+				}
 			}
 			exit;
 		}
