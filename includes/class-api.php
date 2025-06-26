@@ -164,7 +164,7 @@ class API {
 
 			$data = $this->api_remote_retrieve_body( $response );
 
-			$this->debug( 'Failed in doing save data: ' . var_export( $response, true ) );
+			$this->debug( 'Get recipients successfully! The endpoint response is: ' . var_export( $response, true ) );
 
 			do_action( 'wc_pagarme_processed_recipients_data', $data );
 
