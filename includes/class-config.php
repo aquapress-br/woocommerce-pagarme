@@ -48,18 +48,32 @@ class Config {
 	public $debug = false;
 
 	/**
+	 * Test mode.
+	 *
+	 * If true, enables testmode authentication.
+	 *
+	 * @var mixed
+	 */
+	public $testmode = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * Initializes the configuration with the provided values or defaults.
 	 *
-	 * @param string $secret_key The secret API key for authentication.
-	 * @param string $public_key The public API key for client-side authentication.
-	 * @param bool   $debug      Debug mode (default: false).
+	 * @param string $settings The settings array.
 	 */
-	public function __construct( $secret_key = '', $public_key = '', $debug = false ) {
-		$this->secret_key = $secret_key;
-		$this->public_key = $public_key;
-		$this->debug      = $debug;
+	public function __construct( $settings = array() ) {
+		$this->debug      = ( 'yes' == $settings['debug'] || 'on' == $settings['debug'] ) ? true : false;
+		$this->testmode   = ( 'yes' == $settings['testmode'] || 'on' == $settings['testmode'] ) ? true : false;
+		
+		if ( $this->testmode ) {
+			$this->public_key = $settings['public_key_sanbox'];
+			$this->secret_key = $settings['secret_key_sanbox'];
+		} else {
+			$this->public_key = $settings['public_key'];
+			$this->secret_key = $settings['secret_key'];
+		}
 	}
 
 	/**
@@ -115,7 +129,16 @@ class Config {
 	 *
 	 * @return bool True if debug mode is enabled, false otherwise.
 	 */
-	public function get_debug() {
+	public function is_debug() {
 		return $this->debug;
+	}
+
+	/**
+	 * Get the test mode status.
+	 *
+	 * @return bool True if test mode is enabled, false otherwise.
+	 */
+	public function is_testmode() {
+		return $this->testmode;
 	}
 }

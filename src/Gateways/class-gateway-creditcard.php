@@ -396,7 +396,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		// Get order data.
 		$order = wc_get_order( $the_order );
 		// Get card request data.
-		$card_data = $this->get_creditcard_data( $order->get_id() );
+		$card_data = $this->get_creditcard_data();
 		// Define payment and items.
 		$payload = array(
 			'payments' => array(
@@ -455,6 +455,16 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	}
 
 	/**
+	 * Process payment method.
+	 *
+	 * @return   void 
+	 */
+	public function add_payment_method_old() {	
+		// Get card request data.
+		$card_data = $this->get_creditcard_data();
+	}
+
+	/**
 	 * Retrieves the checkout form fields for the payment gateway.
 	 *
 	 * This method generates and returns the necessary form fields that will be displayed
@@ -467,24 +477,34 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 	 * @return string HTML markup for the checkout form fields.
 	 */
 	public function get_checkout_form( $order_total ) {
-		wc_pagarme_get_template(
-			'woocommerce/payment-form.php',
-			array(
-				'card_id'          => static::CARD_ID,
-				'card_number'      => static::CARD_NUMBER,
-				'card_name'        => static::CARD_NAME,
-				'card_expiry'      => static::CARD_EXPIRY,
-				'card_cvc'         => static::CARD_CVC,
-				'card_save_option' => static::CARD_SAVE_OPTION,
+		?>
+		<fieldset id="wc-<?php echo esc_attr( $this->id ); ?>-form" class='wc-credit-card-form wc-payment-form'>
+			<?php 
+				do_action( 'woocommerce_credit_card_form_start', $this->id );
+				
+				wc_pagarme_get_template(
+					'woocommerce/payment-form.php',
+					array(
+						'card_id'          => static::CARD_ID,
+						'card_number'      => static::CARD_NUMBER,
+						'card_name'        => static::CARD_NAME,
+						'card_expiry'      => static::CARD_EXPIRY,
+						'card_cvc'         => static::CARD_CVC,
+						'card_save_option' => static::CARD_SAVE_OPTION,
 
-				'tokenize_card'    => $this->tokenize_card,
+						'tokenize_card'    => $this->tokenize_card,
 
-				'installments'     => $this->get_installments_html( $order_total ),
-				'saved_cards'      => $this->get_saved_payment_tokens(),
+						'installments'     => $this->get_installments_html( $order_total ),
+						'saved_cards'      => $this->get_saved_payment_tokens(),
 
-				'is_checkout'      => is_checkout(),
-			)
-		);
+						'is_checkout'      => is_checkout(),
+					)
+				);
+				
+				do_action( 'woocommerce_credit_card_form_end', $this->id ); 
+			?>
+		</fieldset>
+		<?php
 	}
 
 	/**

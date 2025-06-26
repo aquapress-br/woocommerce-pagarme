@@ -50,14 +50,13 @@ class Factory {
 			}
 			// Retrieve the settings from the WordPress database using get_option.
 			$stored_settings = get_option( $key_prefix . $key . '_settings', array() );
+			
 			// Filter data and parse defaults args.
 			$settings = apply_filters( 'wc_pagarme_load_api_settings', wp_parse_args( $stored_settings, $default_settings ), $key );
+			
 			// Build instances for Config.
-			if ( 'yes' == $settings['testmode'] || 'on' == $settings['testmode'] ) {
-				$config = new \Aquapress\Pagarme\Config( $settings['secret_key_sandbox'], $settings['public_key_sandbox'], $settings['debug'] );
-			} else {
-				$config = new \Aquapress\Pagarme\Config( $settings['secret_key'], $settings['public_key'], $settings['debug'] );
-			}
+			$config = new \Aquapress\Pagarme\Config( $settings);
+			
 			// Build instances for Logger.
 			if ( ! $logger ) {
 				$logger = new \Aquapress\Pagarme\Logger( $key );

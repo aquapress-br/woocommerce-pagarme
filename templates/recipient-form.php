@@ -211,7 +211,7 @@
 						<div class="pagarme-form-group pagarme-form-group-row-first">
 							<label for="transfer_interval"><?php _e( 'Periodicidade da Transferencia', 'wc-pagarme' ); ?></label>
 							<select id="transfer_interval" name="pagarme_recipient_transfer_interval">
-								<option value="daily" <?php selected( $user_info->pagarme_recipient_transfer_interval, 'daily' ); ?>><?php _e( 'Diária', 'wc-pagarme' ); ?></option>
+								<!--<option value="daily" <?php selected( $user_info->pagarme_recipient_transfer_interval, 'daily' ); ?>><?php _e( 'Diária', 'wc-pagarme' ); ?></option>-->
 								<option value="weekly" <?php selected( $user_info->pagarme_recipient_transfer_interval, 'weekly' ); ?>><?php _e( 'Semanal', 'wc-pagarme' ); ?></option>
 								<option value="monthly" <?php selected( $user_info->pagarme_recipient_transfer_interval, 'monthly' ); ?>><?php _e( 'Mensal', 'wc-pagarme' ); ?></option>
 							</select>
@@ -234,6 +234,12 @@
 								<?php endfor; ?>
 							</select>
 						</div>
+					</div>
+					<div style="color: red;">As transferências estão sujeitas <strong>à taxa bancária de R$ 3,67, cobrada pela Pagar.me.</strong>
+						<strong>Ao selecionar a periodicidade, lembre-se de que o valor a receber poderá ser reduzido devido aos custos dessa taxa.</strong>
+						<strong>Certifique-se de que o saldo disponível para saque seja superior ao valor da taxa</strong>, evitando assim prejuízos ou valores zerados nas transferências.
+						Verifique cuidadosamente a numeração da conta e da agência. Utilize um hífen para separar o número do dígito, se houver. Exemplo: "123456-9", onde o número 9 representa o dígito da conta.
+						<strong>Transferências realizadas com dados incorretos acarretam cobrança de taxa bancária no valor de R$ 3,67, aplicada pela Pagar.me. </strong>
 					</div>
 				</div>
 				<?php if ( in_array( $recipient_status, array( 'affiliation' ) ) ) : ?>

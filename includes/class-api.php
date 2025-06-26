@@ -471,7 +471,7 @@ class API {
 	 * @return void
 	 */
 	public function debug( $message, $start_time = null, $end_time = null ) {
-		if ( $this->config->debug === 'yes' || $this->config->debug === 'on' || $this->config->debug === true ) {
+		if ( $this->config->is_debug() ) {
 			if ( ! $this->logger ) {
 				$this->logger = new \Aquapress\Pagarme\Logger();
 			}

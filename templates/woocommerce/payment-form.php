@@ -56,12 +56,14 @@ defined( 'ABSPATH' ) || exit;
 				</p>
 			<?php endif; ?>
 		</li>
+		<li>
+		<?php if ( $installments && $is_checkout ) : ?>
+			<p class="form-row form-row-wide">
+				<label for="pagarme-installments"><?php _e( 'Parcelas', 'wc-pagarme' ); ?> <span class="required">*</span></label>
+				<?php echo $installments; ?>
+			</p>
+		<?php endif; ?>
+		</li>
 	</ul>
-	<?php if ( $installments && $is_checkout ) : ?>
-		<p class="form-row form-row-wide">
-			<label for="pagarme-installments"><?php _e( 'Parcelas', 'wc-pagarme' ); ?> <span class="required">*</span></label>
-			<?php echo $installments; ?>
-		</p>
-	<?php endif; ?>
 	<div class="clear"></div>
 </section>

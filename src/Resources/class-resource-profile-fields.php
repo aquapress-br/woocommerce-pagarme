@@ -48,6 +48,12 @@ class Profile_Fields extends \Aquapress\Pagarme\Abstracts\Resource {
 						<input type="text" name="pagarme_recipient_id" id="pagarme_recipient_id" value="<?php echo esc_attr( get_user_meta( $user->ID, 'pagarme_recipient_id', true ) ); ?>" class="regular-text" /><br />
 					</td>
 				</tr>
+				<tr>
+					<th><label for="pagarme_recipient_id_sandbox"><?php _e( 'ID Recebedor (Testmode)', 'wc-pagarme' ); ?></label></th>
+					<td>
+						<input type="text" name="pagarme_recipient_id_sandbox" id="pagarme_recipient_id_sandbox" value="<?php echo esc_attr( get_user_meta( $user->ID, 'pagarme_recipient_id_sandbox', true ) ); ?>" class="regular-text" /><br />
+					</td>
+				</tr>
 			</table>
 		<?php
 	}
@@ -73,6 +79,9 @@ class Profile_Fields extends \Aquapress\Pagarme\Abstracts\Resource {
 
 		if ( isset( $_POST['pagarme_recipient_id'] ) ) {
 			update_user_meta( $user_id, 'pagarme_recipient_id', $_POST['pagarme_recipient_id'] );
+		}
+		if ( isset( $_POST['pagarme_recipient_id_sandbox'] ) ) {
+			update_user_meta( $user_id, 'pagarme_recipient_id_sandbox', $_POST['pagarme_recipient_id_sandbox'] );
 		}
 	}
 

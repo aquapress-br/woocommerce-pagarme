@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 abstract class Marketplace {
 
 	use \Aquapress\Pagarme\Traits\Order_Meta;
+	use \Aquapress\Pagarme\Traits\User_Meta;
 
 	/**
 	 * Connector identifier.
@@ -195,7 +196,7 @@ abstract class Marketplace {
 			wp_send_json_error( 'Você está trapaceando?' );
 		}
 		$current_user_id = get_current_user_id();
-		$recipient_id    = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
+		$recipient_id    = static::get_user_option( $current_user_id, 'pagarme_recipient_id', $this->settings['testmode'] ) ?: false;
 
 		if ( ! empty( $_POST['data']['date'] ) ) {
 			try {
@@ -334,7 +335,7 @@ abstract class Marketplace {
 		}
 		try {
 			// Check recipient exists.
-			$recipient_id = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
+			$recipient_id = static::get_user_option( $current_user_id, 'pagarme_recipient_id', $this->settings['testmode'] ) ?: false;
 			// Process recipient request.
 			if ( ! $recipient_id ) {
 				// Process create recipient request.
@@ -846,10 +847,10 @@ abstract class Marketplace {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
 
-		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipient_id', true );
-		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
-		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
-		$bank_account_id      = get_user_meta( $current_user_id, 'pagarme_recipient_bank_account_id', true );
+		$recipient_id         = static::get_user_option( $current_user_id, 'pagarme_recipient_id', $this->settings['testmode'] );
+		$recipient_status     = static::get_user_option( $current_user_id, 'pagarme_recipient_status', $this->settings['testmode'] );
+		$recipient_kyc_status = static::get_user_option( $current_user_id, 'pagarme_recipient_kyc_status', $this->settings['testmode'] );
+		$bank_account_id      = static::get_user_option( $current_user_id, 'pagarme_recipient_bank_account_id', $this->settings['testmode'] );
 
 		wc_pagarme_get_template(
 			'recipient-form.php',
@@ -877,7 +878,7 @@ abstract class Marketplace {
 	public function output_recipient_transactions_template() {
 		$balance         = $operations  = array();
 		$current_user_id = get_current_user_id();
-		$recipient_id    = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
+		$recipient_id    = static::get_user_option( $current_user_id, 'pagarme_recipient_id', $this->settings['testmode'] ) ?: false;
 		try {
 			// Process recipient balance request.
 			$balance = $this->api->get_recipient_balance( $recipient_id );
@@ -919,7 +920,7 @@ abstract class Marketplace {
 	 */
 	public function output_recipient_calendar_template() {
 		$current_user_id = get_current_user_id();
-		$recipient_id    = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ) ?: false;
+		$recipient_id    = static::get_user_option( $current_user_id, 'pagarme_recipient_id', $this->settings['testmode'] ) ?: false;
 		try {
 			// Process recipient balance request.
 			$balance = $this->api->get_recipient_balance( $recipient_id );
@@ -948,9 +949,9 @@ abstract class Marketplace {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
 
-		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipient_id', true ); // TODO: change to "pagarme_recipient_id" in future
-		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
-		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
+		$recipient_id         = static::get_user_option( $current_user_id, 'pagarme_recipient_id', $this->settings['testmode'] );
+		$recipient_status     = static::get_user_option( $current_user_id, 'pagarme_recipient_status', $this->settings['testmode'] );
+		$recipient_kyc_status = static::get_user_option( $current_user_id, 'pagarme_recipient_kyc_status', $this->settings['testmode'] );
 
 		wc_pagarme_get_template(
 			'recipient-verification.php',

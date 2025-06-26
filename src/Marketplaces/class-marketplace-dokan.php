@@ -197,9 +197,9 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
 
-		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipient_id', true );
-		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
-		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
+		$recipient_id         = static::get_user_option( $current_user_id, 'pagarme_recipient_id', $this->settings['testmode'] );
+		$recipient_status     = static::get_user_option( $current_user_id, 'pagarme_recipient_status', $this->settings['testmode'] );
+		$recipient_kyc_status = static::get_user_option( $current_user_id, 'pagarme_recipient_kyc_status', $this->settings['testmode'] );
 		?>
 		<?php if ( in_array( $recipient_status, array( 'affiliation' ) ) ) : ?>
 			<div class="dokan-alert dokan-alert-warning">
@@ -225,9 +225,9 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
 
-		$recipient_id         = get_user_meta( $current_user_id, 'pagarme_recipiente_id', true ); // TODO: change to "pagarme_recipient_id" in future
-		$recipient_status     = get_user_meta( $current_user_id, 'pagarme_recipient_status', true );
-		$recipient_kyc_status = get_user_meta( $current_user_id, 'pagarme_recipient_kyc_status', true );
+		$recipient_id         = static::get_user_option( $current_user_id, 'pagarme_recipiente_id', $this->settings['testmode'] ); // TODO: change to "pagarme_recipient_id" in future
+		$recipient_status     = static::get_user_option( $current_user_id, 'pagarme_recipient_status', $this->settings['testmode'] );
+		$recipient_kyc_status = static::get_user_option( $current_user_id, 'pagarme_recipient_kyc_status', $this->settings['testmode'] );
 
 		// Set kyc verification page when recipient status equals "affiliation".
 		if ( in_array( $recipient_status, array( 'affiliation' ) ) ) {
@@ -539,7 +539,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 				$tmp_order_id = dokan_get_prop( $tmp_order, 'id' );
 				$vendor_id    = dokan_get_seller_id_by_order( $tmp_order_id );
 				// Get pagarme recipient id from user.
-				$recipient_id = get_user_meta( $vendor_id, 'pagarme_recipient_id', true );
+				$recipient_id = static::get_user_option( $vendor_id, 'pagarme_recipient_id', $this->settings['testmode'] );
 				if ( ! $recipient_id ) {
 					continue;
 				}
