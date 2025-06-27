@@ -844,7 +844,7 @@ abstract class Marketplace {
 	 *
 	 * @return void
 	 */
-	public static function output_recipient_form_template() {
+	public function output_recipient_form_template() {
 		$current_user_id   = get_current_user_id();
 		$current_user_info = get_userdata( $current_user_id );
 

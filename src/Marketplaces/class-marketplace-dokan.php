@@ -392,7 +392,7 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 	 * @return void
 	 */
 	public function withdraw_method_callback( $profile_info = array() ) {
-		parent::output_recipient_form_template();
+		$this->output_recipient_form_template();
 	}
 
 	/**
