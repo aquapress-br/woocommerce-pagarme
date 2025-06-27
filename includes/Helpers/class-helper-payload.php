@@ -188,7 +188,7 @@ class Payload {
 				),
 				'register_information' => array(
 					'email'         => $request['email'],
-					'document'      => $request['document'],
+					'document'      => $request['document_cpf'],
 					'phone_numbers' => array(
 						array(
 							'ddd'    => wc_pagarme_get_phone_information( $request['phone'], 'area_code' ),
@@ -215,6 +215,7 @@ class Payload {
 								$data['register_information'],
 								array(
 									'type'           => 'corporation',
+									'document'       => $request['document_cnpj'],
 									'company_name'   => $request['company_legal_name'],
 									'trading_name'   => $request['company_name'],
 									'annual_revenue' => $request['annual_revenue'],
@@ -233,7 +234,7 @@ class Payload {
 											'type'          => 'individual',
 											'name'          => $request['full_name'],
 											'email'         => $request['email'],
-											'document'      => $request['document'],
+											'document'      => $request['document_cpf'],
 											'self_declared_legal_representative' => true,
 											'birthdate'               => $request['birthdate'],
 											'monthly_income'          => $request['monthly_income'],
@@ -264,7 +265,7 @@ class Payload {
 								array(
 									'holder_name'     => substr( $request['company_legal_name'], 0, 30 ),
 									'holder_type'     => 'company',
-									'holder_document' => $request['document'],
+									'holder_document' => $request['document_cnpj'],
 								)
 							),
 						)
@@ -298,7 +299,7 @@ class Payload {
 								array(
 									'holder_name'     => substr( $request['full_name'], 0, 30 ),
 									'holder_type'     => 'individual',
-									'holder_document' => $request['document'],
+									'holder_document' => $request['document_cpf'],
 								)
 							),
 						)
