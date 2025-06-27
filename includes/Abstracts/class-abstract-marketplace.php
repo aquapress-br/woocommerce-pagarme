@@ -163,6 +163,7 @@ abstract class Marketplace {
 			'secret_key_sandbox' => '',
 			'public_key_sandbox' => '',
 			'recipiente_id'      => '',
+			'require_recipient_id' => 'no',
 			'debug'              => 'no',
 			'testmode'           => 'no',
 		);

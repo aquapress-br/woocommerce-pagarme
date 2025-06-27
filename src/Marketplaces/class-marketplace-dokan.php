@@ -54,6 +54,9 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		add_action( 'wc_pagarme_get_vendor_suborder', array( $this, 'filter_vendor_suborder' ), 10, 3 );
 		add_action( 'wc_pagarme_get_vendor_suborder_url', array( $this, 'filter_vendor_suborder_url' ), 10, 2 );
 		add_action( 'wc_pagarme_recipient_transactions_table_column_order', array( $this, 'print_recipient_transactions_column_order' ), 100 );
+		
+		add_action( 'pre_get_posts', array( $this, 'filter_invalids_vendor_products' ), 100 );
+		add_action( 'woocommerce_check_cart_items', array( $this, 'filter_invalids_products_add_cart' ), 100 );
 	}
 
 	/**
@@ -119,6 +122,18 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 				'name'  => 'integration_settings',
 				'label' => __( 'Configurações de Integração', 'wc-pagarme' ),
 				'type'  => 'sub_section',
+			),
+			'marketplace'       => array(
+				'name'  => 'marketplace',
+				'label' => __( 'Configurações do marketplace', 'wc-pagarme' ),
+				'type'  => 'sub_section',
+			),
+			'require_recipient_id' => array(
+				'name'    => 'require_recipient_id',
+				'label'   => __( 'Requer ID de Recebedor', 'wc-pagarme' ),
+				'desc'    => __( 'Bloqueia a compra e a visualização de produtos para vendedores sem um ID de recebedor Pagar.me.', 'wc-pagarme' ),
+				'type'    => 'switcher',
+				'default' => 'no',
 			),
 			'others'       => array(
 				'name'  => 'others',
@@ -704,6 +719,60 @@ class Dokan extends \Aquapress\Pagarme\Abstracts\Marketplace {
 		}
 
 		return $suborder_url;
+	}
+
+	public function filter_invalids_vendor_products( $query ) {
+
+		if ( 'on' !== $this->settings['require_recipient_id'] || ! $query->is_main_query() || ( ! is_post_type_archive( 'product' ) && ! is_shop() && ! is_search() ) ) {
+			return;
+		}
+
+		$roles = array( 'seller', 'administrator' );
+		$vendors = array();
+
+		foreach ( $roles as $role ) {
+			$users = get_users( array(
+				'role'       => $role,
+				'meta_query' => array(
+					'relation' => 'OR',
+					array(
+						'key'     => 'pagarme_recipient_id',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => 'pagarme_recipient_id',
+						'value'   => '',
+						'compare' => '=',
+					),
+				),
+				'fields' => 'ID',
+			) );
+
+			$vendors = array_merge( $vendors, $users );
+		}
+
+		if ( ! empty( $vendors ) ) {
+			$query->set( 'author__not_in', $vendors );
+		}
+	}
+
+	public function filter_invalids_products_add_cart() {
+		if ( 'on' != $this->settings['require_recipient_id'] ) {
+			return;
+		}
+		foreach ( WC()->cart->get_cart() as $cart_item ) {
+			$product_id = $cart_item['product_id'];
+			$vendor     = dokan_get_vendor_by_product( $product_id );
+			$seller_id  = $vendor ? $vendor->get_id() : 0;
+
+			$recipient  = trim( get_user_meta( $seller_id, 'pagarme_recipient_id', true ) );
+
+			if ( empty( $recipient ) ) {
+				wc_add_notice( __( 'Um ou mais produtos no seu carrinho pertencem a vendedores sem uma conta de pagamento válida.', 'wc-pagarme' ), 'error' );
+				WC()->cart->empty_cart();
+				break;
+			}
+		}
 	}
 
 	/**
