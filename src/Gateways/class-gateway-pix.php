@@ -201,7 +201,7 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 			),
 		);
 
-		$this->form_fields = apply_filters( 'wc_pagarme_gateway_form_fields', $fields, $this->id );
+		$this->form_fields = apply_filters( 'wc_pagarme_gateway_form_fields', $fields, $this );
 	}
 
 	/**

@@ -110,6 +110,7 @@ if ( ! function_exists( 'wc_pagarme_resources_register' ) ) {
 		$embedded = array(
 			'\Aquapress\Pagarme\Resources\Profile_Fields',
 			'\Aquapress\Pagarme\Resources\International_Payments',
+			'\Aquapress\Pagarme\Resources\Sale_Without_Address',
 		);
 
 		$load_connectors = array_unique(
@@ -147,7 +148,7 @@ if ( ! function_exists( 'wc_pagarme_migrations_register' ) ) {
 		$migration_history = get_option( 'pagarme_migrations', array() );
 
 		$embedded = array(
-			'\Aquapress\Pagarme\Migrations\Dokan_Reactivate_Seller',
+			//'\Aquapress\Pagarme\Migrations\Dokan_Reactivate_Seller',
 			//'\Aquapress\Pagarme\Migrations\Dokan_Deactivate_Seller_Products',
 			//'\Aquapress\Pagarme\Migrations\Dokan_Deactivate_Seller',
 			//'\Aquapress\Pagarme\Migrations\User_Meta_Legacy_Compatibility',
