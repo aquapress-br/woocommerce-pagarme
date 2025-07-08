@@ -32,7 +32,7 @@ class Sale_Without_Address extends \Aquapress\Pagarme\Abstracts\Resource {
 	 * Change transaction details to use store address details.
 	 *
 	 * @param array                                $payload  Regular payment data.
-	 * @param mixed                                $order    WooCommerce Order ID or WC_Order object.
+	 * @param mixed                                $order    WooCommerce Order ID or \WC_Order object.
 	 * @param Aquapress\Pagarme\Abstracts\Gateway  $context  The Pagar.me gateway object.
 	 *
 	 * @return array
@@ -42,12 +42,16 @@ class Sale_Without_Address extends \Aquapress\Pagarme\Abstracts\Resource {
 			$order = wc_get_order( $order );
 		}
 
-		if ( ! $order instanceof WC_Order ) {
+		if ( ! $order instanceof \WC_Order ) {
 			return $payload;
 		}
 
 		// Only creditcard payments are supported.
-		if ( 'wc_pagarme_creditcard' !== $context->id && 'yes' !== $context->get_option( 'without_address' ) ) {
+		if ( 'wc_pagarme_creditcard' !== $context->id ) {
+			return $payload;
+		}
+		// Check if option is enabled.
+		if ( 'yes' !== $context->get_option( 'without_address' ) ) {
 			return $payload;
 		}
 

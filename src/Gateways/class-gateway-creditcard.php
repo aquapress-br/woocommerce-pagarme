@@ -77,7 +77,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 		$this->init_settings();
 
 		// Initializes the Pagar.me payment gateway.
-		parent::init_gateway();
+		parent::init_gateway();		
 	}
 
 	/**
