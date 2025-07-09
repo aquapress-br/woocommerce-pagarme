@@ -27,7 +27,7 @@ class International_Payments extends \Aquapress\Pagarme\Abstracts\Resource {
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'enqueue_scripts' ), 100 );
 		add_filter( 'woocommerce_billing_fields', array( $this, 'add_checkout_fields' ), 100 );
 		add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_order_meta_fields' ) );
-		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_international_payment_data' ), 100, 3 );
+		add_filter( 'wc_pagarme_transaction_data', array( $this, 'build_international_payment_data' ), 200, 3 );
 		add_action( 'woocommerce_admin_order_data_after_order_details', array( $this, 'print_order_meta_fields' ) );
 		add_filter( 'wcbcf_disable_checkout_validation', array( $this, 'disable_wcbcf_validation' ), 100 );
 		//add_filter( 'woocommerce_checkout_get_value', array( $this, 'checkout_fields_value' ), 100, 2 );
