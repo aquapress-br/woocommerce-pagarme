@@ -438,14 +438,14 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 				'exp_month'       => substr( $card_data['card_expiration'], 0, 2 ),
 				'exp_year'        => substr( $card_data['card_expiration'], -2 ),
 				'billing_address' => array(
-					'city'          => $order->get_billing_city(),
+					'city'          => $order->get_billing_city() ?: 'ND',
 					'neighborhood'  => $order->get_meta( '_billing_neighborhood' ), // Custom meta field for neighborhood.
 					'street'        => $order->get_billing_address_1(),
 					'street_number' => $order->get_meta( '_billing_number' ), // Custom meta field for street number.
-					'zip_code'      => $order->get_billing_postcode(),
+					'zip_code'      => $order->get_billing_postcode() ?: '0000000',
 					'line_1'        => $order->get_billing_address_1() . ' N ' . $order->get_meta( '_billing_number' ) . ' - ' . $order->get_meta( '_billing_neighborhood' ),
 					'line_2'        => $order->get_billing_address_2(),
-					'state'         => $order->get_billing_state(),
+					'state'         => $order->get_billing_state() ?: 'ND',
 					'country'       => $order->get_billing_country(),
 				),
 			);

@@ -24,7 +24,7 @@ class Sale_Without_Address extends \Aquapress\Pagarme\Abstracts\Resource {
 	 * @return void
 	 */
 	public function init_hooks() {
-		add_filter( 'wc_pagarme_transaction_data', array( $this, 'filter_transaction_data' ), 150, 3 );
+		add_filter( 'wc_pagarme_transaction_data', array( $this, 'filter_transaction_data' ), 15, 3 );
 		add_filter( 'wc_pagarme_gateway_form_fields', array( $this, 'filter_form_fields' ), 10, 2 );
 	}
 
@@ -63,6 +63,14 @@ class Sale_Without_Address extends \Aquapress\Pagarme\Abstracts\Resource {
 				$all_virtual = false;
 				break;
 			}
+		}
+
+		// Get customer nationality.
+		$customer_nationality = $order->get_meta( '_billing_nationality' ) ?: 'BR';
+		
+		// Check if the customer is of an international nationality.
+		if ( 'BR' != $customer_nationality ) { 
+			return $payload; 
 		}
 
 		if ( $all_virtual ) {
