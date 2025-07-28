@@ -442,7 +442,7 @@ class CreditCard extends \Aquapress\Pagarme\Abstracts\Gateway {
 					'neighborhood'  => $order->get_meta( '_billing_neighborhood' ), // Custom meta field for neighborhood.
 					'street'        => $order->get_billing_address_1(),
 					'street_number' => $order->get_meta( '_billing_number' ), // Custom meta field for street number.
-					'zip_code'      => $order->get_billing_postcode() ?: '0000000',
+					'zip_code'      => $order->get_billing_postcode() ?: '15550000',
 					'line_1'        => $order->get_billing_address_1() . ' N ' . $order->get_meta( '_billing_number' ) . ' - ' . $order->get_meta( '_billing_neighborhood' ),
 					'line_2'        => $order->get_billing_address_2(),
 					'state'         => $order->get_billing_state() ?: 'ND',
