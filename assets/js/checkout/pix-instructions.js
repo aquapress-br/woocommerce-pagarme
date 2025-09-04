@@ -50,6 +50,7 @@
 				outline: 'none',
 				boxShadow: 'none',
 				background: 'transparent',
+				opacity: '0',
 			});
 
 			// Set the text and append it to the body

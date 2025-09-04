@@ -252,7 +252,7 @@ class PIX extends \Aquapress\Pagarme\Abstracts\Gateway {
 		if ( $order->get_meta( '_pagarme_pix_qrcode_url' ) && $order->get_meta( '_pagarme_pix_qrcode' ) && in_array( $order->get_status(), array( 'pending', 'on-hold' ) ) ) {
 			?>
 			<div class="pagarme-pix-instructions-container">
-				<h4 class="pagarme-pix-instructions-title"><?php esc_html_e( 'Escanei e pague o QR code a seguir para efeturar a compra do seu pedido', 'wc-pagarme' ); ?></h4>
+				<h4 class="pagarme-pix-instructions-title"><?php esc_html_e( 'Escaneie o QR Code abaixo para realizar o pagamento do seu pedido', 'wc-pagarme' ); ?></h4>
 				<br>
 				<ul>
 					<li><?php esc_html_e( '1 - Abra o aplicativo do seu banco no seu telefone', 'wc-pagarme' ); ?></li>

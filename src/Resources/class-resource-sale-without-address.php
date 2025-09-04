@@ -23,7 +23,7 @@ class Sale_Without_Address extends \Aquapress\Pagarme\Abstracts\Resource {
 	 *
 	 * @return void
 	 */
-	public function init_hooks() {
+	public function init_hooks() {		
 		add_filter( 'wc_pagarme_transaction_data', array( $this, 'filter_transaction_data' ), 15, 3 );
 		add_filter( 'wc_pagarme_gateway_form_fields', array( $this, 'filter_form_fields' ), 10, 2 );
 	}
@@ -87,7 +87,7 @@ class Sale_Without_Address extends \Aquapress\Pagarme\Abstracts\Resource {
 				'line_1'        => get_option( 'woocommerce_store_address' ),
 				'line_2'        => get_option( 'woocommerce_store_address_2' ),
 				'state'         => $store_state,
-				'country'       => $store_country,
+				'country'       => $order->get_billing_country() ?: $store_country,
 			);
 		}
 
